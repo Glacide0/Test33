@@ -15,6 +15,8 @@ const eOut  = t=>1-Math.pow(1-clamp(t,0,1),3);
 const eIO   = t=>{t=clamp(t,0,1);return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;};
 const $  = s=>document.querySelector(s);
 const $$ = s=>[...document.querySelectorAll(s)];
+const seg = (v,a,b)=>clamp((v-a)/Math.max(1e-6,b-a),0,1);
+const eIO5= t=>{t=clamp(t,0,1);return t<.5?16*t*t*t*t*t:1-Math.pow(-2*t+2,5)/2;};
 
 /* =====================================================================
    1. SERVERS — the map becomes a live flight instrument.
@@ -258,6 +260,15 @@ const $$ = s=>[...document.querySelectorAll(s)];
   if(reduce){ vis = false; cv.style.display = 'none'; }
 })();
 
+/* =====================================================================
+   2. REVIEWS — built with the same camera the tariff film uses.
+   Instead of scaling cards in 2D, the reviews live in a world that is
+   pushed around by a camera: focus on a review and the camera flies to it
+   along a bowed path with a zoom dip, while the motion graphics are drawn
+   on canvas underneath — the graph of the whole set, a rail with legs to
+   every review, the thread that ties the chosen one to its neighbours and
+   the halo that travels with it. Closing reverses the same flight.
+   ===================================================================== */
 (function(){
   const src = $$('#reviews .testi');
   const btn = $('.rv-open');
@@ -270,11 +281,13 @@ const $$ = s=>[...document.querySelectorAll(s)];
       text: ((el.querySelector('p') || {}).textContent || '').trim(),
       who:  ((el.querySelector('.who b') || {}).textContent || '').trim(),
       meta: ((el.querySelector('.who small') || {}).textContent || '').trim(),
-      init: (av ? av.textContent : '•').trim(),
+      init: (av ? av.textContent : '\u2022').trim(),
       av:   (av ? av.className : '').replace('avatar', '').trim(),
       stars: Math.max(1, Math.min(5, stars))
     };
   });
+  const N = DATA.length;
+  if(!N) return;
 
   /* ---------------- overlay ---------------- */
   const ov = document.createElement('div');
@@ -284,32 +297,39 @@ const $$ = s=>[...document.querySelectorAll(s)];
   ov.setAttribute('aria-label', 'Все отзывы');
   ov.innerHTML =
     '<div class="rvc-bg"></div>' +
-    '<canvas class="rvc-cv"></canvas>' +
-    '<div class="rvc-stage"></div>' +
-    '<div class="rvc-ar" aria-hidden="true"></div>' +
+    '<canvas class="rvc-cv rvc-cv-b"></canvas>' +
+    '<div class="rvc-vp"><div class="rvc-world">' +
+      '<div class="rvc-rail" aria-hidden="true"><i class="rvc-rail-l"></i><i class="rvc-rail-f"></i></div>' +
+    '</div></div>' +
+    '<canvas class="rvc-cv rvc-cv-f"></canvas>' +
     '<div class="rvc-ui">' +
       '<div class="rvc-top">' +
-        '<div class="rvc-ttl">XPN <i></i> отзывы <em>4,8 · 92 000 оценок</em></div>' +
+        '<div class="rvc-ttl">XPN <i></i> отзывы <em>' + DATA.length + ' историй · 4,8 из 5</em></div>' +
         '<button class="rvc-btn rvc-close" type="button">Закрыть</button>' +
       '</div>' +
-      '<div class="rvc-rail" aria-hidden="true"><i></i></div>' +
       '<div class="rvc-bot">' +
         '<button class="rvc-btn rvc-prev" type="button">Назад</button>' +
-        '<div class="rvc-hint-mid">' +
-          '<span class="rvc-count"><b>01</b><i>/</i><span>' + DATA.length + '</span></span>' +
-          '<small>выберите точку в графе или листайте</small>' +
-        '</div>' +
+        '<div class="rvc-hint-mid"><span class="rvc-count"><b>01</b><i>/</i><span>' + String(N).padStart(2, '0') + '</span></span>' +
+          '<small class="rvc-hint">выберите отзыв или листайте</small></div>' +
         '<button class="rvc-btn rvc-next" type="button">Дальше</button>' +
       '</div>' +
     '</div>';
-  document.body.appendChild(ov);
 
-  const stage = ov.querySelector('.rvc-stage');
-  const cvs = ov.querySelector('.rvc-cv'), cx = cvs.getContext('2d');
+  // the old markup kept the rail in the UI layer; here it lives in the world
+  document.body.appendChild(ov);
+  const world = ov.querySelector('.rvc-world');
+  const cvB = ov.querySelector('.rvc-cv-b'), cB = cvB.getContext('2d');
+  const cvF = ov.querySelector('.rvc-cv-f'), cF = cvF.getContext('2d');
   const numB = ov.querySelector('.rvc-count b');
-  const railI = ov.querySelector('.rvc-rail i');
-  const halo = ov.querySelector('.rvc-ar');
-  const N = DATA.length;
+  const hint = ov.querySelector('.rvc-hint');
+  const railL = ov.querySelector('.rvc-rail-l');
+
+  /* light sprite: one radial gradient, reused (no shadowBlur per frame) */
+  const glow = document.createElement('canvas'); glow.width = glow.height = 64;
+  { const g = glow.getContext('2d'), rg = g.createRadialGradient(32,32,0,32,32,32);
+    rg.addColorStop(0,'rgba(240,246,236,1)'); rg.addColorStop(.2,'rgba(214,232,210,.7)');
+    rg.addColorStop(.55,'rgba(169,183,169,.16)'); rg.addColorStop(1,'rgba(193,180,156,0)');
+    g.fillStyle = rg; g.fillRect(0,0,64,64); }
 
   /* ---------------- cards ---------------- */
   const cards = DATA.map((d, i)=>{
@@ -326,237 +346,376 @@ const $$ = s=>[...document.querySelectorAll(s)];
       '<p class="rvc-q">' + d.text.replace(/^«/, '').replace(/»$/, '') + '</p>' +
       '<div class="rvc-who"><span class="avatar ' + d.av + '">' + d.init + '</span>' +
       '<div><b>' + d.who + '</b><small>' + d.meta + '</small></div></div>';
-    stage.appendChild(el);
     el.addEventListener('click', ()=>{ if(live) go(i); });
     el.addEventListener('keydown', e=>{
       if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); if(live) go(i); }
     });
-    prime({el});
-    return {el, i};
+    world.appendChild(el);
+    return {el, li:null, i, d};
   });
 
-  /* ---------------- state ---------------- */
-  let live = false, closing = false, raf = 0, last = 0, W = 0, H = 0, dpr = 1;
-  let t = 0, closeAt = 0, target = 0, num = -1, idle = 0;
-  const cam = {e: -2.2, z: .8};
-  const SPREAD = () => Math.min(W * .33, 420);
+  /* ---------------- world layout ----------------
+     The reviews stand as a wall that recedes to the right: each is a column
+     with its own x/y/z, so the camera can fly between them exactly like it
+     flies between the tariff card, the note and the doc.               */
+  let vw = 0, vh = 0, dpr = 1, base = 1, sm = false;
+  const GAP = 40, COLW = 430;
+  const cam = {x:0, y:0, z:1, r:0};
+  let camT = null, camQ = null;
+  let live = false, closing = false, raf = 0, last = 0, lt = 0, NOW = 0, pvx = 0;
+  let sel = -1, target = 0, seq = 0, intro = 0, closeAt = 0, num = -1, bTick = 0;
+  const RC = new Map();
+  let RS = 1, RCs = 1, RSn = 0, BX = 0, BY = 0;
 
-  /* every card writes its style every frame, so the invariant parts are set
-     once and the frame only touches transform / opacity / z-index */
-  function prime(c){
-    c.el.style.pointerEvents = '';
-    c.el.style.willChange = 'transform,opacity';
-    c.el.style.backfaceVisibility = 'hidden';
+  function resize(){
+    vw = innerWidth; vh = innerHeight;
+    dpr = Math.min(devicePixelRatio || 1, 1.5);
+    [cvB, cvF].forEach(c=>{ c.width = Math.round(vw*dpr); c.height = Math.round(vh*dpr); });
+    cB.setTransform(dpr,0,0,dpr,0,0); cF.setTransform(dpr,0,0,dpr,0,0);
+    sm = vw < 760;
+    base = sm ? 1 : clamp(Math.min(vw/1240, vh/860), .62, 1.08);
+    world.classList.toggle('sm', sm);
   }
 
-  function size(){
-    W = innerWidth; H = innerHeight; dpr = Math.min(devicePixelRatio || 1, 1.75);
-    cvs.width = Math.round(W * dpr); cvs.height = Math.round(H * dpr);
-    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  /* one projection for both the canvas graph and the DOM cards.
-     Cards tile outward and shrink in a fixed rhythm, so the coil reads as a
-     graph that keeps going instead of a row of cards: neighbour at 1.0,
-     next at 1.68, next at 2.28 of the base step, each smaller and dimmer. */
-  function layout(i){
-    const d = i - cam.e, ad = Math.abs(d), side = d < 0 ? -1 : 1;
-    const ua = Math.min(ad, 3);
-    const base = Math.min(W * .25, 360);
-    return {
-      d, ad, ua, side,
-      x: side * Math.pow(ua, .75) * base,
-      y: -ua * 16 + Math.sin(ua * 1.1) * 6,
-      z: -ua * 110,
-      scale: 1 / (1 + ua * .42),
-      rotY: -side * Math.min(.62, ua * .34),
-      rotZ: side * Math.min(.045, ua * .018),
-      op: ua >= 2.98 ? 0 : clamp(1 - Math.pow(ua / 2.6, 2.6))
-    };
-  }
-
-  function render(){
-    const ox = W / 2, oy = H / 2;
-    cx.clearRect(0, 0, W, H);
-    cx.save();
-    cx.translate(ox, oy);
-
-    const pts = cards.map((c, i)=>({i, L: layout(i)}));
-
-    /* threads between neighbours: a curve that leaves the coil */
-    cx.lineCap = 'round';
-    for(let k = 0; k < pts.length - 1; k++){
-      const a = pts[k].L, b = pts[k + 1].L;
-      const o = Math.min(a.op, b.op);
-      if(o <= .03) continue;
-      const ax = a.x * .92, ay = a.y + 96, bx = b.x * .92, by = b.y + 96;
-      cx.strokeStyle = 'rgba(169,183,169,' + (o * .38).toFixed(3) + ')';
-      cx.lineWidth = .7 + o * 1.1;
-      cx.beginPath();
-      cx.moveTo(ax, ay);
-      const mx = (ax + bx) / 2, my = (ay + by) / 2 - 40 - o * 18;
-      cx.quadraticCurveTo(mx, my, bx, by);
-      cx.stroke();
-      /* a bead of data runs the thread, always in reading order */
-      const ph = ((t * .16 + k * .11) % 1), u = 1 - ph;
-      const bx2 = u * u * ax + 2 * u * ph * mx + ph * ph * bx;
-      const by2 = u * u * ay + 2 * u * ph * my + ph * ph * by;
-      cx.fillStyle = 'rgba(214,232,210,' + (o * .8).toFixed(3) + ')';
-      cx.beginPath(); cx.arc(bx2, by2, 1.6, 0, 6.283); cx.fill();
-    }
-
-    /* nodes: a dot per review, an active ring on the chosen one */
-    pts.forEach(({L})=>{
-      if(L.op <= .03) return;
-      const px = L.x * .92, py = L.y + 96, cur = L.ua < .5;
-      cx.fillStyle = 'rgba(214,232,210,' + (L.op * .95).toFixed(3) + ')';
-      cx.beginPath(); cx.arc(px, py, cur ? 5.6 : 3.2, 0, 6.283); cx.fill();
-      cx.strokeStyle = 'rgba(169,183,169,' + (L.op * (cur ? .45 : .2)).toFixed(3) + ')';
-      cx.lineWidth = 1;
-      cx.beginPath(); cx.arc(px, py, cur ? 12 : 8, 0, 6.283); cx.stroke();
-      if(cur){
-        const ph = (t * .55) % 1;
-        cx.strokeStyle = 'rgba(193,180,156,' + ((1 - ph) * .75).toFixed(3) + ')';
-        cx.lineWidth = 1.2;
-        cx.beginPath(); cx.arc(px, py, 13 + ph * 30, 0, 6.283); cx.stroke();
-      }
-    });
-
-    /* the spine of the coil, ticked once per review */
-    const spine = pts.filter(p=>p.L.op > .05);
-    if(spine.length > 1){
-      cx.strokeStyle = 'rgba(169,183,169,.13)';
-      cx.lineWidth = 1;
-      cx.beginPath();
-      spine.forEach(({L}, k)=>{
-        const x = L.x * .92, y = L.y + 140;
-        k ? cx.lineTo(x, y) : cx.moveTo(x, y);
-      });
-      cx.stroke();
-    }
-    cx.restore();
-
-    /* DOM cards ride the same projection */
+  function place(){
+    // a gently curved wall: every card is lifted a little at the ends, so the
+    // row reads as an arc rather than a strip of paper
+    const cw = sm ? Math.min(vw * .8, 340) : COLW;
+    const mid = (N - 1) / 2;
     cards.forEach((c, i)=>{
-      const L = layout(i);
-      const near = L.ua < .5;
-      /* a card that is fully away costs nothing: we skip it entirely and only
-         wake it up when it becomes visible again */
-      if(L.op <= .02){
-        if(c.vis !== false){ c.el.style.opacity = '0'; c.el.style.pointerEvents = 'none'; c.vis = false; }
-        return;
-      }
-      if(c.vis === false){ c.el.style.pointerEvents = L.op > .55 ? 'auto' : 'none'; c.vis = true; }
-      c.el.style.transform =
-        'translate3d(' + (ox + L.x).toFixed(1) + 'px,' + (oy + L.y).toFixed(1) + 'px,0) ' +
-        'translate(-50%,-50%) perspective(1400px) translateZ(' + L.z.toFixed(0) + 'px) ' +
-        'scale(' + (L.scale * cam.z).toFixed(4) + ') ' +
-        'rotateY(' + L.rotY.toFixed(3) + 'rad) rotateZ(' + L.rotZ.toFixed(3) + 'rad)';
-      c.el.style.opacity = L.op.toFixed(3);
-      c.el.style.zIndex = String(100 - Math.round(L.ua * 10));
-      if(near !== c.front){ c.front = near; c.el.classList.toggle('is-front', near); }
-      c.x = ox + L.x; c.y = oy + L.y;
+      const dx = i - mid;
+      const x = 120 + i * (cw + GAP);
+      const y = 300 + Math.abs(dx) * 14;
+      c.el.style.width = cw + 'px';
+      c.el.style.left = x + 'px';
+      c.el.style.top = y + 'px';
     });
-
-    /* rail + counter */
-    if(!railI.dataset.once){ railI.style.transform = 'scaleY(' + (1 / N).toFixed(4) + ')'; railI.dataset.once = '1'; }
-    railI.style.top = (clamp(cam.e / Math.max(1, N - 1), 0, 1) * 100).toFixed(2) + '%';
-    /* text nodes are expensive: repaint the counter only when the number moves */
-    const nn = Math.round(clamp(cam.e, 0, N - 1));
-    if(nn !== num){ num = nn; numB.textContent = String(nn + 1).padStart(2, '0'); }
-    /* the halo breathes with the camera, brighter when the coil moves */
-    const mv = Math.min(1, Math.abs(target - cam.e) * 2.2);
-    halo.style.opacity = (.55 + mv * .45).toFixed(2);
-    halo.style.transform = 'scale(' + (1 + mv * .16).toFixed(3) + ')';
+    /* rail: a hairline behind the row, drawn in the world so it moves with it */
+    const first = 120 + cw / 2, lastX = 120 + (N - 1) * (cw + GAP) + cw / 2;
+    const railY = 300 + 96;
+    railL.style.cssText = 'left:' + first + 'px;top:' + railY + 'px;width:' + (lastX - first) + 'px';
+    RC.clear();
   }
 
-  function frame(now){
-    const dt = Math.min(.05, (now - last) / 1000);
-    last = now;
-    t += dt;
-    const k = 1 - Math.exp(-dt * (reduce ? 40 : 5.2));
-    cam.e += (target - cam.e) * k;
-    /* an exponential ease never quite lands (always ~0.1% left), which keeps
-       the throttle below from ever engaging — so settle it explicitly */
-    if(!closing && Math.abs(target - cam.e) < .0025) cam.e = target;
-    /* when the camera has arrived the coil keeps a slow idle breath, but it
-       does not need a full repaint every frame: one frame in four is enough */
-    const still = !closing && cam.e === target;
-    raf = (live || closing) ? requestAnimationFrame(frame) : 0;
-    if(still && (++idle % 4)) return;
+  function wrect(el){
+    let r = RC.get(el);
+    if(r) return r;
+    let x = 0, y = 0, n = el;
+    while(n && n !== world){ x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+    const w = el.offsetWidth, h = el.offsetHeight;
+    r = {x, y, w, h, cx:x + w/2, cy:y + h/2, r:x + w, b:y + h};
+    RC.set(el, r);
+    return r;
+  }
+  function toS(x, y){
+    const dx = (x - BX) * RS, dy = (y - BY) * RS;
+    return [vw/2 + dx*RCs - dy*RSn, vh/2 + dx*RSn + dy*RCs];
+  }
 
-    if(closing){
-      /* the reverse: the whole graph folds back into the button it came from,
-         cards and threads together, so nothing is cut and nothing lingers */
-      const u = clamp((now - closeAt) / 820);
-      const q = eIO(u);
-      const sc = 1 - q * .9;
-      const tr = 'scale(' + sc.toFixed(4) + ')';
-      stage.style.transform = tr;
-      cvs.style.transform = tr;
-      halo.style.transform = 'scale(' + (1 - q * 1.6).toFixed(3) + ')';
-      ov.style.opacity = (1 - q * q).toFixed(3);
-      if(u >= 1){ finish(); return; }
+  /* ---------------- camera: same flight as the tariff film ---------------- */
+  function camTo(x, y, z, dur, lift, dip, roll){
+    if(reduce || !(live || closing)){ cam.x = x; cam.y = y; cam.z = z; camT = null; return; }
+    const dx = x - cam.x, dy = y - cam.y, d = Math.hypot(dx, dy) || 1;
+    const bow = (lift || 0) + Math.min(d * .16, 130);
+    const mx = (cam.x + x)/2 - dy/d*bow, my = (cam.y + y)/2 + dx/d*bow - (lift || 0)*.35;
+    camT = {x0:cam.x, y0:cam.y, z0:cam.z, cx:mx, cy:my, x, y, z,
+            t0:performance.now(), d:dur, dip:dip || 0, roll:roll || 0, r0:cam.r};
+  }
+  function stepCam(now){
+    if(!camT){ if(camQ){ const q = camQ; camQ = null; camTo(q[0],q[1],q[2],q[3],q[4],q[5],q[6]); } return; }
+    const c = camT, u = clamp((now - c.t0)/c.d, 0, 1), e = eIO5(u), q = 1 - e;
+    cam.x = q*q*c.x0 + 2*q*e*c.cx + e*e*c.x;
+    cam.y = q*q*c.y0 + 2*q*e*c.cy + e*e*c.y;
+    const zs = lerp(c.z0, c.z, eIO(u)) * (1 - c.dip*Math.sin(Math.PI*u));
+    cam.z = zs * (1 + .045*Math.sin(Math.PI*u)*(1-u));
+    cam.r = c.r0 + Math.sin(Math.PI*u) * (c.roll || 0);
+    if(u >= 1) camT = null;
+  }
+  const fitZ = (w, h, cap)=>Math.min(cap*base, (vw*.92)/w, (vh - (sm?170:190))/h);
+  function cardCam(i){
+    const r = wrect(cards[i].el);
+    return {x:r.cx, y:r.cy, z:fitZ(r.w + (sm?30:220), r.h + 60, 1)};
+  }
+  function homeCam(){
+    const first = wrect(cards[0].el), lastR = wrect(cards[N-1].el);
+    const x0 = first.x - 30, x1 = lastR.r + 30;
+    return {x:(x0+x1)/2, y:first.cy + 4, z:fitZ(Math.min(x1-x0, 1500), first.h + 90, 1.02)};
+  }
+
+  function applyWorld(){
+    const br = reduce ? 0 : 1;
+    BX = cam.x + Math.sin(lt*.28)*4*br;
+    BY = cam.y + Math.cos(lt*.21)*3*br;
+    RS = cam.z;
+    RCs = Math.cos(cam.r); RSn = Math.sin(cam.r);
+    world.style.transform =
+      'translate3d(' + (vw/2).toFixed(1) + 'px,' + (vh/2).toFixed(1) + 'px,0) rotate(' + cam.r.toFixed(5) + 'rad) scale(' + RS.toFixed(4) + ') ' +
+      'translate3d(' + (-BX).toFixed(2) + 'px,' + (-BY).toFixed(2) + 'px,0)';
+  }
+
+  /* ---------------- motion graphics ---------------- */
+  function line(ctx, pts, t, col, w){
+    if(t <= 0) return null;
+    let L = 0; const d = [];
+    for(let i = 1; i < pts.length; i++){ const l = Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]); d.push(l); L += l; }
+    let rem = L * clamp(t, 0, 1), end = pts[0];
+    ctx.beginPath();
+    let p = toS(pts[0][0], pts[0][1]); ctx.moveTo(p[0], p[1]);
+    for(let i = 1; i < pts.length && rem > 0; i++){
+      const k = Math.min(1, rem / d[i-1]);
+      end = [lerp(pts[i-1][0], pts[i][0], k), lerp(pts[i-1][1], pts[i][1], k)];
+      p = toS(end[0], end[1]); ctx.lineTo(p[0], p[1]); rem -= d[i-1];
     }
-    render();
+    ctx.strokeStyle = col; ctx.lineWidth = w || 1; ctx.stroke();
+    return end;
+  }
+  function bezPts(a, b, c, d, n){
+    const out = [];
+    for(let i = 0; i <= n; i++){
+      const t = i/n, q = 1-t;
+      out.push([q*q*q*a[0] + 3*q*q*t*b[0] + 3*q*t*t*c[0] + t*t*t*d[0],
+                q*q*q*a[1] + 3*q*q*t*b[1] + 3*q*t*t*c[1] + t*t*t*d[1]]);
+    }
+    return out;
+  }
+  function dot(ctx, x, y, size, a){
+    if(a <= .01) return;
+    const p = toS(x, y);
+    ctx.globalAlpha = a; ctx.drawImage(glow, p[0]-size/2, p[1]-size/2, size, size); ctx.globalAlpha = 1;
+  }
+  function traceRect(ctx, r, sy, t, col){
+    if(t <= 0) return;
+    sy = clamp(sy, r.y, r.b);
+    const up = [[r.x,sy],[r.x,r.y],[r.r,r.y],[r.r,(r.y+r.b)/2]];
+    const dn = [[r.x,sy],[r.x,r.b],[r.r,r.b],[r.r,(r.y+r.b)/2]];
+    const lu = (sy - r.y) + r.w + r.h/2, ld = (r.b - sy) + r.w + r.h/2, L = Math.max(lu, ld);
+    line(ctx, up, t*L/lu, col, 1); line(ctx, dn, t*L/ld, col, 1);
+  }
+  function ticks(ctx, r, a){
+    if(a <= .01) return;
+    const o = 10, l = 9;
+    ctx.strokeStyle = 'rgba(214,226,212,' + (.5*a).toFixed(3) + ')'; ctx.lineWidth = 1;
+    [[r.x-o, r.y-o, 1, 1],[r.r+o, r.y-o, -1, 1],[r.x-o, r.b+o, 1, -1],[r.r+o, r.b+o, -1, -1]].forEach(c=>{
+      const p0 = toS(c[0] + c[2]*l*a, c[1]), p1 = toS(c[0], c[1]), p2 = toS(c[0], c[1] + c[3]*l*a);
+      ctx.beginPath(); ctx.moveTo(p0[0],p0[1]); ctx.lineTo(p1[0],p1[1]); ctx.lineTo(p2[0],p2[1]); ctx.stroke();
+    });
   }
 
-  /* the entry button folds the graph in; it must fold out before a reopen */
-  function unfoldBtn(){
-    btn.style.transition = 'transform .42s cubic-bezier(.16,.84,.28,1)';
-    btn.style.transform = '';
+  /* back layer: the graph of the whole set, on a parallax plane */
+  function paintBack(oa){
+    cB.clearRect(0, 0, vw, vh);
+    const ps = RS * .62, gs = 76;
+    const cx = BX * .62, cy = BY * .62;
+    const hw = vw/(2*ps) + gs, hh = vh/(2*ps) + gs;
+    const x0 = Math.floor((cx - hw)/gs)*gs, y0 = Math.floor((cy - hh)/gs)*gs;
+    /* dots at the intersections: the same paper the tariff film is drawn on */
+    cB.fillStyle = 'rgba(169,183,169,' + (.15*oa).toFixed(3) + ')';
+    for(let x = x0; x <= cx + hw; x += gs) for(let y = y0; y <= cy + hh; y += gs){
+      const dx = (x - cx)*ps, dy = (y - cy)*ps;
+      cB.fillRect(vw/2 + dx*RCs - dy*RSn, vh/2 + dx*RSn + dy*RCs, 1.3, 1.3);
+    }
+    /* the graph: every review is a node, neighbours are joined by a thin link */
+    if(!cards.length) return;
+    const mid = (N - 1)/2;
+    cB.lineWidth = 1;
+    for(let i = 0; i < N; i++){
+      const r = wrect(cards[i].el);
+      const dx = (r.cx - BX)*RS, dy = (r.cy - BY)*RS;
+      const sx = vw/2 + dx*RCs - dy*RSn, sy = vh/2 + dx*RSn + dy*RCs;
+      if(sx < -200 || sx > vw + 200) continue;
+      const active = i === sel;
+      const a = (active ? .55 : .16) * oa;
+      cB.fillStyle = 'rgba(214,232,210,' + a.toFixed(3) + ')';
+      cB.beginPath(); cB.arc(sx, sy, active ? 3.4 : 1.9, 0, 6.283); cB.fill();
+      /* the chosen node drags a thread to its neighbours: a live graph, not a list */
+      if(active){
+        for(const k of [i-1, i+1]){
+          if(k < 0 || k >= N) continue;
+          const r2 = wrect(cards[k].el);
+          const dx2 = (r2.cx - BX)*RS, dy2 = (r2.cy - BY)*RS;
+          const tx = vw/2 + dx2*RCs - dy2*RSn, ty = vh/2 + dx2*RSn + dy2*RCs;
+          cB.strokeStyle = 'rgba(169,183,169,' + (.22*oa).toFixed(3) + ')';
+          cB.beginPath(); cB.moveTo(sx, sy);
+          cB.quadraticCurveTo((sx+tx)/2, Math.min(sy,ty) - 46, tx, ty); cB.stroke();
+          const ph = (lt*.35 + (k > i ? .5 : 0)) % 1, u = 1 - ph;
+          const bx = u*u*sx + 2*u*ph*((sx+tx)/2) + ph*ph*tx;
+          const by = u*u*sy + 2*u*ph*(Math.min(sy,ty) - 46) + ph*ph*ty;
+          cB.fillStyle = 'rgba(214,232,210,' + (.7*oa).toFixed(3) + ')';
+          cB.beginPath(); cB.arc(bx, by, 1.6, 0, 6.283); cB.fill();
+        }
+      }
+      void mid;
+    }
+  }
+
+  /* front layer: rail, legs, the flight of the halo */
+  function paintFront(oa, pS, fly){
+    cF.clearRect(0, 0, vw, vh);
+    if(!cards.length) return;
+    const r0 = wrect(cards[0].el), rN = wrect(cards[N-1].el), lastR = wrect(cards[N-1].el);
+    const railX0 = r0.cx, railX1 = lastR.cx, railY = r0.cy;
+    const g = eOut(seg(oa, .15, 1));
+    if(g > .01){
+      line(cF, [[railX0, railY], [railX1, railY]], g, 'rgba(169,183,169,' + (.10*g*oa).toFixed(3) + ')', 1);
+      /* a leg from the rail down to every review, drawn in order */
+      cards.forEach((c, i)=>{
+        const r = wrect(c.el);
+        const li = seg(g, i/N*.7, i/N*.7 + .3);
+        if(li <= .01) return;
+        const a = (sel < 0 ? .16 : (i === sel ? .5 : .12)) * oa;
+        line(cF, [[r.cx, railY], [r.cx, r.y - 8]], li, 'rgba(169,183,169,' + a.toFixed(3) + ')', 1);
+      });
+    }
+    if(sel < 0) return;
+    const r = wrect(cards[sel].el);
+    /* the halo that marks the chosen review: a point that breathes */
+    const ph = (lt * .38) % 1;
+    for(let k = 0; k < 2; k++){
+      const q = (ph + k*.5) % 1;
+      const p = toS(r.cx, r.y - 18);
+      cF.beginPath(); cF.arc(p[0], p[1], (4 + q*22)*RS, 0, 6.2832);
+      cF.strokeStyle = 'rgba(193,180,156,' + ((1-q)*.5*oa).toFixed(3) + ')';
+      cF.lineWidth = 1; cF.stroke();
+    }
+    /* the frame that draws itself around the chosen review on arrival */
+    const t1 = eIO(seg(pS, .35, .85));
+    if(t1 > .001){
+      traceRect(cF, r, r.y + r.h*.5, t1, 'rgba(214,226,212,' + (.5*oa).toFixed(3) + ')');
+      ticks(cF, r, eOut(seg(pS, .8, 1)) * oa);
+      if(t1 < .999){ const end = toS(r.cx, r.y + r.h*.5); dot(cF, r.cx, r.y + r.h*.5, 22, (1-t1)*oa); void end; }
+    }
+    /* a packet of light runs from the chosen card to its neighbour */
+    if(sel > -1){
+      const rn = cards[Math.min(sel+1, N-1)];
+      if(rn && rn !== cards[sel]){
+        const r2 = wrect(rn.el);
+        const a = [r.cx, r.y - 18], b = [r2.cx, r2.y - 18];
+        line(cF, bezPts(a, [a[0] + (b[0]-a[0])*.4, a[1] - 40], [a[0] + (b[0]-a[0])*.6, b[1] - 40], b, 20),
+             .85, 'rgba(214,226,212,' + (.2*oa).toFixed(3) + ')', 1);
+      }
+    }
+    void fly;
+  }
+
+  /* ---------------- states ---------------- */
+  let pS = 0;               // 0..1 focus-on-a-review progress
+  let tw = null;
+  function twTo(to, dur){
+    tw = {a:pS, b:to, t0:performance.now(), d:reduce ? 1 : dur};
+  }
+  function stepTW(now){
+    if(!tw) return;
+    const u = clamp((now - tw.t0)/tw.d, 0, 1);
+    pS = tw.a + (tw.b - tw.a) * eIO(u);
+    if(u >= 1) tw = null;
   }
 
   function go(i){
     target = clamp(i, 0, N - 1);
+    const c = cardCam(target);
+    /* the same flight as the tariff film: a bowed path, a zoom dip and a
+       splash of light where the camera lands */
+    camTo(c.x + (sm ? 0 : 90), c.y + 6, c.z, 1150, 34, .04, .006);
+    twTo(1, 900);
+    if(sel !== target){ sel = target; pS = .05; twTo(1, 900); }
+    num = -1;
     if(!raf){ last = performance.now(); raf = requestAnimationFrame(frame); }
   }
   function step(dir){ go(Math.round(target) + dir); }
 
   function openFilm(){
     if(live) return;
-    live = true; closing = false; t = 0;
-    size();
-    target = 0; cam.e = -2.2; cam.z = .8;
-    ov.style.opacity = '';
-    btn.style.transform = '';
+    live = true; closing = false; lt = 0; intro = performance.now();
+    resize(); place();
     ov.classList.add('live');
     document.body.classList.add('rvc-open');
-    const r = btn.getBoundingClientRect();
-    stage.style.transformOrigin = (r.left + r.width/2) + 'px ' + (r.top + r.height/2) + 'px';
-    cvs.style.transformOrigin = stage.style.transformOrigin;
-    last = performance.now();
-    if(!raf) raf = requestAnimationFrame(frame);
+    sel = -1; target = 0; pS = 0; tw = null;
+    camT = null; camQ = null;
+    btn.style.transition = 'transform .5s cubic-bezier(.16,.84,.28,1)';
+    btn.style.transform = 'scale(.94)';
+    const h = homeCam();
+    const c = cardCam(0);
+    /* the entry: the camera starts wide and slightly to the left, then
+       pushes in to the first review — the same move the tariff film opens on */
+    if(reduce){ cam.x = c.x; cam.y = c.y; cam.z = c.z; }
+    else { cam.x = h.x - 180; cam.y = h.y + 60; cam.z = h.z * .72; camTo(c.x, c.y, c.z, 1400, 40, .05, .01); }
+    sel = 0; target = 0; pS = .2; twTo(1, 1000);
+    num = -1;
+    if(!raf){ last = performance.now(); raf = requestAnimationFrame(frame); }
     requestAnimationFrame(()=>{ setTimeout(()=>ov.classList.add('shown'), 20); });
-    setTimeout(()=>{ const c = ov.querySelector('.rvc-close'); if(c) c.focus({preventScroll:true}); }, 90);
+    setTimeout(()=>{ const b = ov.querySelector('.rvc-close'); if(b) b.focus({preventScroll:true}); }, 90);
   }
+
   function closeFilm(){
     if(!live || closing) return;
     closing = true; live = false; closeAt = performance.now();
     ov.classList.remove('shown');
+    /* reverse: pull the camera back out to the whole wall, then let it fall
+       into the button — the mirror of the entry */
+    const h = homeCam();
+    camTo(h.x - 140, h.y + 40, h.z * .82, 900, 26, .02, .006);
+    twTo(0, 520);
     if(!raf){ last = performance.now(); raf = requestAnimationFrame(frame); }
   }
+
   function finish(){
     closing = false;
     ov.classList.remove('live', 'shown');
     document.body.classList.remove('rvc-open');
-    ov.style.opacity = '';
-    stage.style.transform = ''; cvs.style.transform = '';
-    cx.clearRect(0, 0, W, H);
+    world.style.transform = ''; cB.clearRect(0,0,vw,vh); cF.clearRect(0,0,vw,vh);
     if(raf){ cancelAnimationFrame(raf); raf = 0; }
-    unfoldBtn();
+    btn.style.transform = '';
     btn.focus({preventScroll:true});
   }
 
-  btn.addEventListener('click', ()=>{
-    /* the button is the origin of the fold: it dips as the graph leaves it */
-    if(!live){
-      btn.style.transition = 'transform .5s cubic-bezier(.16,.84,.28,1),opacity .5s';
-      btn.style.transform = 'scale(.94)';
-      setTimeout(()=>{ if(!live) btn.style.transform = ''; }, 420);
+  /* ---------------- frame ---------------- */
+  function frame(now){
+    const dt = Math.min(.05, (now - last)/1000); last = now; lt += dt; NOW = now;
+    raf = (live || closing) ? requestAnimationFrame(frame) : 0;
+    stepTW(now);
+    const px = cam.x; stepCam(now);
+    const vx = dt > 0 ? (cam.x - px)/dt : 0;
+    pvx += (vx - pvx) * (1 - Math.exp(-dt*6));
+    const rT = reduce ? 0 : clamp(-pvx/26000, -.026, .026);
+    cam.r += (rT - cam.r) * (1 - Math.exp(-dt*5));
+    applyWorld();
+
+    let oa = 1, fly = 0;
+    if(closing){
+      const u = clamp((now - closeAt)/980, 0, 1);
+      oa = 1 - eIO(u);
+      fly = eIO(clamp((u - .35)/.65, 0, 1));
+      /* the wall drops away into the button as the overlay dissolves */
+      world.style.opacity = (1 - fly).toFixed(3);
+      ov.style.opacity = ((1 - u) * (1 - u)).toFixed(3);
+      if(u >= 1){ finish(); return; }
+    } else {
+      world.style.opacity = '';
+      const u = clamp((now - intro)/900, 0, 1);
+      oa = eOut(u);
     }
-    openFilm();
-  });
+
+    /* cards: the chosen one stands forward, the rest lean back */
+    cards.forEach((c, i)=>{
+      const d = Math.abs(i - sel);
+      const k = reduce ? 0 : clamp(d * .5, 0, 1);
+      c.el.style.transform =
+        'translateZ(' + (-k*120).toFixed(1) + 'px) rotateY(' + (i < sel ? 5 : i > sel ? -5 : 0) * k + 'deg)';
+      c.el.style.opacity = (1 - k*.42).toFixed(3);
+      c.el.classList.toggle('is-on', i === sel);
+    });
+    /* the dot lattice is a slow parallax plane: it does not need to be
+       rebuilt every frame, and halving it halves the whole canvas cost */
+    if((++bTick & 1) === 0) paintBack(oa);
+    paintFront(oa, pS, fly);
+
+    const nn = Math.round(clamp(target, 0, N - 1));
+    if(nn !== num){ num = nn; numB.textContent = String(nn + 1).padStart(2, '0'); }
+    if(hint) hint.textContent = pS > .5 ? 'листайте — камера полетит к следующему' : 'выберите отзыв или листайте';
+  }
+
+  /* ---------------- input ---------------- */
+  btn.addEventListener('click', openFilm);
   ov.querySelector('.rvc-close').addEventListener('click', closeFilm);
   ov.querySelector('.rvc-next').addEventListener('click', ()=>step(1));
   ov.querySelector('.rvc-prev').addEventListener('click', ()=>step(-1));
@@ -570,33 +729,30 @@ const $$ = s=>[...document.querySelectorAll(s)];
     else if(e.key === 'End'){ e.preventDefault(); go(N - 1); }
   });
 
-  /* wheel scrubs the coil */
   let lock = 0;
   ov.addEventListener('wheel', e=>{
     if(!live) return;
     e.preventDefault();
     const now = performance.now();
-    if(now - lock < 220) return;
+    if(now - lock < 240) return;
     lock = now;
-    if(Math.abs(e.deltaY) < 6) return;
-    step(e.deltaY > 0 ? 1 : -1);
+    if(Math.abs(e.deltaY) < 6 && Math.abs(e.deltaX) < 6) return;
+    step((e.deltaY || e.deltaX) > 0 ? 1 : -1);
   }, {passive:false});
 
-  /* drag the graph */
   let drag = null;
   ov.addEventListener('pointerdown', e=>{
     if(!live || e.target.closest('button, .rvc-card')) return;
-    drag = {x: e.clientX};
+    drag = {x:e.clientX};
   });
   ov.addEventListener('pointermove', e=>{
     if(!drag) return;
     const dx = e.clientX - drag.x;
-    if(Math.abs(dx) > 70){ drag.x = e.clientX; step(dx < 0 ? 1 : -1); }
+    if(Math.abs(dx) > 80){ drag.x = e.clientX; step(dx < 0 ? 1 : -1); }
   }, {passive:true});
   ov.addEventListener('pointerup', ()=>{ drag = null; }, {passive:true});
   ov.addEventListener('pointercancel', ()=>{ drag = null; }, {passive:true});
 
-  /* swipe */
   let tx = 0, ty = 0;
   ov.addEventListener('touchstart', e=>{ const p = e.touches[0]; tx = p.clientX; ty = p.clientY; }, {passive:true});
   ov.addEventListener('touchend', e=>{
@@ -606,21 +762,10 @@ const $$ = s=>[...document.querySelectorAll(s)];
     if(Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) step(dx < 0 ? 1 : -1);
   }, {passive:true});
 
-  /* a click near a node pulls it forward */
-  cvs.addEventListener('click', e=>{
-    if(!live) return;
-    let best = -1, bd = 1e9;
-    cards.forEach(c=>{
-      const d = Math.hypot(c.x - e.clientX, c.y - e.clientY);
-      if(d < bd){ bd = d; best = c.i; }
-    });
-    if(best >= 0 && bd < 300) go(best);
-  });
-
-  /* resize while open */
-  addEventListener('resize', ()=>{ if(live || closing) size(); }, {passive:true});
-  window.__RVC = {go, close:closeFilm, open:openFilm, st:()=>({live, closing, e:+cam.e.toFixed(2), target})};
+  addEventListener('resize', ()=>{ if(live || closing){ resize(); place(); const c = cardCam(Math.round(target)); camTo(c.x + (sm?0:90), c.y + 6, c.z, 400, 0, 0); } }, {passive:true});
+  window.__RVC = {go, close:closeFilm, open:openFilm, st:()=>({live, closing, sel, target, cam:{...cam}, pS:+pS.toFixed(2)})};
 })();
+
 
 /* =====================================================================
    3. FAQ — the question comes forward, the answer is written in.
