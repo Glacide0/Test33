@@ -44,23 +44,36 @@
 .pcx-note.on .pcx-w,.pcx-doc.on .pcx-w{transform:none;opacity:1}
 .pcx-note:not(.on) .pcx-w,.pcx-doc:not(.on) .pcx-w{transition-duration:.28s,.22s;transition-delay:0s!important}
 
-/* ---------- карточка ---------- */
+/* ---------- карточка ----------
+   The landing card is the reference, so the film card carries the same
+   surface, border, radius and padding; only the width is ours, because the
+   film lays three panels side by side. */
 .pcx-card{
   position:absolute;left:80px;top:130px;width:452px;
+  border-radius:20px;padding:30px;
+  display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#1a1d22,#171a1e);
+  border:1px solid var(--line);
   margin:0;box-shadow:0 40px 90px rgba(0,0,0,.5);
   transform-style:preserve-3d;will-change:transform,opacity;backface-visibility:hidden;
 }
+.pcx-card h3{font-size:17.5px;font-weight:620}
+.pcx-card .amount{margin:16px 0 4px}
+.pcx-card .amount .num{font-size:46px;font-weight:660;letter-spacing:-1.8px;line-height:1;font-variant-numeric:tabular-nums}
+.pcx-card .amount .cur{font-size:19px;font-weight:600;color:var(--txt-2)}
+.pcx-card .amount .per{color:var(--mut);font-size:13.5px}
+.pcx-card .billed{color:var(--mut-2);font-size:12px;min-height:19px}
 /* the list keeps the landing check-mark rhythm, but every row is a button */
-.pcx-list{margin:18px 0 6px;padding:0;list-style:none}
+.pcx-list{margin:20px 0 24px;padding:0;list-style:none;flex:1}
 .pcx-list>li{padding:0;position:relative}
 .pcx-list>li>b{display:block;padding:6px 0 10px 26px;font-size:14px;color:var(--txt)}
 /* ── markers: byte-for-byte the same geometry as .price li::before ── */
 .pcx-list>li::before{
-  content:'';position:absolute;left:2px;top:14px;width:10px;height:5px;
+  content:'';position:absolute;left:2px;top:12px;width:10px;height:5px;
   border-left:1.5px solid var(--ok);border-bottom:1.5px solid var(--ok);
   transform:rotate(-45deg);pointer-events:none;
 }
-.pcx-list>li.off::before{width:9px;height:0;border-left:0;border-bottom:1.5px solid var(--mut-2);transform:none;left:2px;top:17px}
+.pcx-list>li.off::before{width:9px;height:0;border-left:0;border-bottom:1.5px solid var(--mut-2);transform:none;left:2px;top:15px}
 .pcx-list>li.off .pcx-it{color:var(--mut-2)}
 .pcx-it{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:12px;
   width:100%;padding:6px 8px 6px 24px;border-radius:9px;cursor:pointer;
@@ -71,7 +84,7 @@
 .pcx-it:hover,.pcx-it:focus-visible{background:rgba(233,230,223,.05);color:var(--txt)}
 .pcx-it:hover .pcx-arr,.pcx-it:focus-visible .pcx-arr{opacity:.8;transform:rotate(45deg) translate(2px,-2px)}
 /* the CTA is a real landing button, pinned to the bottom of the card */
-.pcx-card .px-buy{width:100%;margin-top:14px}
+.pcx-card .px-buy{width:100%;margin-top:0}
 
 /* states used by the focus choreography */
 .pcx-it.sel{background:rgba(169,183,169,.1);color:var(--txt)}
@@ -198,10 +211,13 @@ body.pcx-open{overflow:hidden}
    EXTRAS — map instruments, review spiral, question focus
    ===================================================================== */
 /* ---------- servers map ---------- */
-.map-box{position:relative}
-.map-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;mix-blend-mode:screen}
-.map-box .pin,.map-box .me{position:relative;z-index:4}
-.map-box svg{position:relative;z-index:2}
+.map-box{position:relative;isolation:isolate;contain:paint}
+/* the effects layer is blended into the map, so the whole map box becomes a
+   compositing group: that also means the SVG underneath is rasterised once and
+   the animation only composites over it, instead of re-painting twice a frame */
+.map-fx{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3;mix-blend-mode:screen}
+.map-box svg{position:relative;z-index:2;transform:translateZ(0)}
+.map-box .pin,.map-box .me{z-index:4}
 
 /* ---------- reviews: the entry point ---------- */
 .rv-cta{display:flex;justify-content:center;margin:0 0 34px}
@@ -307,16 +323,54 @@ body.rvc-open{overflow:hidden}
   .rvc *,.rvc{transition-duration:.01ms!important}
 }
 
-/* ---------- faq: focus motion ---------- */
-.faq{position:relative}
-.faq-item{transition:transform .55s cubic-bezier(.16,.84,.28,1),opacity .5s,border-color .4s,box-shadow .5s,filter .5s}
-.faq-item.faq-near{transform:translateY(-3px) scale(1.012);border-color:rgba(169,183,169,.36);
-  box-shadow:0 26px 60px rgba(0,0,0,.4);z-index:2}
-.faq-item.faq-far{opacity:.42;filter:blur(.6px) saturate(.75);transform:scale(.985)}
-.faq-q{position:relative}
+/* ---------- faq: the camera moves to the question ---------- */
+.faq{position:relative;isolation:isolate}
+.faq-item{position:relative;z-index:1;
+  transition:transform .7s cubic-bezier(.16,.84,.28,1),opacity .55s,border-color .45s,
+             box-shadow .6s,filter .6s,background .45s}
+.faq-item.faq-near{
+  transform:translate3d(0,var(--fy,0),0) scale(1.035);z-index:6;
+  will-change:transform;
+  border-color:rgba(169,183,169,.42);background:#1d2126;
+  box-shadow:0 50px 110px rgba(0,0,0,.62),0 0 0 1px rgba(169,183,169,.1);
+  filter:none;opacity:1}
+.faq-item.faq-far{z-index:0;opacity:.22;filter:saturate(.65);transform:scale(.965)}
 .faq-item.faq-near .faq-q{color:#fff}
+.faq-item.faq-near .chev{transform:rotate(45deg);color:var(--accent)}
+
+/* the dimmer sits under the focused card and swallows the rest of the page */
+/* no backdrop-filter here: a blurred full-screen layer would re-sample the
+   whole page on every frame of the flight, and the gradient already does the
+   job of pushing the rest of the page away */
+.faq-dim{position:fixed;inset:0;z-index:5;pointer-events:none;opacity:0;
+  background:radial-gradient(120% 90% at 50% 50%,rgba(8,10,12,.62),rgba(6,7,9,.9));
+  transition:opacity .55s ease}
+.faq-focus .faq-dim{opacity:1;pointer-events:auto}
+
+/* the counter reads where you are in the list */
+.faq-count{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);z-index:8;
+  display:flex;align-items:baseline;gap:6px;padding:9px 16px;border-radius:999px;
+  background:rgba(18,21,25,.86);border:1px solid var(--line-2);
+  font:500 12.5px/1 var(--font);color:var(--mut);font-variant-numeric:tabular-nums;
+  opacity:0;pointer-events:none;transition:opacity .4s,transform .5s cubic-bezier(.16,.84,.28,1);
+  backdrop-filter:blur(8px)}
+.faq-count.on{opacity:1;transform:translate(-50%,0)}
+.faq-count b{color:var(--txt);font-size:17px;font-weight:600}
+.faq-count i{opacity:.4;font-style:normal}
+.faq-count small{margin-left:8px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut-2)}
+
+/* answers are written, sentence by sentence */
 .fa-l{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
 .fa-l>span{display:block;transform:translateY(105%);opacity:0;
-  transition:transform .72s cubic-bezier(.16,.84,.28,1) var(--d,0ms),opacity .5s var(--d,0ms)}
+  transition:transform .78s cubic-bezier(.16,.84,.28,1) var(--d,0ms),opacity .55s var(--d,0ms)}
 .faq-item.open .fa-l>span{transform:none;opacity:1}
-.faq-item:not(.open) .fa-l>span{transition-duration:.25s;transition-delay:0ms}
+.faq-item:not(.open) .fa-l>span{transition-duration:.26s;transition-delay:0ms}
+
+@media(max-width:760px){
+  .faq-item.faq-near{transform:translate3d(0,var(--fy,0),0) scale(1.015)}
+  .faq-count{bottom:14px;padding:7px 12px;font-size:11px}
+  .faq-count small{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .faq-item,.fa-l>span,.faq-dim,.faq-count{transition-duration:.01ms!important}
+}
