@@ -1,0 +1,2982 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14161a">
+<title>XPN — спокойный и понятный VPN для всех устройств</title>
+<meta name="description" content="XPN — VPN без логов: 3200+ серверов в 105 странах, скорость до 10 Гбит/с, защита в один клик. 7 дней бесплатно, 30 дней гарантия возврата.">
+<style>
+:root{
+  --bg:#14161a;
+  --bg-soft:#171a1e;
+  --surface:#1a1d22;
+  --surface-2:#1e2227;
+  --surface-3:#23282d;
+  --line:rgba(233,230,223,.065);
+  --line-2:rgba(233,230,223,.105);
+  --line-3:rgba(233,230,223,.16);
+  --txt:#e7e4dd;
+  --txt-2:#c4c1b9;
+  --mut:#9a9a93;
+  --mut-2:#74766f;
+  --accent:#a9b7a9;
+  --accent-soft:rgba(169,183,169,.09);
+  --accent-line:rgba(169,183,169,.24);
+  --sand:#c1b49c;
+  --sand-soft:rgba(193,180,156,.1);
+  --slate:#a3b2be;
+  --slate-soft:rgba(163,178,190,.1);
+  --ok:#93b39b;
+  --ok-soft:rgba(147,179,155,.1);
+  --warn:#bfae8d;
+  --warn-soft:rgba(191,174,141,.1);
+  --bad:#bd9791;
+  --bad-soft:rgba(189,151,145,.1);
+  --r:16px;
+  --font:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--txt);font-family:var(--font);
+  line-height:1.62;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(900px 620px at 78% -12%,rgba(169,183,169,.055),transparent 60%),
+    radial-gradient(760px 520px at 4% 34%,rgba(193,180,156,.04),transparent 62%);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+html{scrollbar-color:rgba(233,230,223,.16) transparent}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-track{background:#14161a}
+::-webkit-scrollbar-thumb{background:rgba(233,230,223,.13);border-radius:99px;border:3px solid #14161a}
+::-webkit-scrollbar-thumb:hover{background:rgba(233,230,223,.2)}
+body>*{position:relative;z-index:1}
+a{color:inherit;text-decoration:none}
+img,svg{display:block}
+button{font-family:inherit}
+::selection{background:rgba(169,183,169,.22);color:#f2efe8}
+:focus-visible{outline:2px solid rgba(169,183,169,.55);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.fill{fill:currentColor;stroke:none}
+.accent{color:var(--accent)}
+section{padding:92px 0}
+.sec-head{max-width:720px;margin:0 auto 52px;text-align:center}
+.sec-head h2{font-size:clamp(27px,3.6vw,40px);line-height:1.16;letter-spacing:-.6px;margin:16px 0 14px;font-weight:650}
+.sec-head p{color:var(--mut);font-size:16.5px}
+.kicker{
+  display:inline-flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--accent);
+  background:var(--accent-soft);border:1px solid var(--accent-line);
+  padding:7px 15px;border-radius:999px;
+}
+.kicker::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);flex:none}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-weight:600;font-size:15px;padding:14px 24px;border-radius:11px;border:1px solid transparent;
+  cursor:pointer;transition:background .25s,border-color .25s,color .25s,transform .25s,box-shadow .25s;
+  white-space:nowrap;line-height:1.2;
+}
+.btn .ic{width:18px;height:18px}
+.btn-p{background:var(--txt);color:#191b1e;border-color:var(--txt);box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.btn-p:hover{background:#f3f0e9;border-color:#f3f0e9;transform:translateY(-1px)}
+.btn-o{background:rgba(233,230,223,.028);color:var(--txt);border-color:var(--line-2)}
+.btn-o:hover{background:rgba(233,230,223,.06);border-color:var(--line-3)}
+.btn-sm{padding:10px 17px;font-size:13.5px;border-radius:9px}
+.btn-w{background:var(--txt);color:#191b1e;border-color:var(--txt)}
+.btn-w:hover{background:#f3f0e9;transform:translateY(-1px)}
+
+/* ---------- header ---------- */
+header{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .3s,border-color .3s,backdrop-filter .3s;border-bottom:1px solid transparent}
+header.scrolled{background:rgba(20,22,26,.86);backdrop-filter:blur(16px);border-bottom-color:var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:74px;gap:20px}
+.logo{display:flex;align-items:center;gap:11px;font-weight:700;font-size:22px;letter-spacing:2px}
+.logo-mark{
+  width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(150deg,#b7c2b0,#a49c8b);color:#191b1e;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+}
+.logo-mark .ic{width:21px;height:21px;stroke-width:1.8}
+.nav-links{display:flex;gap:32px;font-size:14.5px;font-weight:500;color:var(--mut)}
+.nav-links a{transition:color .2s;position:relative}
+.nav-links a:hover{color:var(--txt)}
+.nav-cta{display:flex;align-items:center;gap:10px}
+.burger{display:none;background:none;border:0;color:var(--txt);cursor:pointer;padding:8px;border-radius:8px}
+.burger:hover{background:rgba(233,230,223,.05)}
+.burger .ic-close{display:none}
+.burger.is-open .ic-open{display:none}
+.burger.is-open .ic-close{display:block}
+.mmenu{display:none;background:rgba(20,22,26,.98);border-bottom:1px solid var(--line);padding:10px 22px 20px;backdrop-filter:blur(16px)}
+.mmenu a{display:block;padding:12px 2px;font-weight:500;color:var(--txt-2);border-bottom:1px solid var(--line)}
+.mmenu a:last-child{border-bottom:0}
+.mmenu.open{display:block}
+@media(max-width:940px){.nav-links,.nav-cta .btn-o{display:none}.burger{display:block}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding:154px 0 76px;overflow:hidden}
+.hero::after{
+  content:'';position:absolute;left:50%;top:90px;width:1100px;height:520px;transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,rgba(169,183,169,.05),transparent 65%);pointer-events:none;
+}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:48px;align-items:center;position:relative}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;gap:46px}}
+.hero h1{font-size:clamp(31px,3.75vw,45px);line-height:1.13;letter-spacing:-1.1px;margin:24px 0 20px;font-weight:600;text-wrap:balance;max-width:540px}
+.hero-sub{font-size:17.5px;color:var(--mut);max-width:540px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin:32px 0 20px}
+.hero-note{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:13.5px;flex-wrap:wrap}
+.hero-note b{color:var(--txt-2);font-weight:600}
+.stars{display:inline-flex;align-items:center;gap:3px;color:#bfb296}
+.stars .ic{width:15px;height:15px}
+.stars .off{color:rgba(233,230,223,.15)}
+.platforms{display:flex;gap:8px;flex-wrap:wrap;margin-top:30px;max-width:376px}
+.plat{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--mut);background:rgba(233,230,223,.026);border:1px solid var(--line);padding:7px 13px;border-radius:999px}
+.plat .ic{width:15px;height:15px;color:var(--mut-2)}
+
+/* app mockup */
+.mock{position:relative}
+.phone{
+  width:min(340px,88vw);margin:0 auto;
+  background:linear-gradient(180deg,#1e2228,#181b20);
+  border:1px solid var(--line-2);border-radius:34px;padding:15px 15px 20px;
+  box-shadow:0 40px 90px rgba(0,0,0,.5),inset 0 1px 0 rgba(233,230,223,.07);
+  position:relative;z-index:2;
+}
+.phone-notch{width:104px;height:20px;background:#111317;border-radius:999px;margin:0 auto 14px}
+.app-head{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--mut-2);margin-bottom:12px;letter-spacing:.3px}
+.status-pill{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:999px;letter-spacing:.2px}
+.status-on{background:var(--ok-soft);color:var(--ok);border:1px solid rgba(147,179,155,.24)}
+.status-off{background:var(--bad-soft);color:var(--bad);border:1px solid rgba(189,151,145,.24)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.dot.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(147,179,155,.4)}70%{box-shadow:0 0 0 8px rgba(147,179,155,0)}100%{box-shadow:0 0 0 0 rgba(147,179,155,0)}}
+.power-wrap{display:grid;place-items:center;padding:22px 0 10px}
+.power{
+  width:128px;height:128px;border-radius:50%;border:1px solid rgba(233,230,223,.12);
+  cursor:pointer;display:grid;place-items:center;color:#1b1d20;
+  background:linear-gradient(160deg,#b6c1af,#a89f8d);
+  box-shadow:0 0 0 10px rgba(169,183,169,.05),0 18px 40px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.4);
+  transition:.3s;
+}
+.power.off{background:linear-gradient(160deg,#2a2f34,#24282d);color:var(--mut-2);box-shadow:0 0 0 10px rgba(233,230,223,.025),inset 0 1px 0 rgba(233,230,223,.05)}
+.power:hover{transform:scale(1.03)}
+.power .ic{width:46px;height:46px;stroke-width:1.7}
+.conn-info{text-align:center;font-size:13px;color:var(--mut);line-height:1.55;min-height:42px}
+.conn-info b{color:var(--txt-2);font-weight:600}
+.loc-card{margin-top:14px;background:rgba(233,230,223,.035);border:1px solid var(--line);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:11px}
+.loc-card small{display:block;color:var(--mut-2);font-size:10.5px;letter-spacing:.4px;text-transform:uppercase}
+.loc-card b{font-size:13.5px;font-weight:600}
+.loc-card .ping{margin-left:auto;text-align:right;font-size:11.5px;color:var(--mut-2);flex:none}
+.loc-card>div:nth-child(2){min-width:0}
+.loc-card .ping b{color:var(--ok);font-size:13.5px;white-space:nowrap}
+.loc-card .ping small{white-space:nowrap}
+.mini-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:9px}
+.mini-stats div{background:rgba(233,230,223,.028);border:1px solid var(--line);border-radius:11px;padding:9px 5px;text-align:center}
+.mini-stats small{display:block;color:var(--mut-2);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;line-height:1.4}
+.mini-stats b{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.mock-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin:20px auto 0;max-width:540px;position:relative;z-index:2}
+.mock-trust span{
+  display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--mut);white-space:nowrap;
+  background:rgba(233,230,223,.03);border:1px solid var(--line);border-radius:999px;padding:6px 11px;
+}
+.mock-trust .ic{width:14px;height:14px;color:var(--mut-2)}
+.ib{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none;border:1px solid var(--line)}
+.ib .ic{width:19px;height:19px}
+.t-sage{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+.t-sand{background:var(--sand-soft);color:var(--sand);border-color:rgba(193,180,156,.22)}
+.t-slate{background:var(--slate-soft);color:var(--slate);border-color:rgba(163,178,190,.22)}
+.cc{
+  width:34px;height:34px;border-radius:9px;flex:none;display:grid;place-items:center;
+  background:rgba(233,230,223,.04);border:1px solid var(--line-2);
+  font-size:11px;font-weight:700;letter-spacing:.7px;color:var(--txt-2);
+}
+.cc.lg{width:38px;height:38px;font-size:12px}
+
+/* ---------- stats ---------- */
+.stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(233,230,223,.014)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;padding:40px 0;text-align:center}
+@media(max-width:760px){.stats-grid{grid-template-columns:1fr 1fr;row-gap:30px}}
+.stat b{white-space:nowrap;font-size:clamp(25px,3.2vw,36px);letter-spacing:-.7px;font-weight:650;font-variant-numeric:tabular-nums;display:block;line-height:1.2}
+.stat>span{display:block;color:var(--mut);font-size:13.5px;margin-top:3px}
+.stat b span{display:inline;font-size:inherit;color:inherit;margin:0;letter-spacing:inherit}
+.press{display:flex;justify-content:center;gap:12px 38px;flex-wrap:wrap;padding:0 0 34px;color:var(--mut-2);font-weight:600;letter-spacing:1.6px;font-size:12px;text-transform:uppercase}
+
+/* ---------- cards ---------- */
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media(max-width:960px){.grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.grid3,.grid2{grid-template-columns:1fr}}
+.card{
+  background:linear-gradient(180deg,#1a1d22,#171a1e);
+  border:1px solid var(--line);border-radius:var(--r);padding:27px;
+  transition:border-color .3s,background .3s,transform .3s;
+}
+.card:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.card h3{font-size:17.5px;margin:16px 0 8px;font-weight:620;letter-spacing:-.2px}
+.card p{color:var(--mut);font-size:14.5px}
+.card ul{list-style:none;margin-top:12px;color:var(--mut);font-size:14px}
+.card ul li{padding:5px 0 5px 24px;position:relative}
+.card ul li::before{
+  content:'';position:absolute;left:2px;top:12px;width:11px;height:6px;
+  border-left:1.5px solid var(--ok);border-bottom:1.5px solid var(--ok);
+  transform:rotate(-45deg);
+}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;padding:4px 10px;border-radius:6px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);margin-top:14px}
+.card .ib{width:46px;height:46px;border-radius:12px}
+.card .ib .ic{width:22px;height:22px}
+
+/* use cases */
+.case{
+  border-radius:var(--r);padding:28px;border:1px solid var(--line);
+  min-height:200px;display:flex;flex-direction:column;
+  background:linear-gradient(165deg,#1b1e23,#171a1e 70%);
+  transition:border-color .3s,transform .3s;
+}
+.case:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.case h3{font-size:17.5px;margin:0 0 7px;font-weight:620;letter-spacing:-.2px}
+.case p{color:var(--mut);font-size:14px;max-width:430px}
+.case .ib{margin-bottom:auto}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;position:relative}
+@media(max-width:880px){.steps{grid-template-columns:1fr}}
+.step{background:linear-gradient(180deg,#1a1d22,#171a1e);border:1px solid var(--line);border-radius:var(--r);padding:28px;position:relative}
+.step-num{
+  width:44px;height:44px;border-radius:50%;background:var(--accent-soft);
+  border:1px solid var(--accent-line);color:var(--accent);
+  font-weight:650;font-size:17px;display:grid;place-items:center;margin-bottom:18px;
+  font-variant-numeric:tabular-nums;
+}
+.step h3{font-size:17.5px;margin-bottom:8px;font-weight:620}
+.step p{color:var(--mut);font-size:14.5px}
+.step code{background:rgba(169,183,169,.1);color:var(--accent);padding:1px 7px;border-radius:5px;font-size:12.5px;white-space:nowrap}
+
+/* panels */
+.panel{background:linear-gradient(180deg,#1a1d22,#171a1e);border:1px solid var(--line);border-radius:20px;padding:28px}
+.panel h3{font-size:19px;margin-bottom:6px;font-weight:620;letter-spacing:-.2px;display:flex;align-items:center;gap:9px}
+.panel h3 .ic{width:19px;height:19px;color:var(--mut-2)}
+.panel .sub{color:var(--mut);font-size:13.5px;margin-bottom:20px}
+.srv-tools{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.srv-tools input,.srv-tools select{
+  background:#16191d;border:1px solid var(--line-2);color:var(--txt);border-radius:9px;
+  padding:10px 13px;font-size:13.5px;font-family:var(--font);outline:none;transition:border-color .2s;
+}
+.srv-tools input{flex:1;min-width:170px}
+.srv-tools input::placeholder{color:var(--mut-2)}
+.srv-tools input:focus,.srv-tools select:focus{border-color:var(--accent-line)}
+.srv-tools select{cursor:pointer}
+.srv-list{display:flex;flex-direction:column;gap:7px;max-height:372px;overflow:auto;padding-right:4px}
+.srv-list::-webkit-scrollbar{width:6px}
+.srv-list::-webkit-scrollbar-thumb{background:rgba(233,230,223,.12);border-radius:99px}
+.srv{display:flex;align-items:center;gap:12px;background:rgba(233,230,223,.022);border:1px solid var(--line);border-radius:11px;padding:10px 13px;cursor:pointer;transition:.2s;text-align:left;width:100%;color:var(--txt);font-family:var(--font)}
+.srv:hover{border-color:var(--line-2);background:rgba(233,230,223,.045)}
+.srv.active{border-color:var(--accent-line);background:var(--accent-soft)}
+.srv b{font-size:14px;display:block;font-weight:600}
+.srv small{color:var(--mut-2);font-size:11.5px}
+.srv .right{margin-left:auto;text-align:right;flex:none}
+.pingval{font-weight:650;font-size:13.5px;font-variant-numeric:tabular-nums}
+.loadbar{width:68px;height:4px;background:rgba(233,230,223,.09);border-radius:99px;overflow:hidden;margin-top:5px;margin-left:auto}
+.loadbar i{display:block;height:100%;border-radius:99px}
+.gauge-wrap{display:grid;place-items:center;padding:10px 0 4px}
+.gauge{position:relative;width:230px;height:150px}
+.gauge svg{width:100%}
+.speed-num{font-size:42px;font-weight:650;letter-spacing:-1.2px;line-height:1;font-variant-numeric:tabular-nums}
+.speed-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:18px;text-align:center}
+.speed-grid div{background:rgba(233,230,223,.028);border:1px solid var(--line);border-radius:10px;padding:11px 5px}
+.speed-grid small{display:block;color:var(--mut-2);font-size:9.5px;text-transform:uppercase;letter-spacing:.7px}
+.speed-grid b{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums}
+.progress{height:5px;background:rgba(233,230,223,.07);border-radius:99px;overflow:hidden;margin-top:16px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8fa79a,#c1b49c);border-radius:99px;transition:width .15s linear}
+.tbl-hint{display:none;text-align:center;color:var(--mut-2);font-size:12px;margin-top:10px}
+@media(max-width:760px){.tbl-hint{display:block}}
+.legend{display:flex;gap:8px 18px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:14px}
+.legend i{width:7px;height:7px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:1px}
+
+/* comparison */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:18px;background:var(--surface);position:relative}
+table{width:100%;border-collapse:collapse;min-width:660px;font-size:14.5px}
+th,td{padding:15px 20px;text-align:left;border-bottom:1px solid var(--line)}
+thead th{background:rgba(233,230,223,.025);font-size:12px;text-transform:uppercase;letter-spacing:1.1px;color:var(--mut);font-weight:650}
+thead th.hl{background:var(--accent-soft);color:var(--txt)}
+tbody th{font-weight:500;color:var(--mut);font-size:14px}
+td.hl{background:rgba(169,183,169,.05);font-weight:600;color:var(--txt-2)}
+tr:last-child td,tr:last-child th{border-bottom:0}
+.yes{color:var(--ok)}.no{color:var(--bad)}.mid{color:var(--warn)}
+
+/* devices */
+.dev-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media(max-width:960px){.dev-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.dev-grid{grid-template-columns:1fr}}
+.dev{background:linear-gradient(180deg,#1a1d22,#171a1e);border:1px solid var(--line);border-radius:14px;padding:23px;text-align:center;transition:.3s}
+@media(max-width:480px){
+  .dev{display:flex;align-items:center;gap:14px;text-align:left;padding:16px 18px}
+  .dev .ib{margin:0;width:42px;height:42px}
+  .dev b{font-size:14.5px}
+  .dev small{margin-top:0}
+  .dev>span:last-child{display:block}
+}
+.dev:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.dev .ib{margin:0 auto 13px;width:44px;height:44px;border-radius:12px}
+.dev .ib .ic{width:21px;height:21px}
+.dev b{display:block;font-size:15px;font-weight:620}
+.dev small{color:var(--mut);font-size:12.5px;display:block;margin-top:2px;line-height:1.5}
+
+/* pricing */
+.toggle{display:inline-flex;background:#16191d;border:1px solid var(--line);border-radius:11px;padding:4px;gap:3px}
+.toggle button{border:0;background:transparent;color:var(--mut);font-family:var(--font);font-weight:600;font-size:13.5px;padding:9px 18px;border-radius:8px;cursor:pointer;transition:.2s}
+.toggle button.on{background:rgba(233,230,223,.075);color:var(--txt);box-shadow:inset 0 1px 0 rgba(233,230,223,.05)}
+.toggle .save{font-size:10.5px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px;margin-left:6px;vertical-align:1px;font-weight:700}
+.toggle button.on .save{background:rgba(169,183,169,.16)}
+.prices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch;margin-top:44px}
+@media(max-width:960px){.prices{grid-template-columns:1fr;max-width:480px;margin-left:auto;margin-right:auto}}
+.price{background:linear-gradient(180deg,#1a1d22,#171a1e);border:1px solid var(--line);border-radius:20px;padding:30px;display:flex;flex-direction:column;position:relative;transition:border-color .3s}
+.price:hover{border-color:var(--line-2)}
+.price.pop{border-color:var(--accent-line);background:linear-gradient(180deg,#1d2126,#191c21);box-shadow:0 26px 60px rgba(0,0,0,.28)}
+.pop-badge{
+  position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  background:#262a2f;color:var(--sand);border:1px solid rgba(193,180,156,.28);
+  font-size:10.5px;font-weight:700;letter-spacing:1.2px;padding:6px 14px;border-radius:999px;
+  text-transform:uppercase;white-space:nowrap;
+}
+.price h3{font-size:17.5px;font-weight:620}
+.price .for{color:var(--mut);font-size:13.5px;min-height:44px;margin-top:4px}
+.amount{display:flex;align-items:baseline;gap:5px;margin:16px 0 4px;flex-wrap:wrap}
+.amount .cur{font-size:19px;font-weight:600;color:var(--txt-2)}
+.amount .num{font-size:46px;font-weight:660;letter-spacing:-1.8px;line-height:1;font-variant-numeric:tabular-nums}
+.amount .per{color:var(--mut);font-size:13.5px}
+.billed{color:var(--mut-2);font-size:12px;min-height:19px}
+.oldprice{color:var(--mut-2);text-decoration:line-through;font-size:13px;margin-left:6px}
+.price ul{list-style:none;margin:20px 0 24px;flex:1}
+.price li{padding:6px 0 6px 26px;position:relative;font-size:14px;color:var(--txt-2)}
+.price li::before{
+  content:'';position:absolute;left:2px;top:12px;width:10px;height:5px;
+  border-left:1.5px solid var(--ok);border-bottom:1.5px solid var(--ok);
+  transform:rotate(-45deg);
+}
+.price li.off{color:var(--mut-2)}
+.price li.off::before{width:9px;height:0;border-left:0;border-bottom:1.5px solid var(--mut-2);transform:none;left:2px;top:15px}
+.price li b{color:var(--txt);font-weight:600}
+.guarantee{display:flex;gap:14px 34px;align-items:center;justify-content:center;margin-top:36px;color:var(--mut);font-size:13.5px;flex-wrap:wrap;text-align:center}
+.guarantee>span{display:inline-flex;align-items:flex-start;gap:8px;text-align:left}
+.guarantee>span>span{display:block}
+.guarantee>span .ic{margin-top:3px}
+.guarantee .ic{width:16px;height:16px;color:var(--mut-2);flex:none}
+.guarantee b{white-space:nowrap}
+.guarantee b{color:var(--txt-2);font-weight:600}
+.pay-icons{display:flex;gap:7px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.pay-icons span{font-size:11.5px;font-weight:600;background:rgba(233,230,223,.03);border:1px solid var(--line);padding:6px 11px;border-radius:7px;color:var(--mut)}
+
+/* reviews */
+.testi{background:linear-gradient(180deg,#1a1d22,#171a1e);border:1px solid var(--line);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;gap:14px}
+.testi p{color:var(--txt-2);font-size:14.5px;flex:1;line-height:1.65}
+.who{display:flex;gap:11px;align-items:center;margin-top:2px}
+.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:650;font-size:15px;flex:none;border:1px solid var(--line)}
+.av-sage{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+.av-sand{background:var(--sand-soft);color:var(--sand);border-color:rgba(193,180,156,.22)}
+.av-slate{background:var(--slate-soft);color:var(--slate);border-color:rgba(163,178,190,.22)}
+.who small{display:block;color:var(--mut-2);font-size:11.5px}
+.who b{font-size:13.5px;font-weight:600}
+
+/* faq */
+.faq{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:9px}
+.faq-item{background:var(--surface);border:1px solid var(--line);border-radius:13px;overflow:hidden;transition:border-color .3s}
+.faq-item.open{border-color:var(--line-2)}
+.faq-q{width:100%;background:none;border:0;color:var(--txt);font-family:var(--font);font-size:15.5px;font-weight:600;text-align:left;padding:19px 23px;cursor:pointer;display:flex;justify-content:space-between;gap:16px;align-items:center;line-height:1.4}
+.faq-q .chev{transition:transform .3s,color .3s;color:var(--mut-2);font-size:20px;flex:none;font-weight:400;line-height:1}
+.faq-item.open .chev{transform:rotate(45deg);color:var(--accent)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.faq-a div{padding:0 23px 21px;color:var(--mut);font-size:14.5px}
+.faq-a b{color:var(--txt-2);font-weight:600}
+.faq-a code{background:rgba(169,183,169,.1);color:var(--accent);padding:1px 6px;border-radius:5px;font-size:13px}
+
+/* CTA */
+.cta-box{
+  position:relative;border-radius:24px;padding:58px 38px;text-align:center;overflow:hidden;
+  background:linear-gradient(140deg,#1c1f23,#1f211f 55%,#1b1e22);
+  border:1px solid var(--line-2);
+}
+.cta-box::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(600px 300px at 50% -30%,rgba(169,183,169,.09),transparent 70%);pointer-events:none;
+}
+.cta-box h2{font-size:clamp(26px,3.6vw,38px);letter-spacing:-.6px;margin-bottom:14px;position:relative;z-index:1;line-height:1.15;font-weight:650}
+.cta-box p{color:var(--mut);max-width:560px;margin:0 auto 28px;position:relative;z-index:1;font-size:15.5px}
+.cta-box .btn,.cta-box .hero-note{position:relative;z-index:1}
+.cta-box .hero-note{justify-content:center;margin-top:16px;color:var(--mut);gap:8px 22px}
+.cta-box .hero-note span{display:inline-flex;align-items:center;gap:7px}
+.cta-box .hero-note .ic{width:15px;height:15px;color:var(--ok)}
+
+/* footer */
+footer{border-top:1px solid var(--line);background:#111316;padding:60px 0 30px;margin-top:20px}
+.foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr;gap:32px}
+.foot-grid>*{min-width:0}
+@media(max-width:960px){.foot-grid{grid-template-columns:1fr 1fr;row-gap:34px}.foot-grid>div:first-child{grid-column:1/-1}}
+.foot-grid h4{font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:14px;color:var(--mut-2);font-weight:700}
+.foot-grid a{display:block;color:var(--mut);font-size:13.5px;padding:5px 0;transition:color .2s}
+.foot-grid a.logo{display:inline-flex;padding:0;color:var(--txt);font-size:21px}
+.foot-grid a:hover{color:var(--txt)}
+.foot-about{color:var(--mut);font-size:13.5px;max-width:300px;margin-top:14px}
+.foot-contact{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--mut);font-size:13.5px}
+.foot-contact .ic{width:15px;height:15px;color:var(--mut-2)}
+.foot-bot{border-top:1px solid var(--line);margin-top:42px;padding-top:22px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--mut-2);font-size:12.5px}
+.foot-bot span{display:inline-flex;align-items:center;gap:7px}
+.foot-bot .ic{width:14px;height:14px}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(10,11,13,.72);backdrop-filter:blur(8px);z-index:200;display:none;place-items:center;padding:18px}
+.modal-bg.open{display:grid}
+.modal{background:#1b1e23;border:1px solid var(--line-2);border-radius:20px;max-width:450px;width:100%;padding:34px;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.55)}
+.modal h3{font-size:21px;margin-bottom:8px;font-weight:650;letter-spacing:-.3px}
+.modal p{color:var(--mut);font-size:14px;margin-bottom:20px;line-height:1.6}
+.modal p b{color:var(--txt-2);font-weight:600}
+.modal input{width:100%;background:#15181c;border:1px solid var(--line-2);color:var(--txt);border-radius:10px;padding:13px 15px;font-size:14.5px;font-family:var(--font);outline:none;margin-bottom:10px;transition:border-color .2s}
+.modal input::placeholder{color:var(--mut-2)}
+.modal input:focus{border-color:var(--accent-line)}
+.modal .close{position:absolute;top:15px;right:16px;background:none;border:0;color:var(--mut-2);cursor:pointer;padding:6px;border-radius:7px;display:grid;place-items:center;transition:color .2s,background .2s}
+.modal .close:hover{color:var(--txt);background:rgba(233,230,223,.06)}
+.modal .close .ic{width:18px;height:18px}
+.modal .fine{font-size:11.5px;color:var(--mut-2);text-align:center;margin:14px 0 0;line-height:1.55}
+.success{display:none;text-align:center;padding:6px 0 2px}
+.success .big{width:60px;height:60px;border-radius:50%;background:var(--ok-soft);border:1px solid rgba(147,179,155,.24);display:grid;place-items:center;margin:0 auto 16px;color:var(--ok)}
+.success .big .ic{width:26px;height:26px;stroke-width:1.8}
+
+/* toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translate(-50%,90px);
+  background:#22262b;border:1px solid var(--line-2);color:var(--txt);
+  padding:13px 20px;border-radius:11px;font-size:13.5px;font-weight:500;
+  z-index:300;transition:.4s;box-shadow:0 20px 50px rgba(0,0,0,.45);
+  max-width:92vw;text-align:center;
+}
+.toast.show{transform:translate(-50%,0)}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .rv{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+}
+@media(max-width:640px){
+  .guarantee{flex-direction:column;align-items:flex-start;gap:11px;text-align:left;max-width:340px;margin-left:auto;margin-right:auto}
+  .guarantee span{text-align:left}
+  .pay-icons{max-width:360px;margin-left:auto;margin-right:auto}
+  section{padding:62px 0}
+  .hero{padding-top:124px}
+  .panel{padding:21px}
+  .price{padding:26px 22px}
+  .card{padding:23px}
+  .cta-box{padding:44px 22px}
+  .sec-head{margin-bottom:36px}
+}
+
+/* ===== v3: visual details & interactivity ===== */
+.scroll-prog{position:fixed;top:0;left:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);z-index:120;
+  background:linear-gradient(90deg,rgba(169,183,169,.15),var(--accent) 60%,var(--sand));pointer-events:none}
+.nav-links a::after{content:'';position:absolute;left:0;right:0;bottom:-7px;height:1.5px;border-radius:2px;background:var(--accent);transform:scaleX(0);transition:transform .3s}
+.nav-links a.act{color:var(--txt)}
+.nav-links a.act::after{transform:scaleX(1)}
+
+/* hero grid backdrop */
+.hero::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(233,230,223,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(233,230,223,.035) 1px,transparent 1px);
+  background-size:56px 56px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 62% 38%,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse 70% 60% at 62% 38%,#000 20%,transparent 75%)}
+.hero h1 .rot{display:inline-block;color:var(--accent);position:relative;transition:opacity .35s,transform .35s,filter .35s}
+.hero h1 .rot.swap{opacity:0;transform:translateY(10px);filter:blur(4px)}
+
+/* phone tilt + orbit */
+.mock{perspective:1100px}
+.phone{transition:transform .5s cubic-bezier(.2,.7,.2,1);transform-style:preserve-3d;will-change:transform}
+.orbit{position:absolute;left:50%;top:44%;width:min(470px,120vw);aspect-ratio:1;transform:translate(-50%,-50%);z-index:1;pointer-events:none}
+.orbit svg{width:100%;height:100%;overflow:visible}
+.orbit .ring{fill:none;stroke:rgba(233,230,223,.06);stroke-dasharray:2 7}
+.orbit .ring2{fill:none;stroke:rgba(169,183,169,.09)}
+.orbit .spin{transform-origin:50% 50%;animation:spin 46s linear infinite}
+.orbit .spin.rev{animation-duration:70s;animation-direction:reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.power-wrap{position:relative}
+.power-wrap::before,.power-wrap::after{content:'';position:absolute;left:50%;top:calc(50% + 6px);width:128px;height:128px;margin:-64px 0 0 -64px;border-radius:50%;
+  border:1px solid rgba(169,183,169,.35);opacity:0;pointer-events:none}
+.power-wrap.on::before{animation:ripple 3.2s ease-out infinite}
+.power-wrap.on::after{animation:ripple 3.2s ease-out 1.6s infinite}
+@keyframes ripple{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.75);opacity:0}}
+.power{position:relative;z-index:1}
+.power.busy .ic{animation:breathe .9s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.35}}
+
+/* cursor spotlight */
+.spot{position:relative;isolation:isolate}
+.spot::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .35s;
+  background:radial-gradient(340px circle at var(--mx,50%) var(--my,50%),rgba(193,180,156,.075),transparent 62%)}
+.spot:hover::after{opacity:1}
+
+/* press marquee */
+.press.marq{display:block;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.press.marq .track{display:flex;gap:56px;width:max-content;animation:marq 34s linear infinite}
+.press.marq:hover .track{animation-play-state:paused}
+.press.marq .track span{transition:color .3s;white-space:nowrap}
+.press.marq .track span:hover{color:var(--txt-2)}
+@keyframes marq{to{transform:translateX(calc(-50% - 28px))}}
+
+/* privacy demo */
+.seg{display:inline-flex;background:#16191d;border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;flex:none}
+.seg button{border:0;background:transparent;color:var(--mut);font:600 12.5px var(--font);padding:7px 13px;border-radius:7px;cursor:pointer;transition:.2s;white-space:nowrap}
+.seg button.on{background:rgba(233,230,223,.075);color:var(--txt)}
+.pv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+.term{background:#121417;border:1px solid var(--line);border-radius:13px;overflow:hidden;font-family:ui-monospace,'SFMono-Regular',Consolas,Menlo,monospace;font-size:12px}
+.term-bar{display:flex;align-items:center;gap:6px;padding:9px 12px;border-bottom:1px solid var(--line);color:var(--mut-2);font-size:11px}
+.term-bar i{width:8px;height:8px;border-radius:50%;background:rgba(233,230,223,.1)}
+.term-bar span{margin-left:8px}
+.term-bar b{margin-left:auto;font-weight:600;color:var(--bad);transition:color .3s}
+.term.safe .term-bar b{color:var(--ok)}
+.trow{display:grid;grid-template-columns:62px minmax(0,130px) minmax(0,1fr);gap:10px;padding:8px 12px;border-bottom:1px solid rgba(233,230,223,.035);align-items:center;animation:rowIn .5s ease both}
+.trow:last-child{border-bottom:0}
+.trow .t{color:var(--mut-2)}
+.trow .h{color:var(--slate);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trow .w{color:var(--txt-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.term.safe .trow .h{color:var(--mut)}
+.term.safe .trow .w{color:var(--mut-2);letter-spacing:.5px}
+@keyframes rowIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.leak{margin-top:16px;display:flex;align-items:center;gap:14px;font-size:13px;color:var(--mut)}
+.leak .bar{flex:1;height:6px;border-radius:9px;background:rgba(233,230,223,.06);overflow:hidden}
+.leak .bar i{display:block;height:100%;width:100%;border-radius:9px;background:var(--bad);transition:width .9s cubic-bezier(.3,.7,.2,1),background .6s}
+.leak b{color:var(--txt-2);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.enc-label{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.9px;text-transform:uppercase;color:var(--mut-2);font-weight:700;margin:16px 0 8px}
+.enc-label:first-of-type{margin-top:0}
+.enc-in{width:100%;background:#15181c;border:1px solid var(--line-2);color:var(--txt);border-radius:11px;padding:13px 15px;font:14.5px var(--font);outline:none;transition:border-color .2s}
+.enc-in:focus{border-color:var(--accent-line)}
+.enc-out{min-height:98px;background:#121417;border:1px solid var(--line);border-radius:11px;padding:13px 15px;font:12.5px/1.75 ui-monospace,'SFMono-Regular',Consolas,Menlo,monospace;color:var(--sand);word-break:break-all;letter-spacing:.4px}
+.enc-out .sc{color:var(--mut-2)}
+.enc-meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--mut);background:rgba(233,230,223,.03);border:1px solid var(--line);border-radius:999px;padding:5px 11px;white-space:nowrap}
+.chip .ic{width:13px;height:13px;color:var(--mut-2)}
+.chip-btn{cursor:pointer;font-family:var(--font);transition:border-color .2s,color .2s}
+.chip-btn:hover{border-color:var(--line-3);color:var(--txt)}
+.chip-btn.spin-once .ic{animation:spin .6s ease}
+
+/* world map */
+.map-panel{margin-bottom:18px;overflow:hidden}
+.map-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px}
+.map-box{position:relative;margin:6px -6px 0;border-radius:14px}
+.map-box svg{width:100%;height:auto;display:block}
+.map-land{stroke:rgba(233,230,223,.13);stroke-linecap:round;fill:none}
+.pin{cursor:pointer}
+.pin .halo{fill:rgba(169,183,169,.12);opacity:0;transition:opacity .3s}
+.pin .core{fill:#7f8c82;stroke:#14161a;transition:fill .25s}
+.pin:hover .core{fill:var(--sand)}
+.pin:hover .halo{opacity:1}
+.pin.active .core{fill:var(--sand)}
+.pin.active .halo{opacity:1;animation:halo 2.2s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes halo{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+.me .core{fill:var(--txt)}
+.me .ring{fill:none;stroke:rgba(233,230,223,.5);transform-box:fill-box;transform-origin:center;animation:halo 2.6s ease-out infinite}
+.route{fill:none;stroke:var(--accent);stroke-linecap:round;stroke-dasharray:3 5;animation:flow 1.1s linear infinite;opacity:.9}
+.route-glow{fill:none;stroke:rgba(169,183,169,.14);stroke-linecap:round}
+.route.off{stroke:var(--bad);opacity:.55;animation:none}
+@keyframes flow{to{stroke-dashoffset:-16}}
+.packet{fill:var(--sand)}
+.map-tip{position:absolute;pointer-events:none;background:#23272c;border:1px solid var(--line-2);border-radius:9px;padding:7px 11px;font-size:12px;white-space:nowrap;
+  transform:translate(-50%,calc(-100% - 12px));opacity:0;transition:opacity .2s;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:3}
+.map-tip b{font-weight:600}
+.map-tip small{color:var(--mut);margin-left:6px}
+.map-tip.show{opacity:1}
+.route-info{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.route-info div{background:rgba(233,230,223,.028);border:1px solid var(--line);border-radius:12px;padding:11px 13px;min-width:0}
+.route-info small{display:block;color:var(--mut-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
+.route-info b{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:640px){.route-info{grid-template-columns:1fr 1fr}}
+
+@media(max-width:640px){
+  .trow{grid-template-columns:62px minmax(0,1fr);row-gap:2px}
+  .trow .w{grid-column:1/-1;white-space:normal;overflow-wrap:anywhere}
+  .leak{flex-wrap:wrap;gap:8px 12px}
+  .leak .bar{order:3;flex-basis:100%}
+  .map-box{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;margin:6px -21px 0;border-radius:0}
+  .map-box::-webkit-scrollbar{display:none}
+  .map-box svg{width:720px;max-width:none}
+  .map-hint{display:block!important}
+}
+.map-hint{display:none;color:var(--mut-2);font-size:12px;text-align:center;margin-top:8px}
+/* plan picker */
+.picker{margin-top:22px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:center}
+@media(max-width:860px){.picker{grid-template-columns:1fr}}
+.picker .q{margin-bottom:14px}
+.picker .q:last-child{margin-bottom:0}
+.picker .q>small{display:block;color:var(--mut-2);font-size:11px;letter-spacing:.9px;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.opts{display:flex;gap:7px;flex-wrap:wrap}
+.opt{border:1px solid var(--line-2);background:rgba(233,230,223,.025);color:var(--txt-2);font:500 13.5px var(--font);padding:9px 14px;border-radius:10px;cursor:pointer;transition:.2s}
+.opt:hover{border-color:var(--line-3)}
+.opt.on{background:var(--accent-soft);border-color:var(--accent-line);color:var(--txt)}
+.pick-res{background:#16191d;border:1px solid var(--line);border-radius:14px;padding:20px;min-height:100%}
+.pick-res small{color:var(--mut-2);font-size:11px;letter-spacing:.9px;text-transform:uppercase;font-weight:700}
+.pick-res h4{font-size:22px;font-weight:650;margin:6px 0 4px;letter-spacing:-.3px}
+.pick-res p{color:var(--mut);font-size:13.5px;margin-bottom:14px}
+.price.match{border-color:rgba(193,180,156,.5);box-shadow:0 0 0 4px rgba(193,180,156,.07),0 26px 60px rgba(0,0,0,.28)}
+.price{transition:border-color .4s,box-shadow .4s,transform .4s}
+
+/* steps connector */
+.steps-line{position:absolute;left:16.6%;right:16.6%;top:48px;height:1px;background:var(--line-2);z-index:0}
+.steps-line i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--sand));transition:width 1.6s ease .3s}
+.steps.in-view .steps-line i{width:100%}
+.step{z-index:1}
+@media(max-width:860px){.steps-line{display:none}}
+
+/* back to top */
+.to-top{position:fixed;right:22px;bottom:22px;width:46px;height:46px;border-radius:50%;background:#1d2126;border:1px solid var(--line-2);color:var(--txt-2);
+  display:grid;place-items:center;cursor:pointer;z-index:90;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s,transform .3s,color .2s}
+.to-top.show{opacity:1;transform:none;pointer-events:auto}
+.to-top:hover{color:var(--txt)}
+.to-top svg.r{position:absolute;inset:-1px;width:46px;height:46px;transform:rotate(-90deg)}
+.to-top svg.r circle{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-dasharray:138.2;stroke-dashoffset:138.2}
+.to-top .ic{width:17px;height:17px}
+
+/* ============================================================
+   CINEMATIC LAYER — typography, camera, depth, motion
+   ============================================================ */
+
+/* ---------- 1. Cinematic typography ---------- */
+:root{
+  --disp:'Georgia','Times New Roman',var(--font);
+  --mono:'SFMono-Regular',ui-monospace,Consolas,'Liberation Mono',Menlo,monospace;
+  --ease-cine:cubic-bezier(.16,.84,.28,1);
+  --ease-soft:cubic-bezier(.33,1,.68,1);
+  --ease-back:cubic-bezier(.34,1.4,.5,1);
+}
+/* Display headings: high-contrast serif, tight leading, cinematic scale */
+.cine-display{
+  font-family:var(--disp);
+  font-weight:400;
+  line-height:.98;
+  letter-spacing:-.022em;
+  font-size:clamp(38px,6.1vw,84px);
+  text-wrap:balance;
+}
+.sec-head h2{
+  font-family:var(--disp);
+  font-weight:400;
+  font-size:clamp(30px,4.4vw,56px);
+  line-height:1.02;
+  letter-spacing:-.024em;
+  margin:18px 0 16px;
+  text-wrap:balance;
+}
+.hero h1{
+  font-family:var(--disp);
+  font-weight:400;
+  font-size:clamp(36px,5.35vw,72px);
+  line-height:1.01;
+  letter-spacing:-.028em;
+  margin:26px 0 22px;
+  max-width:15ch;
+  text-wrap:balance;
+}
+/* Letterboxed eyebrow / slate */
+.slate{
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.34em;
+  text-transform:uppercase;
+  color:var(--mut-2);
+}
+.kicker{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.3em;
+  font-weight:500;
+}
+/* Hairline rule that draws itself */
+.rule{
+  height:1px;background:linear-gradient(90deg,var(--accent-line),transparent 78%);
+  transform-origin:0 50%;transform:scaleX(0);
+  transition:transform 1.2s var(--ease-cine);
+}
+.rv.in .rule,.rule.in{transform:scaleX(1)}
+/* Gradient shimmer word */
+.shimmer{
+  background:linear-gradient(100deg,var(--accent) 0%,var(--txt) 34%,var(--sand) 56%,var(--accent) 88%);
+  background-size:260% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  animation:shimmerMove 9s var(--ease-soft) infinite;
+}
+@keyframes shimmerMove{0%{background-position:120% 0}100%{background-position:-20% 0}}
+/* Cinematic title reveal — per-line mask + slide */
+.cine-line{display:block;overflow:hidden;padding-bottom:.06em}
+.cine-line>span{
+  display:block;
+  transform:translateY(105%) rotate(2.2deg);
+  opacity:0;
+  transition:transform 1.15s var(--ease-cine),opacity .8s ease;
+}
+.cine-in .cine-line>span{transform:none;opacity:1}
+.cine-in .cine-line:nth-child(2)>span{transition-delay:.09s}
+.cine-in .cine-line:nth-child(3)>span{transition-delay:.18s}
+.cine-in .cine-line:nth-child(4)>span{transition-delay:.27s}
+/* Character-level cascade for short accents */
+.cine-chars>span{
+  display:inline-block;
+  opacity:0;transform:translateY(.55em) rotateX(-55deg);
+  transform-origin:50% 100%;
+  transition:opacity .6s ease,transform .85s var(--ease-cine);
+}
+.cine-in .cine-chars>span{opacity:1;transform:none}
+
+/* ---------- 2. Camera engine (scroll-driven, seamless) ---------- */
+.cam-stage{position:relative;perspective:1400px;perspective-origin:50% 42%}
+.cam-plane{will-change:transform;transform-style:preserve-3d}
+.cam-d1{--d:.42}.cam-d2{--d:.72}.cam-d3{--d:1}.cam-d4{--d:1.4}
+/* Depth layers: each plane translates on Z + a subtle Y drift */
+.cam-layer{transform-style:preserve-3d;will-change:transform}
+/* Vignette + letterbox bars for cinematic frame */
+.frame-vig{
+  position:fixed;inset:0;pointer-events:none;z-index:3;
+  background:radial-gradient(120% 88% at 50% 45%,transparent 42%,rgba(10,11,13,.42) 100%);
+  opacity:.9;pointer-events:none;
+}
+.letterbox{position:fixed;left:0;right:0;height:0;background:#0e1013;z-index:2;pointer-events:none;
+  transition:height 1.1s var(--ease-cine);will-change:height}
+.letterbox.top{top:0;box-shadow:0 1px 0 rgba(0,0,0,.6)}
+.letterbox.bot{bottom:0}
+body.cine-on .letterbox{height:clamp(14px,2.4vh,30px)}
+/* Horizontal light sweep across sections */
+.sweep{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.sweep i{
+  position:absolute;top:-40%;left:-30%;width:26%;height:180%;
+  background:linear-gradient(90deg,transparent,rgba(233,230,223,.045),transparent);
+  transform:rotate(14deg);
+  animation:sweepPass 11s var(--ease-soft) infinite;
+}
+@keyframes sweepPass{0%{left:-35%}55%{left:112%}100%{left:112%}}
+
+/* ---------- 3. Depth / 3D elements ---------- */
+.tilt{
+  transform-style:preserve-3d;
+  transition:transform .55s var(--ease-soft),box-shadow .55s var(--ease-soft);
+  will-change:transform;
+}
+.tilt-inner{transform:translateZ(28px);transform-style:preserve-3d}
+/* 3D flip card */
+.flip{perspective:1400px}
+.flip-in{position:relative;transform-style:preserve-3d;transition:transform .95s var(--ease-cine)}
+.flip:hover .flip-in,.flip:focus-within .flip-in{transform:rotateY(180deg)}
+.flip-face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.flip-back{position:absolute;inset:0;transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+/* Floating 3D globe / server node */
+.globe3d{position:relative;width:min(420px,84vw);aspect-ratio:1;margin:0 auto;transform-style:preserve-3d;perspective:900px}
+.globe3d .sphere{
+  position:absolute;inset:0;border-radius:50%;
+  background:
+    radial-gradient(circle at 32% 26%,rgba(193,180,156,.16),transparent 52%),
+    radial-gradient(circle at 70% 76%,rgba(163,178,190,.13),transparent 55%),
+    radial-gradient(circle at 50% 50%,rgba(169,183,169,.07),transparent 70%),
+    radial-gradient(circle at 50% 50%,#1d2127 0%,#15181c 62%,#111317 100%);
+  border:1px solid rgba(233,230,223,.07);
+  box-shadow:inset -26px -34px 70px rgba(0,0,0,.62),inset 16px 20px 50px rgba(233,230,223,.05),0 50px 110px rgba(0,0,0,.5);
+}
+.globe3d .lat,.globe3d .lon{
+  position:absolute;inset:0;border-radius:50%;
+  border:1px solid rgba(169,183,169,.13);
+  transform-style:preserve-3d;
+}
+.globe3d .lat{top:50%;height:0;border-top:1px solid rgba(233,230,223,.09)}
+.globe3d .lon{left:50%;width:0;border-left:1px solid rgba(233,230,223,.07)}
+.globe3d .axis{position:absolute;inset:0;transform-style:preserve-3d}
+.globe3d .node{
+  position:absolute;width:8px;height:8px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 3px rgba(169,183,169,.12),0 0 16px 3px rgba(169,183,169,.42);
+  transform:translateZ(1px);
+  animation:nodePulse 3.4s ease-in-out infinite;
+}
+.globe3d .node::after{
+  content:'';position:absolute;inset:-9px;border-radius:50%;
+  border:1px solid rgba(169,183,169,.35);animation:nodeRipple 3.4s ease-out infinite;
+}
+@keyframes nodePulse{0%,100%{opacity:.55;transform:translateZ(1px) scale(.82)}50%{opacity:1;transform:translateZ(1px) scale(1.12)}}
+@keyframes nodeRipple{0%{transform:scale(.5);opacity:.75}100%{transform:scale(1.6);opacity:0}}
+/* Orbiting ring around globe */
+.globe3d .ring3d{
+  position:absolute;inset:-9%;border-radius:50%;
+  border:1px solid rgba(163,178,190,.12);
+  transform:rotateX(74deg) rotateZ(0deg);
+  animation:ringTilt 26s linear infinite;
+}
+.globe3d .ring3d.b{inset:-20%;border-color:rgba(193,180,156,.09);animation-duration:38s;animation-direction:reverse}
+@keyframes ringTilt{to{transform:rotateX(74deg) rotateZ(360deg)}}
+
+/* 3D stack / layered device illustration */
+.stack3d{position:relative;transform-style:preserve-3d;perspective:1200px}
+.stack3d .slab{
+  position:absolute;inset:0;border-radius:20px;border:1px solid var(--line-2);
+  background:linear-gradient(160deg,rgba(233,230,223,.045),rgba(233,230,223,.008));
+  box-shadow:0 30px 70px rgba(0,0,0,.42);
+  transition:transform .8s var(--ease-cine);
+}
+.stack3d:hover .slab:nth-child(1){transform:translate3d(-10px,-14px,-60px)}
+.stack3d:hover .slab:nth-child(2){transform:translate3d(-4px,-6px,-26px)}
+.stack3d:hover .slab:nth-child(3){transform:translate3d(2px,2px,8px)}
+
+/* ---------- 4. Motion primitives ---------- */
+.magnetic{transition:transform .45s var(--ease-soft);will-change:transform}
+.shine{position:relative;overflow:hidden}
+.shine::after{
+  content:'';position:absolute;top:-60%;left:-120%;width:55%;height:220%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);
+  transform:rotate(16deg);transition:left .85s var(--ease-soft);pointer-events:none;
+}
+.shine:hover::after{left:135%}
+.btn-p,.btn-w{position:relative;overflow:hidden;isolation:isolate}
+.btn-p::before,.btn-w::before{
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(120deg,var(--accent),#d8d2c4 55%,var(--sand));
+  opacity:0;transition:opacity .4s var(--ease-soft);
+}
+.btn-p:hover::before,.btn-w:hover::before{opacity:1}
+/* Lift on scroll */
+.lift{transition:transform .6s var(--ease-soft),box-shadow .6s var(--ease-soft),border-color .6s}
+.lift:hover{transform:translateY(-6px);box-shadow:0 26px 60px rgba(0,0,0,.42);border-color:var(--line-3)}
+/* Number that counts with monospace tabular feel */
+.stat b,.price b,.mono-num{font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+/* Smooth accordion using grid-template-rows */
+.acc{grid-template-rows:0fr;transition:grid-template-rows .62s var(--ease-cine),opacity .45s ease;opacity:0}
+.acc.open{grid-template-rows:1fr;opacity:1}
+.acc>div{overflow:hidden;min-height:0}
+/* Cinematic focus ring */
+:focus-visible{outline:2px solid rgba(169,183,169,.62);outline-offset:4px;border-radius:8px;box-shadow:0 0 0 6px rgba(169,183,169,.1)}
+/* Link underline that wipes */
+.wipe{position:relative;display:inline-block}
+.wipe::after{content:'';position:absolute;left:0;right:0;bottom:-2px;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:100% 50%;transition:transform .5s var(--ease-cine)}
+.wipe:hover::after{transform:scaleX(1);transform-origin:0 50%}
+/* Gradient hairline divider */
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(233,230,223,.14) 20%,rgba(233,230,223,.14) 80%,transparent)}
+
+/* ---------- 5. Scroll-linked reveal (stagger) ---------- */
+.rv{transition:opacity .95s var(--ease-cine),transform 1.05s var(--ease-cine),filter .95s ease}
+.rv{filter:blur(6px)}
+.rv.in{opacity:1;transform:none;filter:none}
+.stagger>*{transition-delay:calc(var(--i,0)*70ms)}
+
+/* ---------- 6. Form transitions ---------- */
+.inp{
+  position:relative;background:#15181c;border:1px solid var(--line-2);border-radius:11px;
+  transition:border-color .38s var(--ease-soft),background .38s var(--ease-soft),box-shadow .38s var(--ease-soft);
+}
+.inp:hover{border-color:var(--line-3)}
+.inp:focus-within{border-color:var(--accent-line);background:#171a1f;box-shadow:0 0 0 4px rgba(169,183,169,.09)}
+.inp label{position:absolute;left:15px;top:13px;font-size:14.5px;color:var(--mut);pointer-events:none;
+  transform-origin:0 0;transition:transform .38s var(--ease-cine),color .38s var(--ease-soft)}
+.inp input,.inp select{width:100%;background:transparent;border:0;color:var(--txt);padding:13px 15px 7px;font:14.5px var(--font);outline:none}
+.inp input:focus+label,.inp input:not(:placeholder-shown)+label{transform:translateY(-11px) scale(.78);color:var(--accent)}
+.inp .bar{position:absolute;left:12px;right:12px;bottom:8px;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:50% 50%;transition:transform .55s var(--ease-cine)}
+.inp:focus-within .bar{transform:scaleX(1)}
+
+/* ---------- 7. Section rhythm ---------- */
+section{position:relative}
+section>.wrap{position:relative;z-index:2}
+.section-num{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;color:var(--mut-2);
+  display:block;margin-bottom:14px;
+}
+
+/* ---------- 8. Hero cinematic stage ---------- */
+.hero{padding:168px 0 92px}
+.hero-stage{position:relative;transform-style:preserve-3d}
+.hero h1 .rot{color:var(--accent);font-style:italic}
+.hero-sub{font-size:18px;line-height:1.68;max-width:48ch}
+.hero-cta{gap:14px}
+.hero-cta .btn{padding:17px 30px;font-size:15.5px;border-radius:12px}
+/* Depth stack behind phone */
+.mock-depth{position:absolute;inset:0;pointer-events:none;transform-style:preserve-3d;z-index:0}
+.mock-depth i{
+  position:absolute;left:50%;top:50%;border-radius:26px;
+  border:1px solid rgba(233,230,223,.055);
+  transform-style:preserve-3d;
+}
+.mock-depth i:nth-child(1){width:340px;height:600px;transform:translate(-50%,-50%) translateZ(-90px) rotate(-3deg)}
+.mock-depth i:nth-child(2){width:340px;height:600px;transform:translate(-50%,-50%) translateZ(-58px) rotate(2deg)}
+.mock-depth i:nth-child(3){width:340px;height:600px;transform:translate(-50%,-50%) translateZ(-28px) rotate(-1deg)}
+/* Floating chips in 3D */
+.chip3d{
+  position:absolute;z-index:3;pointer-events:none;
+  display:flex;align-items:center;gap:8px;
+  padding:9px 14px;border-radius:999px;
+  background:rgba(26,29,34,.82);border:1px solid var(--line-2);
+  backdrop-filter:blur(10px);
+  font-size:12px;font-weight:600;color:var(--txt-2);
+  box-shadow:0 16px 40px rgba(0,0,0,.45);
+  white-space:nowrap;
+  animation:float3d 7s ease-in-out infinite;
+}
+.chip3d .ic{width:14px;height:14px;color:var(--accent)}
+.chip3d.c2{animation-delay:-2.3s}
+.chip3d.c3{animation-delay:-4.6s}
+@keyframes float3d{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-14px) rotate(1deg)}}
+
+/* ---------- 9. Kinetic marquee (seamless) ---------- */
+.kband{position:relative;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(233,230,223,.016);padding:34px 0;overflow:hidden}
+.kmarq{display:flex;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.kmarq .ktrack{display:flex;flex:none;gap:54px;width:max-content;animation:kmove 38s linear infinite}
+.kmarq:hover .ktrack{animation-play-state:paused}
+.kmarq .ktrack span{font-family:var(--disp);font-size:clamp(26px,3.6vw,46px);letter-spacing:-.02em;color:rgba(233,230,223,.16);white-space:nowrap;transition:color .45s var(--ease-soft)}
+.kmarq .ktrack span:hover{color:rgba(233,230,223,.6)}
+@keyframes kmove{to{transform:translateX(calc(-50% - 27px))}}
+
+/* ---------- 10. Cinematic cards ---------- */
+.card-cine{
+  position:relative;border:1px solid var(--line);border-radius:var(--r);
+  background:linear-gradient(165deg,rgba(233,230,223,.035),rgba(233,230,223,.008));
+  overflow:hidden;transform-style:preserve-3d;
+  transition:transform .6s var(--ease-soft),border-color .6s,box-shadow .6s;
+}
+.card-cine::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .6s;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),rgba(169,183,169,.11),transparent 62%);
+  pointer-events:none;
+}
+.card-cine:hover{transform:translateY(-8px) rotateX(4deg) rotateY(-4deg);border-color:var(--line-3);box-shadow:0 34px 70px rgba(0,0,0,.45)}
+.card-cine:hover::before{opacity:1}
+
+/* ---------- 11. Scroll progress + camera HUD ---------- */
+.cam-hud{
+  position:fixed;right:22px;top:50%;transform:translateY(-50%);
+  z-index:60;display:flex;flex-direction:column;align-items:center;gap:10px;
+  opacity:0;transition:opacity .6s var(--ease-soft);pointer-events:none;
+}
+body.cine-on .cam-hud{opacity:.55}
+.cam-hud .dot{width:5px;height:5px;border-radius:50%;background:var(--line-3);transition:background .4s,transform .5s var(--ease-cine)}
+.cam-hud .dot.act{background:var(--accent);transform:scale(1.6)}
+.cam-hud .rail{width:1px;height:120px;background:linear-gradient(180deg,transparent,var(--line-3),transparent);position:relative}
+.cam-hud .rail i{position:absolute;left:-2px;width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px 2px rgba(169,183,169,.4)}
+
+/* ---------- 11.5 Cinematic card treatment on existing classes ---------- */
+.case,.card,.feature,.price,.testi,.dev{
+  position:relative;overflow:hidden;transform-style:preserve-3d;
+  transition:transform .6s var(--ease-soft),border-color .6s var(--ease-soft),box-shadow .6s var(--ease-soft),background .6s;
+}
+.case::after,.card::after,.feature::after,.price::after,.testi::after,.dev::after{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:0;
+  transition:opacity .6s var(--ease-soft);
+  background:linear-gradient(115deg,transparent 34%,rgba(233,230,223,.055) 48%,transparent 62%);
+  transform:translateX(-42%);
+}
+.case:hover::after,.card:hover::after,.feature:hover::after,.price:hover::after,.testi:hover::after,.dev:hover::after{
+  opacity:1;transform:translateX(42%);
+}
+.case:hover,.card:hover,.feature:hover,.testi:hover,.dev:hover{
+  border-color:var(--line-3);
+  box-shadow:0 30px 66px rgba(0,0,0,.4);
+}
+.price:hover{border-color:var(--line-3);box-shadow:0 34px 74px rgba(0,0,0,.46)}
+.case>*,.card>*,.feature>*,.testi>*,.price>*{transform:translateZ(22px);transform-style:preserve-3d}
+
+/* ---------- 12. Globe band ---------- */
+.gband{
+  position:relative;overflow:hidden;padding:110px 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(900px 520px at 76% 50%,rgba(163,178,190,.05),transparent 62%),
+    radial-gradient(700px 460px at 12% 30%,rgba(193,180,156,.035),transparent 65%);
+}
+.gband-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.92fr);gap:56px;align-items:center;position:relative;z-index:2}
+.gband-copy h2{margin:0 0 18px}
+.gband-copy>p{color:var(--mut);font-size:17px;max-width:46ch}
+.gband-list{list-style:none;margin-top:34px;display:flex;flex-direction:column;gap:20px}
+.gband-list li{
+  display:grid;grid-template-columns:42px minmax(0,1fr);gap:0 14px;align-items:center;
+  padding:16px 18px;border:1px solid var(--line);border-radius:14px;
+  background:linear-gradient(160deg,rgba(233,230,223,.032),rgba(233,230,223,.006));
+  transition:border-color .5s var(--ease-soft),transform .5s var(--ease-soft),background .5s;
+}
+.gband-list li:hover{border-color:var(--line-3);transform:translateX(6px)}
+.gband-list .gl{
+  grid-row:span 2;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+  background:var(--accent-soft);border:1px solid var(--accent-line);color:var(--accent);
+}
+.gband-list .gl .ic{width:19px;height:19px}
+.gband-list b{font-weight:650;font-size:15.5px;letter-spacing:-.01em}
+.gband-list i{font-style:normal;color:var(--mut);font-size:13.5px;line-height:1.5}
+@media(max-width:900px){
+  .gband{padding:76px 0}
+  .gband-grid{grid-template-columns:1fr;gap:46px}
+  .globe3d{order:-1}
+}
+
+/* ---------- 13. Reduced motion ---------- */
+@media(prefers-reduced-motion:reduce){
+  .orbit .spin,.press.marq .track,.kmarq .ktrack,.route,.power-wrap.on::before,.power-wrap.on::after,.pin.active .halo,.me .ring,
+  .shimmer,.sweep i,.chip3d,.globe3d .node,.globe3d .ring3d{animation:none!important}
+  .rv{filter:none;transition-duration:.01ms}
+  .cine-line>span{transform:none!important;opacity:1!important}
+  .letterbox{height:0!important}
+  *{scroll-behavior:auto!important}
+}
+@media(max-width:860px){
+  .cam-hud{display:none}
+  .hero{padding:140px 0 74px}
+  .hero h1{max-width:100%}
+  .chip3d{display:none}
+}
+@media(max-width:520px){
+  .letterbox{height:clamp(8px,1.4vh,14px)!important}
+}
+</style>
+<link rel="stylesheet" href="film.css">
+<link rel="stylesheet" href="cinema.css">
+<style id="btn-motion">
+/* ===== buttons: chamfered "key" silhouette with a light that runs around the edge =====
+   Shape: two opposite corners cut like a key-card. The cut deepens on hover (shape morph),
+   a glint orbits the outline, a soft spotlight follows the pointer, a ring ripples on press. */
+@property --ba{syntax:'<angle>';inherits:false;initial-value:0deg}
+@property --cut{syntax:'<length>';inherits:true;initial-value:11px}
+.btn,.pn-btn,.pl-skip{
+  --cut:11px;--rim:rgba(233,230,223,.16);--fill:rgba(26,28,31,.92);--glint:rgba(214,226,210,.85);--glint2:rgba(230,206,170,.75);
+  position:relative;isolation:isolate;overflow:hidden;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  background:conic-gradient(from var(--ba),var(--rim) 0deg,var(--rim) 250deg,var(--glint2) 290deg,var(--glint) 318deg,var(--rim) 350deg)!important;
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  transition:--cut .55s cubic-bezier(.2,.8,.2,1),color .3s,transform .45s cubic-bezier(.2,.8,.2,1)!important;
+  animation:btnOrbit 7s linear infinite;
+}
+.btn::before,.pn-btn::before,.pl-skip::before{
+  content:'';position:absolute;inset:1px;z-index:-2;opacity:1!important;
+  background:var(--fill)!important;
+  clip-path:polygon(calc(var(--cut) - .4px) 0,100% 0,100% calc(100% - var(--cut) + .4px),calc(100% - var(--cut) + .4px) 100%,0 100%,0 calc(var(--cut) - .4px));
+  transition:inset .35s cubic-bezier(.2,.8,.2,1),background .35s;
+}
+.btn::after,.pn-btn::after,.pl-skip::after{
+  content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(120px 80px at var(--mx,50%) var(--my,50%),rgba(255,255,255,.22),transparent 70%),
+    linear-gradient(105deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%) no-repeat;
+  background-size:100% 100%,250% 100%;background-position:0 0,140% 0;
+  opacity:0;transition:opacity .35s,background-position 0s;
+}
+.btn:hover,.pn-btn:hover,.pl-skip:hover{--cut:17px;animation-duration:2.2s}
+.btn:hover::after,.pn-btn:hover::after,.pl-skip:hover::after{opacity:1;background-position:0 0,-40% 0;transition:opacity .35s,background-position .9s cubic-bezier(.2,.8,.2,1)}
+.btn:active,.pn-btn:active,.pl-skip:active{transform:scale(.965)!important}
+.btn:focus-visible,.pn-btn:focus-visible,.pl-skip:focus-visible{outline:none;--rim:rgba(214,226,210,.9)}
+.btn:focus-visible::before,.pn-btn:focus-visible::before,.pl-skip:focus-visible::before{inset:3px}
+/* light variants */
+.btn-p,.btn-w,.pn-btn{--fill:var(--txt);--rim:rgba(233,230,223,1);--glint:#9fb59d;--glint2:#d9bf94;color:#17191c!important}
+.btn-p:hover::before,.btn-w:hover::before{background:linear-gradient(120deg,#e6ece3,#f3f0e9 55%,#eadcc4)!important}
+.pn-btn{--fill:var(--accent);--rim:var(--accent);--glint:#e9f0e6;--glint2:#e6cfaa}
+.pn-btn:hover::before{background:#bccabb!important}
+.btn-p::after,.btn-w::after,.pn-btn::after{background:
+    radial-gradient(120px 80px at var(--mx,50%) var(--my,50%),rgba(255,255,255,.7),transparent 70%),
+    linear-gradient(105deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%) no-repeat;background-size:100% 100%,250% 100%;background-position:0 0,140% 0}
+.btn-p:hover::after,.btn-w:hover::after,.pn-btn:hover::after{background-position:0 0,-40% 0}
+.btn-sm,.pl-skip{--cut:8px}
+.btn-sm:hover,.pl-skip:hover{--cut:12px}
+.hero-cta .btn{--cut:14px}
+.hero-cta .btn:hover{--cut:21px}
+/* icons travel with the shape */
+.btn .ic,.pn-btn .ic,.pl-skip svg{transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.btn:hover .ic,.pn-btn:hover .ic{transform:translateX(3px)}
+.pl-skip:hover svg{transform:translateY(2px)}
+/* corner ticks: a tiny mark sits in each cut, sliding in on hover */
+.btn>.btn-tick{position:absolute;width:7px;height:1px;background:currentColor;opacity:0;z-index:0;pointer-events:none;transition:opacity .35s,transform .55s cubic-bezier(.2,.8,.2,1)}
+.btn>.btn-tick.a{left:2px;top:6px;transform:rotate(-45deg) translate(-6px,0)}
+.btn>.btn-tick.b{right:2px;bottom:6px;transform:rotate(-45deg) translate(6px,0)}
+.btn:hover>.btn-tick{opacity:.5}
+.btn:hover>.btn-tick.a{transform:rotate(-45deg) translate(2px,4px)}
+.btn:hover>.btn-tick.b{transform:rotate(-45deg) translate(-2px,-4px)}
+/* press ripple */
+.btn-rip{position:absolute;z-index:-1;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;pointer-events:none;
+  border:1.5px solid currentColor;opacity:.55;animation:btnRip .7s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes btnRip{to{transform:scale(var(--rs,30));opacity:0;border-width:.1px}}
+@keyframes btnOrbit{to{--ba:360deg}}
+@media (prefers-reduced-motion:reduce){
+  .btn,.pn-btn,.pl-skip{animation:none;transition:color .2s!important}
+  .btn-rip{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== ICON SPRITE ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.4-3 8.3-7 9.5-4-1.2-7-5.1-7-9.5V6l7-3z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/><circle cx="12" cy="15" r="1.2"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5L4.8 13.2H11l-1 8.3 8.2-10.7H12l1-8.3z"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M15 12v2"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 17l9 5 9-5"/></symbol>
+    <symbol id="i-split" viewBox="0 0 24 24"><path d="M3 6h4l10 12h4"/><path d="M3 18h4L17 6h4"/><path d="M18 3l3 3-3 3M18 15l3 3-3 3"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.5 4 5.6 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.6-4-9s1.4-6.5 4-9z"/></symbol>
+    <symbol id="i-devices" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="12" height="9" rx="1.8"/><path d="M6 17.5h5.5"/><rect x="16.5" y="9.5" width="5" height="11" rx="1.5"/><path d="M18.6 18.2h.8"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="2.6" y="13" width="4.2" height="6.5" rx="1.8"/><rect x="17.2" y="13" width="4.2" height="6.5" rx="1.8"/><path d="M20 19.5v.7a2.3 2.3 0 01-2.3 2.3H14"/></symbol>
+    <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7.5 5v14M16.5 5v14M3 9.5h4.5M3 14.5h4.5M16.5 9.5H21M16.5 14.5H21"/></symbol>
+    <symbol id="i-plane" viewBox="0 0 24 24"><path d="M21.5 3.5L11.5 13.5"/><path d="M21.5 3.5l-6.8 17.2-3.2-7.2-7.2-3.2 17.2-6.8z"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2.5 8.7a15 15 0 0119 0"/><path d="M5.6 12.3a10 10 0 0112.8 0"/><path d="M8.8 15.9a5 5 0 016.4 0"/><circle cx="12" cy="19.2" r="1.1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.9 17.9A10.4 10.4 0 0112 20C5 20 1 12 1 12a19.4 19.4 0 015.1-5.9M9.9 4.2A10.6 10.6 0 0112 4c7 0 11 8 11 8a19.5 19.5 0 01-2.2 3.2"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/><path d="M2 2l20 20"/></symbol>
+    <symbol id="i-gamepad" viewBox="0 0 24 24"><rect x="2.2" y="7" width="19.6" height="10.5" rx="5"/><path d="M6.4 12.2h4M8.4 10.2v4"/><circle cx="16.2" cy="11" r="1"/><circle cx="18.4" cy="13.4" r="1"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.3"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.6 6.1 20.8l1.2-6.5L2.5 9.7l6.6-.9 2.9-6z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L19.5 7"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="12.5" rx="2"/><path d="M8 20.5h8M12 16.5v4"/></symbol>
+    <symbol id="i-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.8"/><path d="M2 20h20"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.6"/><path d="M10.2 18.8h3.6"/></symbol>
+    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+    <symbol id="i-router" viewBox="0 0 24 24"><rect x="2.5" y="13" width="19" height="7" rx="2"/><path d="M6.2 16.5h.2M9.8 16.5h.2"/><path d="M12 13V9"/><path d="M8.6 9L12 5.2 15.4 9"/></symbol>
+    <symbol id="i-browser" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M6.2 6.5h.2M9 6.5h.2"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.6 6.6L12 13l8.4-6.4"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8 8 0 01-8 8H8.4L3.4 22l1.3-4.2A8 8 0 1121 11.5z"/><path d="M8.5 11.5h.2M12 11.5h.2M15.5 11.5h.2"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 2.8V7M16 2.8V7M3 10.2h18"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 4.8l11.2 7.2L8 19.2V4.8z"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 11-2.8-6.3"/><path d="M20.8 3.2v5.4h-5.4"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10.5l5 5 5-5"/><path d="M4 20.5h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.2 16.2L20.5 20.5"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0113 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9 16H3l9-16z"/><path d="M12 9v5"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></symbol>
+  </defs>
+</svg>
+
+<div class="scroll-prog" id="scrollProg"></div>
+<canvas class="thread-cv" id="thread" aria-hidden="true"></canvas>
+<div class="letterbox top" aria-hidden="true"></div>
+<div class="letterbox bot" aria-hidden="true"></div>
+<div class="frame-vig" aria-hidden="true"></div>
+<div class="cam-hud" id="camHud" aria-hidden="true">
+  <span class="dot" data-cam="0"></span><span class="rail"><i id="camDot"></i></span>
+  <span class="dot" data-cam="1"></span><span class="dot" data-cam="2"></span>
+  <span class="dot" data-cam="3"></span><span class="dot" data-cam="4"></span>
+</div>
+<!-- ===== HEADER ===== -->
+<header id="header">
+  <div class="wrap nav">
+    <a class="logo" href="#top">
+      <span class="logo-mark">
+        <svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>
+      </span>
+      XPN
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Возможности</a>
+      <a href="#servers">Серверы</a>
+      <a href="#pricing">Цены</a>
+      <a href="#devices">Устройства</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <div class="nav-cta">
+      <button class="btn btn-o btn-sm" data-open-modal>Войти</button>
+      <button class="btn btn-p btn-sm" data-open-modal>Скачать XPN</button>
+      <button class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false">
+        <svg class="ic-open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg class="ic-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:none"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mmenu" id="mmenu">
+    <a href="#features">Возможности</a>
+    <a href="#servers">Серверы и скорость</a>
+    <a href="#pricing">Цены</a>
+    <a href="#devices">Устройства</a>
+    <a href="#reviews">Отзывы</a>
+    <a href="#faq">Вопросы</a>
+  </div>
+</header>
+
+<!-- ===== FILM: scroll-scrubbed cinematic story ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="fGoo" x="-8%" y="-40%" width="116%" height="180%" color-interpolation-filters="sRGB">
+    <feGaussianBlur id="fGooBlur" in="SourceGraphic" stdDeviation="0"/>
+    <feColorMatrix id="fGooMat" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+  </filter>
+</svg>
+<section class="film" id="film" aria-label="Фильм на одну минуту: как XPN защищает вас">
+  <div class="film-stage" id="filmStage">
+    <div class="film-far" data-far="0" aria-hidden="true">Приватность</div>
+    <div class="film-far" data-far="1" aria-hidden="true">Шифрование</div>
+    <div class="film-far" data-far="2" aria-hidden="true">Туннель</div>
+    <div class="film-far" data-far="3" aria-hidden="true">География</div>
+    <div class="film-far" data-far="4" aria-hidden="true">Скорость</div>
+    <div class="film-far" data-far="5" aria-hidden="true">Устройства</div>
+    <div class="film-far" data-far="6" aria-hidden="true">Защита</div>
+    <canvas class="film-gl" id="filmGl" aria-hidden="true"></canvas>
+    <canvas class="film-cv" id="filmCv" aria-hidden="true"></canvas>
+    <div class="film-grade" aria-hidden="true"></div>
+    <div class="chapter-intros" id="chapterIntros" aria-hidden="true">
+      <div class="chapter-intro" data-intro="0"><div class="ci-sh t"></div><div class="ci-sh b"></div><div class="ci-body"><i>01</i><small>Глава первая · Приватность</small><b>ВАС<br><em>ВИДНО</em></b><div class="ci-rule"><span class="ci-line"></span><span class="ci-dot"></span><span class="ci-cap">провайдер · Wi-Fi в кафе · сайты</span></div></div></div>
+      <div class="chapter-intro" data-intro="1"><div class="ci-sh t"></div><div class="ci-sh b"></div><div class="ci-body"><i>02</i><small>Глава вторая · Шифрование</small><b>КОД<br><em>ВМЕСТО СЛОВ</em></b><div class="ci-rule"><span class="ci-line"></span><span class="ci-dot"></span><span class="ci-cap">ваши данные становятся нечитаемыми</span></div></div></div>
+      <div class="chapter-intro" data-intro="2"><div class="ci-sh t"></div><div class="ci-sh b"></div><div class="ci-body"><i>03</i><small>Глава третья · Туннель</small><b>ВНУТРИ<br><em>ТУННЕЛЯ</em></b><div class="ci-rule"><span class="ci-line"></span><span class="ci-dot"></span><span class="ci-cap">закрытый коридор от вас до сервера</span></div></div></div>
+      <div class="chapter-intro" data-intro="3"><div class="ci-sh t"></div><div class="ci-sh b"></div><div class="ci-body"><i>04</i><small>Глава четвёртая · Весь мир</small><b>ДРУГОЙ<br><em>АДРЕС</em></b><div class="ci-rule"><span class="ci-line"></span><span class="ci-dot"></span><span class="ci-cap">Москва → Амстердам за полсекунды</span></div></div></div>
+      <div class="chapter-intro" data-intro="4"><div class="ci-sh t"></div><div class="ci-sh b"></div><div class="ci-body"><i>05</i><small>Глава пятая · Скорость</small><b>ПОЛНАЯ<br><em>СКОРОСТЬ</em></b><div class="ci-rule"><span class="ci-line"></span><span class="ci-dot"></span><span class="ci-cap">без ожидания и буферизации</span></div></div></div>
+      <div class="chapter-intro" data-intro="5"><div class="ci-sh t"></div><div class="ci-sh b"></div><div class="ci-body"><i>06</i><small>Глава шестая · Устройства</small><b>ВСЕ<br><em>ЭКРАНЫ</em></b><div class="ci-rule"><span class="ci-line"></span><span class="ci-dot"></span><span class="ci-cap">до 10 устройств на одной подписке</span></div></div></div>
+      <div class="chapter-intro" data-intro="6"><div class="ci-sh t"></div><div class="ci-sh b"></div><div class="ci-body"><i>07</i><small>Глава седьмая · Готово</small><b>ОДНО<br><em>КАСАНИЕ</em></b><div class="ci-rule"><span class="ci-line"></span><span class="ci-dot"></span><span class="ci-cap">одна кнопка — и вы под защитой</span></div></div></div>
+    </div>
+    <div class="jcity" id="jCity" aria-hidden="true"><small id="jCityK">Вы сейчас здесь</small><b id="jCityT">МОСКВА</b></div>
+    <div class="jhud" id="jHud" aria-hidden="true">
+      <div class="jh-top"><span class="jh-tag">Путь вашего трафика</span><span class="jh-live"><i></i>зашифровано</span></div>
+      <div class="jh-route"><b id="jFrom">Москва</b><span class="jh-line"><i id="jBar"></i></span><b id="jTo">Амстердам</b></div>
+      <div class="jh-grid">
+        <div><small>Пройдено</small><b id="jKm">0 км</b></div>
+        <div><small>IP для сайтов</small><b id="jIp">95.165.••.••</b></div>
+        <div><small>Задержка</small><b id="jPing">в пути…</b></div>
+      </div>
+    </div>
+
+    <!-- chapter 1 -->
+    <div class="sc" data-ch="0">
+      <div class="sc-hl">
+        <h2 class="sc-title" aria-label="Интернет помнит всё"><span class="ln ln-a">Интернет</span><span class="ln ln-b">помнит всё</span></h2>
+        <p class="sc-sub">Каждый сайт, сеть Wi-Fi и провайдер видят, кто вы и что делаете. Минутный фильм о том, как XPN это прячет.</p>
+        <div class="sc-cta">
+          <button class="btn btn-p" data-film-play><svg class="ic fill" aria-hidden="true"><use href="#i-play"/></svg>Смотреть фильм</button>
+          <button class="btn btn-o" data-film-skip>Сразу к тарифам</button>
+        </div>
+      </div>
+      <div class="sc-side">
+        <div class="sc-num">01 / 07 · без защиты</div>
+        <div class="sc-bigrow"><div class="sc-big" data-to="100" data-suf="%"><span class="o">100%</span><span class="f">100%</span></div></div>
+        <p class="sc-lead">сайтов узнают ваш город, устройство и IP-адрес — без всяких взломов</p>
+      </div>
+    </div>
+    <!-- chapter 2 -->
+    <div class="sc" data-ch="1">
+      <div class="sc-hl">
+        <h2 class="sc-title" aria-label="XPN шифрует каждое слово"><span class="ln ln-a">XPN шифрует</span><span class="ln ln-b">каждое слово</span></h2>
+        <p class="sc-sub">Всё, что вы отправляете, превращается в бессмысленный набор символов. Прочитать его может только адресат.</p>
+      </div>
+      <div class="sc-side">
+        <div class="sc-num">02 / 07 · шифрование</div>
+        <div class="sc-bigrow"><div class="sc-big" data-to="256"><span class="o">256</span><span class="f">256</span></div><span class="sc-unit">бит</span></div>
+        <p class="sc-lead">длина ключа. Подобрать его не успеют и за миллиард лет</p>
+      </div>
+    </div>
+    <!-- chapter 3 -->
+    <div class="sc" data-ch="2">
+      <div class="sc-hl">
+        <h2 class="sc-title" aria-label="Туннель вместо улицы"><span class="ln ln-a">Туннель</span><span class="ln ln-b">вместо улицы</span></h2>
+        <p class="sc-sub">Ваш трафик идёт по закрытому каналу. Снаружи видно только, что он есть, — но не что внутри.</p>
+      </div>
+      <div class="sc-side">
+        <div class="sc-num">03 / 07 · туннель</div>
+        <div class="sc-bigrow"><div class="sc-big" data-to="0"><span class="o">0</span><span class="f">0</span></div><span class="sc-unit">посторонних</span></div>
+        <p class="sc-lead">видят, какие сайты вы открываете и что пишете</p>
+      </div>
+    </div>
+    <!-- chapter 4 -->
+    <div class="sc" data-ch="3">
+      <div class="sc-hl">
+        <h2 class="sc-title" aria-label="Весь мир в одно касание"><span class="ln ln-a">Весь мир</span><span class="ln ln-b">в одно касание</span></h2>
+        <p class="sc-sub">Сайты и сервисы решат, что вы в другой стране. Сменить страну — одно нажатие.</p>
+      </div>
+      <div class="sc-side">
+        <div class="sc-num">04 / 07 · география</div>
+        <div class="sc-bigrow"><div class="sc-big" data-to="105"><span class="o">105</span><span class="f">105</span></div><span class="sc-unit">стран</span></div>
+        <p class="sc-lead">и больше 3 200 серверов. Вращайте планету — выберите любую</p>
+      </div>
+    </div>
+    <!-- chapter 5 -->
+    <div class="sc" data-ch="4">
+      <div class="sc-hl">
+        <h2 class="sc-title" aria-label="Скорость не теряется"><span class="ln ln-a">Скорость</span><span class="ln ln-b">не теряется</span></h2>
+        <p class="sc-sub">Фильмы, игры и видеозвонки работают так же быстро, как без VPN.</p>
+      </div>
+      <div class="sc-side">
+        <div class="sc-num">05 / 07 · скорость</div>
+        <div class="sc-bigrow"><div class="sc-big" data-to="10"><span class="o">10</span><span class="f">10</span></div><span class="sc-unit">Гбит/с</span></div>
+        <p class="sc-lead">каналы наших серверов. Скорость падает всего на 2‑4%</p>
+      </div>
+    </div>
+    <!-- chapter 6 -->
+    <div class="sc" data-ch="5">
+      <div class="sc-hl">
+        <h2 class="sc-title" aria-label="Одна подписка, все экраны"><span class="ln ln-a">Одна подписка</span><span class="ln ln-b">все экраны</span></h2>
+        <p class="sc-sub">Телефон, ноутбук, телевизор и планшет — до десяти устройств одновременно.</p>
+      </div>
+      <div class="sc-side">
+        <div class="sc-num">06 / 07 · устройства</div>
+        <div class="sc-bigrow"><div class="sc-big" data-to="10"><span class="o">10</span><span class="f">10</span></div><span class="sc-unit">устройств</span></div>
+        <p class="sc-lead">на одну подписку — для вас и всей семьи</p>
+      </div>
+    </div>
+    <!-- chapter 7 -->
+    <div class="sc" data-ch="6">
+      <div class="sc-hl">
+        <h2 class="sc-title" aria-label="Нажмите. Вы защищены."><span class="ln ln-a">Нажмите.</span><span class="ln ln-b">Вы защищены.</span></h2>
+        <p class="sc-sub">Никаких настроек и инструкций. Скачали, нажали одну кнопку — готово.</p>
+      </div>
+      <div class="sc-side">
+        <div class="sc-num">07 / 07 · готово</div>
+        <div class="sc-bigrow"><div class="sc-big" data-to="7"><span class="o">7</span><span class="f">7</span></div><span class="sc-unit">дней бесплатно</span></div>
+        <p class="sc-lead">Не понравится — вернём деньги в течение 30 дней</p>
+      </div>
+    </div>
+
+    <!-- the single morphing dot that becomes every info card -->
+    <div class="blob-glow" id="blobGlow" aria-hidden="true"></div>
+    <div class="blob" id="blob">
+      <div class="blob-bg"></div>
+      <div class="blob-dot"></div>
+
+      <div class="pnl" data-ch="0">
+        <div class="pn-h"><span class="pn-tag">Глава 01 · Без защиты</span><span class="pn-st st-bad"><i></i>Защита выключена</span></div>
+        <h3>Это о вас видит <em>любой сайт</em></h3>
+        <ul class="pn-list">
+          <li><span>Ваш город</span><b data-fx="city">—</b></li>
+          <li><span>Устройство</span><b data-fx="os">—</b></li>
+          <li><span>Браузер</span><b data-fx="br">—</b></li>
+          <li><span>Экран</span><b data-fx="scr">—</b></li>
+          <li><span>Язык и время</span><b data-fx="lang">—</b></li>
+          <li><span>IP-адрес</span><b data-fx="ip" class="t-bad">открыт для всех</b></li>
+        </ul>
+        <p class="pn-note">Эти данные ваш браузер сам сообщает каждому сайту. Мы ничего никуда не отправляем.</p>
+        <button class="pn-btn" data-film-next>Спрятать это <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+
+      <div class="pnl" data-ch="1">
+        <div class="pn-h"><span class="pn-tag">Глава 02 · Шифрование</span><span class="pn-st st-ok"><i></i>AES-256</span></div>
+        <h3>Так ваши слова видит <em>провайдер</em></h3>
+        <label class="pn-lbl" for="fEncIn">Напишите что угодно — например, пароль</label>
+        <input class="pn-in" id="fEncIn" maxlength="48" value="Мой пароль от банка: 4815" autocomplete="off" spellcheck="false">
+        <div class="pn-flow"><span>XPN шифрует</span><i></i></div>
+        <div class="pn-cipher" id="fEncOut"></div>
+        <div class="pn-chips"><span>AES-256-GCM</span><span>ChaCha20</span><span>Новый ключ каждую сессию</span></div>
+      </div>
+
+      <div class="pnl" data-ch="2">
+        <div class="pn-h"><span class="pn-tag">Глава 03 · Туннель</span>
+          <div class="pn-seg" role="group" aria-label="Сравнить"><button data-tun="0">Без XPN</button><button data-tun="1">С XPN</button></div>
+        </div>
+        <h3>Кто видит, <em>куда вы ходите</em></h3>
+        <ul class="pn-who" id="fWho">
+          <li><span class="w-ic"><svg viewBox="0 0 24 24"><use href="#i-wifi"/></svg></span><div><b>Wi-Fi в кафе</b><small data-off="Видит все сайты, которые вы открываете" data-on="Видит только зашифрованный шум"></small></div><em class="w-st"></em></li>
+          <li><span class="w-ic"><svg viewBox="0 0 24 24"><use href="#i-router"/></svg></span><div><b>Ваш провайдер</b><small data-off="Хранит историю ваших посещений" data-on="Видит лишь, что вы подключены к XPN"></small></div><em class="w-st"></em></li>
+          <li><span class="w-ic"><svg viewBox="0 0 24 24"><use href="#i-browser"/></svg></span><div><b>Сайты и реклама</b><small data-off="Знают ваш настоящий IP и город" data-on="Видят только адрес сервера XPN"></small></div><em class="w-st"></em></li>
+          <li><span class="w-ic"><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg></span><div><b>Мошенники в сети</b><small data-off="Могут перехватить пароли" data-on="Не могут ничего прочитать"></small></div><em class="w-st"></em></li>
+        </ul>
+      </div>
+
+      <div class="pnl" data-ch="3">
+        <div class="pn-h"><span class="pn-tag">Глава 04 · Весь мир</span><span class="pn-st st-ok"><i></i>пинг <span id="fGeoPing">24 мс</span></span></div>
+        <h3>Выберите страну — <em>сайты поверят</em></h3>
+        <div class="pn-geo" id="fGeo"></div>
+        <div class="pn-res">
+          <div><small>Сайты увидят вас в</small><b id="fGeoCity">Амстердам</b></div>
+          <div><small>Новый IP-адрес</small><b id="fGeoIp">185.107.56.•••</b></div>
+          <div><small>Расстояние</small><b id="fGeoKm">—</b></div>
+        </div>
+      </div>
+
+      <div class="pnl" data-ch="4">
+        <div class="pn-h"><span class="pn-tag">Глава 05 · Скорость</span><span class="pn-st st-ok"><i></i>потеря 3%</span></div>
+        <h3>Хватит ли скорости <em>именно вам?</em></h3>
+        <div class="pn-acts" id="fActs">
+          <button data-act="0" class="on">Фильмы в 4K</button><button data-act="1">Онлайн-игры</button><button data-act="2">Видеозвонки</button><button data-act="3">Загрузки</button>
+        </div>
+        <div class="pn-chart">
+          <div class="pn-ch-leg">
+            <span class="lg0"><i></i>Без VPN <b id="fV0">94</b></span>
+            <span class="lg1"><i></i>С XPN <b id="fV1">91</b></span>
+            <span class="lg2"><i></i>Нужно <b id="fNeed">25 Мбит/с</b></span>
+          </div>
+          <canvas id="fChart" aria-label="График скорости: с XPN около 91 Мбит/с, без VPN около 94 Мбит/с" role="img"></canvas>
+        </div>
+        <p class="pn-verdict" id="fVerdict"></p>
+      </div>
+
+      <div class="pnl" data-ch="5">
+        <div class="pn-h"><span class="pn-tag">Глава 06 · Устройства</span><span class="pn-st st-ok"><i></i><span id="fDevN">3</span>&nbsp;из 10</span></div>
+        <h3>Подключите <em>всю семью</em></h3>
+        <div class="pn-devs" id="fDevs"></div>
+        <p class="pn-note">Нажимайте на устройства — они загорятся в сети XPN. Одна подписка, до десяти устройств одновременно.</p>
+      </div>
+
+      <div class="pnl" data-ch="6">
+        <div class="pn-h"><span class="pn-tag">Глава 07 · Готово</span><span class="pn-st st-bad" id="fPwSt"><i></i><span id="fPwStT">Не защищено</span></span></div>
+        <div class="pn-power">
+          <button class="pw" id="fPower" aria-pressed="false" aria-label="Включить защиту"><span class="pw-ring r1" aria-hidden="true"></span><span class="pw-ring r2" aria-hidden="true"></span><span class="pw-ring r3" aria-hidden="true"></span><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-shield"/></svg></button>
+          <div><b id="fPwT">Нажмите на щит</b><small id="fPwS">Так выглядит XPN: одна кнопка — и всё, что вы делаете в сети, скрыто.</small></div>
+        </div>
+        <div class="pw-signal" id="fPwSignal" aria-live="polite"><i aria-hidden="true"></i><span>Контур защиты ожидает</span></div>
+        <div class="pn-cta"><button class="btn btn-p" data-open-modal>Попробовать 7 дней бесплатно</button><a class="btn btn-o" href="#pricing">Тарифы</a></div>
+        <p class="pn-fine">Без привязки карты · возврат денег 30 дней · отмена в один клик</p>
+      </div>
+    </div>
+
+    <div class="film-hint" id="filmHint" aria-hidden="true"><span>Листайте</span><i></i></div>
+
+    <div class="player" id="player" role="group" aria-label="Управление фильмом">
+      <button class="pl-btn" id="plPlay" aria-label="Смотреть фильм">
+        <svg class="pi-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2l11 6.8-11 6.8z"/></svg>
+        <svg class="pi-pause" viewBox="0 0 24 24" aria-hidden="true" style="display:none"><rect x="6.5" y="5" width="4" height="14" rx="1"/><rect x="13.5" y="5" width="4" height="14" rx="1"/></svg>
+      </button>
+      <div class="pl-track" id="plTrack"></div>
+      <span class="pl-ch" id="plCh">Что о вас видно</span>
+      <span class="pl-time"><b id="plCur">00:01</b> / <span id="plDur">01:08</span></span>
+      <button class="pl-skip" data-film-skip><span>Пропустить</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HERO ===== -->
+<div class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="cam-stage" data-cam-depth="0.42">
+      <span class="kicker">Спокойный VPN на каждый день</span>
+      <h1 class="cine-display" id="heroTitle"><span class="cine-line"><span>Интернет без</span></span><span class="cine-line"><span>границ и слежки —</span></span><span class="cine-line"><span class="rot" id="rotWord">в один клик</span></span></h1>
+      <p class="hero-sub">XPN прячет ваш IP-адрес, шифрует трафик и открывает сайты и сервисы из любой страны. Никаких настроек: скачали, нажали кнопку — и вы защищены.</p>
+      <div class="hero-cta">
+        <button class="btn btn-p" data-open-modal>
+          <svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>
+          Получить XPN — от 249 ₽/мес
+        </button>
+        <a class="btn btn-o" href="#how">Как это работает</a>
+      </div>
+      <div class="hero-note">
+        <span class="stars" aria-label="Оценка 4,8 из 5">
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+        </span>
+        <span><b>4,8 из 5</b> · 92 000+ отзывов · гарантия возврата 30 дней</span>
+      </div>
+      <div class="platforms">
+        <span class="plat"><svg class="ic" aria-hidden="true"><use href="#i-monitor"/></svg>Windows</span>
+        <span class="plat"><svg class="ic" aria-hidden="true"><use href="#i-laptop"/></svg>macOS</span>
+        <span class="plat"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>iOS</span>
+        <span class="plat"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg>Android</span>
+        <span class="plat"><svg class="ic" aria-hidden="true"><use href="#i-tv"/></svg>Smart TV</span>
+        <span class="plat"><svg class="ic" aria-hidden="true"><use href="#i-router"/></svg>Роутеры</span>
+      </div>
+    </div>
+
+    <!-- App mockup -->
+    <div class="mock" id="mock" data-cam-depth="0.78">
+      <div class="mock-depth" aria-hidden="true" data-parallax="0.05"><i></i><i></i><i></i></div>
+      <div class="orbit" aria-hidden="true">
+        <svg viewBox="0 0 400 400">
+          <g class="spin"><circle class="ring" cx="200" cy="200" r="196"/><circle cx="200" cy="4" r="3" fill="#a9b7a9" opacity=".6"/><circle cx="4" cy="200" r="2" fill="#c1b49c" opacity=".5"/></g>
+          <g class="spin rev"><circle class="ring2" cx="200" cy="200" r="160"/><circle cx="360" cy="200" r="2.6" fill="#a3b2be" opacity=".6"/><circle cx="87" cy="87" r="2" fill="#a9b7a9" opacity=".45"/></g>
+        </svg>
+      </div>
+      <div class="chip3d" style="left:-6%;top:20%" aria-hidden="true"><svg class="ic"><use href="#i-lock"/></svg>Шифрование AES-256</div>
+      <div class="chip3d c2" style="right:-4%;top:9%" aria-hidden="true"><svg class="ic"><use href="#i-globe"/></svg>105 стран</div>
+      <div class="chip3d c3" style="right:0%;bottom:26%" aria-hidden="true"><svg class="ic"><use href="#i-eye-off"/></svg>Логи не храним</div>
+      <div class="phone" id="phone">
+        <div class="phone-notch"></div>
+        <div class="app-head"><span>XPN · Подключение</span><span>9:41</span></div>
+        <div style="text-align:center">
+          <span class="status-pill status-on" id="statusPill"><span class="dot pulse"></span><span id="statusText">Вы защищены</span></span>
+        </div>
+        <div class="power-wrap on" id="powerWrap">
+          <button class="power" id="powerBtn" aria-label="Подключить или отключить VPN" aria-pressed="true">
+            <svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg>
+          </button>
+        </div>
+        <p class="conn-info" id="connInfo">Нажмите кнопку, чтобы <b>отключиться</b><br>и увидеть, как работает XPN</p>
+        <div class="loc-card">
+          <span class="cc lg" id="curFlag">NL</span>
+          <div><small>Текущий сервер</small><b id="curLoc">Нидерланды · Амстердам</b></div>
+          <div class="ping"><small>Пинг</small><b id="curPing">24 мс</b></div>
+        </div>
+        <div class="mini-stats">
+          <div><small>Ваш IP сейчас</small><b id="ipVal">85.17.••.••</b></div>
+          <div><small>Скачано</small><b id="dlVal">1,2 ГБ</b></div>
+          <div><small>Время сессии</small><b id="sessVal">07:42</b></div>
+        </div>
+      </div>
+      <div class="mock-trust">
+        <span><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg>AES-256</span>
+        <span><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg>потеря 2–4%</span>
+        <span><svg class="ic" aria-hidden="true"><use href="#i-ban"/></svg>No-logs</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STATS ===== -->
+<div class="stats">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat rv"><b><span data-count="3200">3 200</span>+</b><span>серверов по всему миру</span></div>
+      <div class="stat rv"><b><span data-count="105">105</span></b><span>стран на выбор</span></div>
+      <div class="stat rv"><b><span data-count="14">14</span> млн</b><span>пользователей с нами</span></div>
+      <div class="stat rv"><b><span data-count="10">10</span></b><span>устройств на одну подписку</span></div>
+    </div>
+    <div class="press marq" aria-label="О нас пишут"><div class="track"><span>TechRadar</span><span>PCMag</span><span>WIRED</span><span>Forbes</span><span>CNET</span><span>Tom's Guide</span><span>The Verge</span><span>Engadget</span><span aria-hidden="true">TechRadar</span><span aria-hidden="true">PCMag</span><span aria-hidden="true">WIRED</span><span aria-hidden="true">Forbes</span><span aria-hidden="true">CNET</span><span aria-hidden="true">Tom's Guide</span><span aria-hidden="true">The Verge</span><span aria-hidden="true">Engadget</span></div></div>
+  </div>
+</div>
+
+<!-- ===== KINETIC MARQUEE BAND ===== -->
+<div class="kband" aria-hidden="true">
+  <div class="kmarq">
+    <div class="ktrack">
+      <span>Безопасность</span><span>·</span><span>Скорость</span><span>·</span><span>Свобода</span><span>·</span><span>Приватность</span><span>·</span>
+      <span>Безопасность</span><span>·</span><span>Скорость</span><span>·</span><span>Свобода</span><span>·</span><span>Приватность</span><span>·</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== USE CASES ===== -->
+<section id="cases">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">01 — Зачем нужен VPN</span>
+      <h2>Знакомые ситуации? <span class="accent">XPN решает их все</span></h2>
+      <p>VPN — это не «для программистов». Это простой инструмент на каждый день.</p>
+    </div>
+    <div class="grid3">
+      <div class="case rv spot">
+        <span class="ib t-slate"><svg class="ic" aria-hidden="true"><use href="#i-film"/></svg></span>
+        <h3>Сериалы и кино без ограничений</h3>
+        <p>Смотрите каталоги Netflix, Disney+, HBO и других сервисов из любой страны — так, будто вы там живёте.</p>
+      </div>
+      <div class="case rv spot">
+        <span class="ib t-sage"><svg class="ic" aria-hidden="true"><use href="#i-plane"/></svg></span>
+        <h3>Спокойствие в поездках</h3>
+        <p>В отеле, аэропорту или кафе ваш «домашний» интернет всегда с вами: банки, госуслуги и родные сервисы работают как обычно.</p>
+      </div>
+      <div class="case rv spot">
+        <span class="ib t-sand"><svg class="ic" aria-hidden="true"><use href="#i-wifi"/></svg></span>
+        <h3>Безопасность в публичном Wi-Fi</h3>
+        <p>Открытые сети — рай для мошенников. XPN шифрует всё: пароли, карты и переписку никто не перехватит.</p>
+      </div>
+      <div class="case rv spot">
+        <span class="ib t-sand"><svg class="ic" aria-hidden="true"><use href="#i-eye-off"/></svg></span>
+        <h3>Приватность от провайдера и рекламы</h3>
+        <p>Провайдер и рекламные сети больше не видят, какие сайты вы посещаете. Ваш интернет — только ваш.</p>
+      </div>
+      <div class="case rv spot">
+        <span class="ib t-sage"><svg class="ic" aria-hidden="true"><use href="#i-gamepad"/></svg></span>
+        <h3>Игры без лагов и блокировок</h3>
+        <p>Серверы рядом с игровыми дата-центрами, низкий пинг и защита от DDoS-атак соперников.</p>
+      </div>
+      <div class="case rv spot">
+        <span class="ib t-slate"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg></span>
+        <h3>Цены без «наценки за страну»</h3>
+        <p>Авиабилеты, отели и подписки часто дешевле из других стран. Сравните сами — экономия окупает VPN за одну покупку.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRIVACY DEMO ===== -->
+<section id="privacy" style="background:rgba(233,230,223,.012);border-top:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">02 — Наглядно</span>
+      <h2>Что о вас видят <span class="accent">посторонние</span></h2>
+      <p>Провайдер, владелец Wi-Fi в кафе или мошенник в той же сети — переключите режим и посмотрите разницу своими глазами.</p>
+    </div>
+    <div class="grid2" style="align-items:stretch">
+      <div class="panel rv">
+        <div class="pv-head">
+          <h3><svg class="ic" aria-hidden="true"><use href="#i-eye-off"/></svg> Глазами провайдера</h3>
+          <div class="seg" role="tablist" aria-label="Режим">
+            <button id="pvOff" class="on" role="tab" aria-selected="true">Без VPN</button>
+            <button id="pvOn" role="tab" aria-selected="false">С XPN</button>
+          </div>
+        </div>
+        <p class="sub">Так выглядит журнал одного утра обычного человека — в реальном времени.</p>
+        <div class="term" id="term">
+          <div class="term-bar"><i></i><i></i><i></i><span>журнал провайдера</span><b id="termState">всё видно</b></div>
+          <div id="termRows"></div>
+        </div>
+        <div class="leak"><span>Видно посторонним</span><span class="bar"><i id="leakBar"></i></span><b id="leakTxt">7 из 7</b></div>
+      </div>
+      <div class="panel rv">
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg> Попробуйте шифрование сами</h3>
+        <p class="sub">Напишите что угодно — пароль, номер карты, сообщение. Справа то, что увидит перехватчик.</p>
+        <div class="enc-label"><span>Так видите вы</span><span id="encCount">0 символов</span></div>
+        <input class="enc-in" id="encIn" maxlength="80" value="Пароль от банка: Kotik2026" aria-label="Текст для шифрования">
+        <div class="enc-label"><span>Так видит перехватчик</span><span>AES-256-GCM</span></div>
+        <div class="enc-out" id="encOut" aria-live="polite"></div>
+        <div class="enc-meta">
+          <span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg>Ключ <span id="keyId">7F3A</span>…</span>
+          <span class="chip"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>Новый ключ каждую сессию</span>
+          <button class="chip chip-btn" id="newKey"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>Сменить ключ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section id="features" style="background:rgba(233,230,223,.012);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">03 — Возможности</span>
+      <h2>Всё включено. <span class="accent">Без звёздочек</span></h2>
+      <p>Каждая функция ниже есть в любом тарифе XPN — мы не прячем главное за доплаты.</p>
+    </div>
+    <div class="grid3">
+      <div class="card rv spot">
+        <span class="ib t-sage"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></span>
+        <h3>Шифрование AES-256</h3>
+        <p>Стандарт банков и спецслужб. На взлом такого шифра методом перебора ушли бы миллиарды лет.</p>
+        <span class="tag">Включено</span>
+      </div>
+      <div class="card rv spot">
+        <span class="ib t-slate"><svg class="ic" aria-hidden="true"><use href="#i-ban"/></svg></span>
+        <h3>Строгий No-Logs</h3>
+        <p>Мы не записываем ваши сайты, IP и время сессий. Серверы работают только на RAM — данные стираются при каждой перезагрузке.</p>
+        <ul><li>Независимый аудит Deloitte, 2025</li><li>Юрисдикция — Панама, вне альянсов 5/9/14 Eyes</li></ul>
+      </div>
+      <div class="card rv spot">
+        <span class="ib t-sand"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg></span>
+        <h3>Протокол XPN-Light</h3>
+        <p>Наш протокол на базе WireGuard: подключение за 0,4 секунды и потеря скорости всего 2–4%.</p>
+        <ul><li>Каналы серверов — 10 Гбит/с</li><li>Открытый исходный код</li></ul>
+      </div>
+      <div class="card rv spot">
+        <span class="ib t-sage"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg></span>
+        <h3>Kill Switch</h3>
+        <p>Если VPN-соединение вдруг оборвётся, интернет отключится мгновенно — ни один байт не уйдёт без защиты.</p>
+        <span class="tag">Работает автоматически</span>
+      </div>
+      <div class="card rv spot">
+        <span class="ib t-slate"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg></span>
+        <h3>Double VPN и Onion Over VPN</h3>
+        <p>Двойное шифрование через две страны или маршрут через сеть Tor — для тех, кому нужна максимальная анонимность.</p>
+      </div>
+      <div class="card rv spot">
+        <span class="ib t-sand"><svg class="ic" aria-hidden="true"><use href="#i-split"/></svg></span>
+        <h3>Раздельное туннелирование</h3>
+        <p>Выбирайте, какие приложения идут через VPN, а какие напрямую. Например: браузер — через VPN, банк — напрямую.</p>
+      </div>
+      <div class="card rv spot">
+        <span class="ib t-slate"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></span>
+        <h3>Блокировка угроз</h3>
+        <p>Автоматически отсекаем рекламу, трекеры, фишинговые и вредоносные сайты ещё до их загрузки.</p>
+        <ul><li>−38% рекламного трафика</li><li>Защита от вредоносного ПО</li></ul>
+      </div>
+      <div class="card rv spot">
+        <span class="ib t-sage"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg></span>
+        <h3>Смена IP в один клик</h3>
+        <p>105 стран и «умный» выбор самого быстрого сервера. Есть выделенные IP для банков и работы.</p>
+      </div>
+      <div class="card rv spot">
+        <span class="ib t-sand"><svg class="ic" aria-hidden="true"><use href="#i-devices"/></svg></span>
+        <h3>10 устройств одновременно</h3>
+        <p>Телефон, ноутбук, планшет, телевизор и вся семья — по одной подписке. На роутер — без ограничений дома.</p>
+        <span class="tag">Одна подписка на всё</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">04 — Просто как раз-два-три</span>
+      <h2>Запуск за <span class="accent">2 минуты</span> — без инструкций на 40 страниц</h2>
+      <p>Если вы умеете устанавливать обычное приложение, вы уже умеете пользоваться XPN.</p>
+    </div>
+    <div class="steps" id="steps"><div class="steps-line" aria-hidden="true"><i></i></div>
+      <div class="step rv spot"><div class="step-num">1</div><h3>Скачайте приложение</h3><p>Нажмите «Скачать XPN», укажите почту и выберите план. Есть бесплатный пробный период 7 дней — карта не нужна.</p></div>
+      <div class="step rv spot"><div class="step-num">2</div><h3>Войдите одной кнопкой</h3><p>Откройте приложение и войдите по коду из письма — пароли придумывать не надо. На телефоне можно по Face ID или отпечатку.</p></div>
+      <div class="step rv spot"><div class="step-num">3</div><h3>Нажмите большую кнопку</h3><p>Всё готово. XPN сам выберет самую быструю страну. Хотите другую — выберите на карте или в списке, например <code>США · Нью-Йорк</code>.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:34px" class="rv">
+      <button class="btn btn-p" data-open-modal>Попробовать бесплатно 7 дней</button>
+      <p style="color:var(--mut-2);font-size:12.5px;margin-top:12px">Без карты · Отмена в один клик · Русскоязычная поддержка 24/7</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CINEMATIC GLOBE BAND ===== -->
+<section class="gband" id="network" aria-labelledby="gbandTitle">
+  <div class="sweep" aria-hidden="true"><i></i></div>
+  <div class="wrap gband-grid">
+    <div class="gband-copy">
+      <span class="section-num">Сеть XPN</span>
+      <h2 id="gbandTitle" class="cine-display" style="font-size:clamp(30px,4.2vw,54px);max-width:12ch">Ваш трафик идёт по закрытому туннелю</h2>
+      <p>Между вами и интернетом — зашифрованный коридор. Сервер выбирается автоматически: ближайший свободный, с минимальной задержкой.</p>
+      <ul class="gband-list">
+        <li><span class="gl"><svg class="ic"><use href="#i-lock"/></svg></span><b>Шифрование</b><i>AES-256 — ключ вырабатывается на вашем устройстве</i></li>
+        <li><span class="gl"><svg class="ic"><use href="#i-eye-off"/></svg></span><b>Ноль логов</b><i>Мы не записываем, что вы открываете и где находитесь</i></li>
+        <li><span class="gl"><svg class="ic"><use href="#i-bolt"/></svg></span><b>Потери 2–4%</b><i>Почти как без VPN, но адрес скрыт</i></li>
+      </ul>
+      <a class="btn btn-o wipe" href="#servers" style="margin-top:26px">Посмотреть карту серверов</a>
+    </div>
+    <div class="globe3d" id="globe3d" data-cam-depth="0.9" aria-hidden="true">
+      <div class="sphere"></div>
+      <div class="lat" style="top:32%"></div>
+      <div class="lat" style="top:68%"></div>
+      <div class="lon" style="left:34%"></div>
+      <div class="lon" style="left:66%"></div>
+      <div class="ring3d"></div>
+      <div class="ring3d b"></div>
+      <span class="node" style="left:44%;top:34%"></span>
+      <span class="node" style="left:57%;top:41%;animation-delay:-.9s"></span>
+      <span class="node" style="left:38%;top:56%;animation-delay:-1.7s"></span>
+      <span class="node" style="left:63%;top:62%;animation-delay:-2.4s"></span>
+      <span class="node" style="left:48%;top:70%;animation-delay:-3s"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SERVERS + SPEED ===== -->
+<section id="servers" style="background:rgba(233,230,223,.012);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">05 — Серверы и скорость</span>
+      <h2>3200+ серверов в <span class="accent">105 странах</span></h2>
+      <p>Попробуйте прямо здесь: выберите страну и посмотрите, как XPN подключается именно к ней.</p>
+    </div>
+    <div class="panel map-panel rv">
+      <div class="map-top">
+        <div>
+          <h3><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg> Карта серверов</h3>
+          <p class="sub" style="margin-bottom:0">Нажмите на любую точку — мы проложим зашифрованный маршрут от вас до сервера.</p>
+        </div>
+        <div class="seg" role="tablist" aria-label="Масштаб карты">
+          <button id="zWorld" class="on" role="tab" aria-selected="true">Весь мир</button>
+          <button id="zEurope" role="tab" aria-selected="false">Европа</button>
+        </div>
+      </div>
+      <div class="map-box" id="mapBox">
+        <svg id="mapSvg" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Карта серверов XPN">
+          <path class="map-land" id="mapLand" stroke-width="3.3"/>
+          <path class="map-land" id="mapLandEu" stroke-width="1.1" style="opacity:0"/>
+          <g id="mapRoute"></g>
+          <g id="mapPins"></g>
+        </svg>
+        <div class="map-tip" id="mapTip"></div>
+      </div>
+      <p class="map-hint">Карту можно прокрутить пальцем в сторону</p>
+      <div class="route-info">
+        <div><small>Откуда</small><b>Вы · Таллин</b></div>
+        <div><small>Куда</small><b id="riTo">Амстердам</b></div>
+        <div><small>Расстояние</small><b id="riDist">—</b></div>
+        <div><small>Канал</small><b id="riState" style="color:var(--ok)">Зашифрован</b></div>
+      </div>
+    </div>
+    <div class="grid2" style="align-items:start">
+      <div class="panel rv">
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg> Выберите сервер</h3>
+        <p class="sub">Нажмите на страну — приложение в шапке страницы переключится на неё. Это живое демо интерфейса.</p>
+        <div class="srv-tools">
+          <input type="text" id="srvSearch" placeholder="Найти страну или город" aria-label="Поиск сервера">
+          <select id="srvSort" aria-label="Сортировка серверов">
+            <option value="ping">Сначала быстрые</option>
+            <option value="name">По алфавиту</option>
+            <option value="load">По загрузке</option>
+          </select>
+        </div>
+        <div class="srv-list" id="srvList"></div>
+        <div class="legend">
+          <span><i style="background:var(--ok)"></i>до 50 мс — идеально</span>
+          <span><i style="background:var(--warn)"></i>50–120 мс — отлично</span>
+          <span><i style="background:var(--bad)"></i>120+ мс — смена страны</span>
+        </div>
+      </div>
+
+      <div class="panel rv" id="speedScene">
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg> Проверка скорости</h3>
+        <p class="sub">Честное сравнение на канале 1 Гбит/с: обычный интернет против XPN. Нажмите кнопку — замер начнётся.</p>
+        <div class="gauge-wrap">
+          <div class="gauge">
+            <svg viewBox="0 0 230 140">
+              <path d="M20 125 A95 95 0 0 1 210 125" fill="none" stroke="rgba(233,230,223,.07)" stroke-width="14" stroke-linecap="round"/>
+              <path id="gaugeArc" d="M20 125 A95 95 0 0 1 210 125" fill="none" stroke="url(#gg)" stroke-width="14" stroke-linecap="round" stroke-dasharray="298" stroke-dashoffset="298"/>
+              <defs><linearGradient id="gg" x1="0" x2="1"><stop offset="0" stop-color="#8fa79a"/><stop offset=".6" stop-color="#a9b7a9"/><stop offset="1" stop-color="#c1b49c"/></linearGradient></defs>
+            </svg>
+            <div style="position:absolute;inset:auto 0 4px;text-align:center">
+              <div class="speed-num" id="speedNum">0</div>
+              <div style="color:var(--mut);font-size:12.5px">Мбит/с · загрузка</div>
+            </div>
+          </div>
+        </div>
+        <canvas class="sp-trace" id="spTrace" aria-hidden="true"></canvas>
+        <div class="progress"><i id="speedBar"></i></div>
+        <div class="speed-grid">
+          <div><small>Без VPN</small><b id="spPlain">—</b></div>
+          <div><small>С XPN</small><b id="spVpn" style="color:var(--accent)">—</b></div>
+          <div><small>Потеря</small><b id="spLoss" style="color:var(--ok)">—</b></div>
+        </div>
+        <button class="btn btn-p" id="speedBtn" style="width:100%;margin-top:20px">
+          <svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>
+          <span id="speedBtnText">Запустить тест скорости</span>
+        </button>
+        <p style="color:var(--mut-2);font-size:12px;margin-top:12px;text-align:center;line-height:1.5">Демо-замер на тестовых данных. Реальная скорость зависит от вашего провайдера и выбранной страны.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COMPARISON ===== -->
+<section id="compare">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">06 — Честное сравнение</span>
+      <h2>XPN против <span class="accent">остальных</span></h2>
+      <p>Почему бесплатные VPN — не выход, а крупные конкуренты — дороже при тех же функциях.</p>
+    </div>
+    <div class="tbl-wrap rv">
+      <table>
+        <thead><tr><th>Критерий</th><th class="hl">XPN</th><th>Крупные конкуренты</th><th>Бесплатные VPN</th></tr></thead>
+        <tbody>
+          <tr><th>Скорость (потеря)</th><td class="hl yes">2–4%</td><td class="mid">6–12%</td><td class="no">40–70%</td></tr>
+          <tr><th>Журналы (логи)</th><td class="hl yes">Нет, аудит Deloitte</td><td class="mid">Частично нет</td><td class="no">Ведут и продают данные</td></tr>
+          <tr><th>Серверы / страны</th><td class="hl">3200+ / 105</td><td>2500–6000 / 90–105</td><td class="no">10–50 / 5–15</td></tr>
+          <tr><th>Устройств одновременно</th><td class="hl yes">10</td><td>6–8</td><td class="no">1</td></tr>
+          <tr><th>Цена в месяц*</th><td class="hl yes">от 249 ₽</td><td>от 590 ₽</td><td class="mid">0 ₽ (платите данными)</td></tr>
+          <tr><th>Поддержка на русском 24/7</th><td class="hl yes">Да, живой чат</td><td class="mid">Не у всех</td><td class="no">Нет</td></tr>
+          <tr><th>Гарантия возврата</th><td class="hl yes">30 дней</td><td>30 дней</td><td class="no">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tbl-hint">Таблицу можно прокрутить в сторону</p>
+    <p style="color:var(--mut-2);font-size:12.5px;margin-top:14px;text-align:center">* При оплате плана на 2 года. Данные конкурентов — публичные тарифы на ноябрь 2026 г.</p>
+  </div>
+</section>
+
+<!-- ===== DEVICES ===== -->
+<section id="devices" style="background:rgba(233,230,223,.012);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">07 — Ваши устройства</span>
+      <h2>Один XPN — <span class="accent">на всё, что с экраном</span></h2>
+      <p>Приложения одинаково простые везде. Настройки и выбранная страна синхронизируются между устройствами.</p>
+    </div>
+    <div class="dev-grid">
+      <div class="dev rv spot"><span class="ib t-slate"><svg class="ic" aria-hidden="true"><use href="#i-monitor"/></svg></span><b>Windows</b><small>Windows 10 и 11 · 1 файл, 2 минуты</small></div>
+      <div class="dev rv spot"><span class="ib t-sage"><svg class="ic" aria-hidden="true"><use href="#i-laptop"/></svg></span><b>macOS</b><small>macOS 12+ · Apple Silicon и Intel</small></div>
+      <div class="dev rv spot"><span class="ib t-sand"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg></span><b>iPhone и iPad</b><small>iOS 15+ · виджет и Face ID</small></div>
+      <div class="dev rv spot"><span class="ib t-sage"><svg class="ic" aria-hidden="true"><use href="#i-phone"/></svg></span><b>Android</b><small>Android 9+ · автоподключение к Wi-Fi</small></div>
+      <div class="dev rv spot"><span class="ib t-slate"><svg class="ic" aria-hidden="true"><use href="#i-tv"/></svg></span><b>Smart TV</b><small>Android TV, Samsung, LG, Apple TV</small></div>
+      <div class="dev rv spot"><span class="ib t-sand"><svg class="ic" aria-hidden="true"><use href="#i-router"/></svg></span><b>Роутеры</b><small>Keenetic, ASUS, TP-Link · защита всего дома</small></div>
+      <div class="dev rv spot"><span class="ib t-sage"><svg class="ic" aria-hidden="true"><use href="#i-browser"/></svg></span><b>Браузеры</b><small>Chrome, Firefox, Edge · лёгкое расширение</small></div>
+      <div class="dev rv spot"><span class="ib t-slate"><svg class="ic" aria-hidden="true"><use href="#i-gamepad"/></svg></span><b>Консоли</b><small>PlayStation и Xbox — через роутер за 5 минут</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">08 — Цены</span>
+      <h2>Честные цены. <span class="accent">Отмена в один клик</span></h2>
+      <p>Во всех планах — все функции, все серверы и 10 устройств. Разница только в сроке и приятных бонусах.</p>
+      <div style="margin-top:26px">
+        <div class="toggle" role="tablist" aria-label="Период оплаты">
+          <button id="tMonthly" onclick="setPeriod('m')" role="tab" aria-selected="false">Ежемесячно</button>
+          <button id="tYearly" class="on" onclick="setPeriod('y')" role="tab" aria-selected="true">На 2 года<span class="save">−68%</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prices">
+      <div class="price rv spot">
+        <h3>Базовый</h3>
+        <p class="for">Для одного человека: соцсети, сайты, поездки</p>
+        <div class="amount"><span class="cur">₽</span><span class="num" data-m="649" data-y="249">249</span><span class="per">/мес</span><span class="oldprice" data-m="" data-y="649 ₽">649 ₽</span></div>
+        <p class="billed" data-m="Оплата каждый месяц · 649 ₽/мес" data-y="5 976 ₽ за 2 года · далее 249 ₽/мес">5 976 ₽ за 2 года · далее 249 ₽/мес</p>
+        <ul>
+          <li>Все 3200+ серверов, 105 стран</li>
+          <li>10 устройств одновременно</li>
+          <li>Шифрование AES-256, No-Logs</li>
+          <li>Kill Switch и блокировка рекламы</li>
+          <li class="off">Менеджер паролей XPN Pass</li>
+          <li class="off">Облако 1 ТБ</li>
+          <li class="off">Выделенный IP-адрес</li>
+        </ul>
+        <button class="btn btn-o" style="width:100%" data-open-modal data-plan="Базовый">Выбрать «Базовый»</button>
+      </div>
+
+      <div class="price pop rv spot">
+        <span class="pop-badge">Выбирают 8 из 10</span>
+        <h3>Плюс</h3>
+        <p class="for">Для семьи и тех, кто хочет максимум защиты</p>
+        <div class="amount"><span class="cur">₽</span><span class="num" data-m="849" data-y="349">349</span><span class="per">/мес</span><span class="oldprice" data-m="" data-y="849 ₽">849 ₽</span></div>
+        <p class="billed" data-m="Оплата каждый месяц · 849 ₽/мес" data-y="8 376 ₽ за 2 года · далее 349 ₽/мес">8 376 ₽ за 2 года · далее 349 ₽/мес</p>
+        <ul>
+          <li><b>Всё из «Базового», плюс:</b></li>
+          <li>Менеджер паролей XPN Pass</li>
+          <li>Антивирус и защита от утечек почты</li>
+          <li>Приоритетная скорость в час пик</li>
+          <li>Поддержка в чате без очереди</li>
+          <li class="off">Облако 1 ТБ</li>
+          <li class="off">Выделенный IP-адрес</li>
+        </ul>
+        <button class="btn btn-p" style="width:100%" data-open-modal data-plan="Плюс">Выбрать «Плюс»</button>
+      </div>
+
+      <div class="price rv spot">
+        <h3>Максимум</h3>
+        <p class="for">Полный комплект безопасности для дома и работы</p>
+        <div class="amount"><span class="cur">₽</span><span class="num" data-m="1190" data-y="499">499</span><span class="per">/мес</span><span class="oldprice" data-m="" data-y="1190 ₽">1190 ₽</span></div>
+        <p class="billed" data-m="Оплата каждый месяц · 1 190 ₽/мес" data-y="11 976 ₽ за 2 года · далее 499 ₽/мес">11 976 ₽ за 2 года · далее 499 ₽/мес</p>
+        <ul>
+          <li><b>Всё из «Плюса», плюс:</b></li>
+          <li>Облачное хранилище 1 ТБ</li>
+          <li>Выделенный IP в выбранной стране</li>
+          <li>Страхование от кражи личности*</li>
+          <li>Личный менеджер в поддержке</li>
+          <li>Ранний доступ к новым функциям</li>
+        </ul>
+        <button class="btn btn-o" style="width:100%" data-open-modal data-plan="Максимум">Выбрать «Максимум»</button>
+      </div>
+    </div>
+
+    <div class="panel picker rv">
+      <div>
+        <h3 style="margin-bottom:16px"><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg> Подберём план за 2 клика</h3>
+        <div class="q"><small>Кто будет пользоваться?</small>
+          <div class="opts" data-q="who"><button class="opt on" data-v="0">Только я</button><button class="opt" data-v="1">Я и семья</button></div>
+        </div>
+        <div class="q"><small>Что для вас главное?</small>
+          <div class="opts" data-q="need"><button class="opt on" data-v="0">Сайты и защита</button><button class="opt" data-v="1">Плюс пароли и антивирус</button><button class="opt" data-v="2">Всё, включая облако и свой IP</button></div>
+        </div>
+      </div>
+      <div class="pick-res">
+        <small>Рекомендуем</small>
+        <h4 id="pickName">«Базовый»</h4>
+        <p id="pickWhy">Всё необходимое для одного человека: все страны, защита и 10 устройств.</p>
+        <button class="btn btn-o btn-sm" id="pickGo">Показать план</button>
+      </div>
+    </div>
+
+    <div class="guarantee rv">
+      <span><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span><b>30 дней</b> гарантии возврата — без вопросов и форм</span></span>
+      <span><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><span><b>7 дней бесплатно</b> на любом плане, карта не нужна</span></span>
+      <span><svg class="ic" aria-hidden="true"><use href="#i-headset"/></svg><span>Поддержка на русском <b>24/7</b></span></span>
+    </div>
+    <div class="pay-icons rv"><span>VISA</span><span>Mastercard</span><span>МИР</span><span>СБП</span><span>Apple Pay</span><span>Google Pay</span><span>PayPal</span><span>Криптовалюта</span></div>
+    <p style="text-align:center;color:var(--mut-2);font-size:12px;margin-top:14px">* Услуга страхования предоставляется партнёром. Цены в рублях, включая все налоги. Подписка продлевается автоматически, отмена — в один клик в личном кабинете.</p>
+  </div>
+</section>
+
+<!-- ===== REVIEWS ===== -->
+<section id="reviews" style="background:rgba(233,230,223,.012);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">09 — Отзывы</span>
+      <h2>14 миллионов человек <span class="accent">уже с XPN</span></h2>
+      <p>Средняя оценка 4,8 из 5 — по 92 000+ отзывов в App Store и Google Play.</p>
+    </div>
+    <div class="rv-cta rv">
+      <button class="rv-open" type="button">
+        <span class="rv-open-ic" aria-hidden="true"><svg class="ic"><use href="#i-play"/></svg></span>
+        <span>Смотреть все отзывы</span>
+        <small>92 000+ оценок · спираль из 12 историй</small>
+      </button>
+    </div>
+    <div class="grid3">
+      <div class="testi rv spot">
+        <span class="stars" aria-label="5 из 5">
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+        </span>
+        <p>«Я не программист от слова совсем. Скачала, нажала кнопку — и всё заработало. Смотрю свои сериалы в отпуске, а дома включаю детям на планшете».</p>
+        <div class="who"><span class="avatar av-sage">М</span><div><b>Марина Ковалёва, 41 год</b><small>учитель · Казань · план «Плюс»</small></div></div>
+      </div>
+      <div class="testi rv spot">
+        <span class="stars" aria-label="5 из 5">
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+        </span>
+        <p>«Проверил скорость спидтестом: без VPN 940 Мбит/с, с XPN — 905. В играх пинг вырос на 3 мс. Это лучший результат из пяти VPN, что я тестил».</p>
+        <div class="who"><span class="avatar av-slate">Д</span><div><b>Дмитрий Орлов, 27 лет</b><small>геймер и стример · Новосибирск</small></div></div>
+      </div>
+      <div class="testi rv spot">
+        <span class="stars" aria-label="5 из 5">
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+        </span>
+        <p>«Постоянно в командировках. XPN на роутере дома и на телефоне: банки, рабочие сервисы и видеозвонки с семьёй — без сюрпризов в отелях».</p>
+        <div class="who"><span class="avatar av-sand">А</span><div><b>Алексей Волков, 35 лет</b><small>менеджер проектов · Москва · план «Максимум»</small></div></div>
+      </div>
+      <div class="testi rv spot">
+        <span class="stars" aria-label="5 из 5">
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+        </span>
+        <p>«Купила родителям подписку и настроила автоподключение. Теперь они спокойно пользуются Wi-Fi в поликлинике и у соседей — а я спокойна за их карты».</p>
+        <div class="who"><span class="avatar av-sand">Е</span><div><b>Екатерина Смирнова, 30 лет</b><small>дизайнер · Санкт-Петербург</small></div></div>
+      </div>
+      <div class="testi rv spot">
+        <span class="stars" aria-label="5 из 5">
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg>
+        </span>
+        <p>«Поддержка ответила в чате в три часа ночи за две минуты и по-русски. Помогли настроить роутер Keenetic по шагам со скриншотами. Сервис уровня, которого не ждёшь».</p>
+        <div class="who"><span class="avatar av-slate">И</span><div><b>Игорь Лебедев, 48 лет</b><small>предприниматель · Екатеринбург</small></div></div>
+      </div>
+      <div class="testi rv spot">
+        <span class="stars" aria-label="4 из 5">
+          <svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill" aria-hidden="true"><use href="#i-star"/></svg><svg class="ic fill off" aria-hidden="true"><use href="#i-star"/></svg>
+        </span>
+        <p>«Минус звезда только за то, что нет тарифа „навсегда“. По факту: за год ни одного обрыва, Kill Switch спасал дважды в аэропорту. Продлила на 2 года».</p>
+        <div class="who"><span class="avatar av-sage">О</span><div><b>Ольга Никитина, 26 лет</b><small>журналист · фрилансер</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="section-num">10 — Вопросы и ответы</span>
+      <h2>Спрашивали? <span class="accent">Отвечаем</span></h2>
+      <p>Простыми словами, без технического жаргона. Не нашли свой вопрос — напишите в чат, отвечаем примерно за 2 минуты.</p>
+    </div>
+    <div class="faq" id="faqList">
+      <div class="faq-item"><button class="faq-q">Что такое VPN — объясните по-человечески <span class="chev">+</span></button><div class="faq-a"><div>Представьте, что ваш интернет — это открытки: любой по пути видит, что на них написано. <b>VPN — это конверт с замком</b>: XPN заворачивает ваши данные в зашифрованный «туннель», меняет ваш адрес (IP) на адрес сервера в другой стране — и сайты видят уже не вас, а наш сервер. Провайдер видит лишь то, что вы подключены к XPN, но не что вы делаете.</div></div></div>
+      <div class="faq-item"><button class="faq-q">Это законно? <span class="chev">+</span></button><div class="faq-a"><div>Использование VPN <b>законно в России, ЕС, США и большинстве стран мира</b> для обычных задач: безопасность в Wi-Fi, удалённая работа, приватность. Миллионы компаний используют VPN для защиты сотрудников. Конечно, VPN не делает законными действия, которые запрещены сами по себе, — как и любой инструмент.</div></div></div>
+      <div class="faq-item"><button class="faq-q">VPN сильно замедлит интернет? <span class="chev">+</span></button><div class="faq-a"><div>С XPN — <b>на 2–4%</b>: на канале 500 Мбит/с вы получите около 480. Видео в 4K, игры и звонки работают без разницы. Совет: выбирайте страну поближе к вам — пинг будет ниже. Кнопка «Быстрое подключение» делает это автоматически.</div></div></div>
+      <div class="faq-item"><button class="faq-q">Что значит «без логов» и правда ли это? <span class="chev">+</span></button><div class="faq-a"><div>Это значит, что мы <b>не записываем</b>, какие сайты вы посещаете, ваш реальный IP и время подключений. Наши серверы работают только на оперативной памяти: при перезагрузке всё стирается физически. Это подтверждено независимым аудитом Deloitte (2025), а компания зарегистрирована в Панаме — вне юрисдикций, обязывающих хранить данные.</div></div></div>
+      <div class="faq-item"><button class="faq-q">Сколько устройств можно подключить? <span class="chev">+</span></button><div class="faq-a"><div><b>10 одновременно</b> по одной подписке: телефоны, компьютеры, планшеты, телевизоры всей семьи. А если поставить XPN на домашний роутер — защищены вообще все устройства в квартире без счёта.</div></div></div>
+      <div class="faq-item"><button class="faq-q">Как оплатить из России? <span class="chev">+</span></button><div class="faq-a"><div>Принимаем карты <b>МИР, Visa и Mastercard российских банков</b>, СБП, Apple Pay и Google Pay, а также криптовалюту для максимальной анонимности. Оплата занимает минуту, чек приходит на почту.</div></div></div>
+      <div class="faq-item"><button class="faq-q">Что, если мне не понравится? <span class="chev">+</span></button><div class="faq-a"><div>Первые <b>7 дней — бесплатно</b> и без карты. После оплаты действует <b>30-дневная гарантия возврата</b>: просто напишите в чат «хочу возврат» — вернём деньги за 3–5 дней без вопросов и анкет.</div></div></div>
+      <div class="faq-item"><button class="faq-q">Я ничего не понимаю в технике. У меня получится? <span class="chev">+</span></button><div class="faq-a"><div>Да. Установка — как у любого приложения, а дальше работает <b>одна большая кнопка</b>. Если что-то пойдёт не так — русскоязычная поддержка 24/7 поможет в чате, по шагам и со скриншотами. Среднее время ответа — 2 минуты.</div></div></div>
+      <div class="faq-item"><button class="faq-q">Чем XPN лучше бесплатных VPN? <span class="chev">+</span></button><div class="faq-a"><div>Бесплатный VPN должен на чём-то зарабатывать — обычно на <b>продаже ваших данных</b> и рекламе, плюс у них медленные серверы и лимиты трафика. XPN зарабатывает только на подписке, поэтому наша задача — ваша скорость и приватность, а не ваши данные.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section style="padding-top:8px">
+  <div class="wrap">
+    <div class="cta-box rv">
+      <h2>Ваш интернет. Ваши правила.<br>Начните с 7 бесплатных дней</h2>
+      <p>Без карты и обязательств. Скачайте XPN, нажмите одну кнопку — и забудьте про блокировки, слежку и небезопасный Wi-Fi.</p>
+      <button class="btn btn-w" data-open-modal style="font-size:16px;padding:16px 32px">
+        <svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>
+        Скачать XPN бесплатно
+      </button>
+      <div class="hero-note">
+        <span><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>30 дней гарантия возврата</span>
+        <span><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Отмена в один клик</span>
+        <span><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Поддержка 24/7 на русском</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="logo" href="#top">
+          <span class="logo-mark"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></span>
+          XPN
+        </a>
+        <p class="foot-about">Быстрый и честный VPN для обычных людей. Работаем с 2019 года, 14 млн пользователей в 180 странах.</p>
+        <p class="foot-contact"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>help@example.com</p>
+        <p class="foot-contact"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg>Чат на сайте — 24/7</p>
+      </div>
+      <div><h4>Продукт</h4><a href="#features">Возможности</a><a href="#servers">Серверы и скорость</a><a href="#pricing">Цены</a><a href="#devices">Приложения</a><a href="#compare">Сравнение</a></div>
+      <div><h4>Компания</h4><a href="#">О нас</a><a href="#">Блог</a><a href="#">Вакансии</a><a href="#">Пресса</a><a href="#">Партнёрам</a></div>
+      <div><h4>Помощь</h4><a href="#faq">Вопросы и ответы</a><a href="#how">Как начать</a><a href="#">Настройка роутера</a><a href="#">Статус серверов</a><a href="#">Связаться с нами</a></div>
+      <div><h4>Право</h4><a href="#">Политика конфиденциальности</a><a href="#">Условия использования</a><a href="#">Политика No-Logs</a><a href="#">Отчёт о прозрачности</a><a href="#">Warrant Canary</a></div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2019–2026 XPN Technologies S.A., Панама. Тестовый лендинг: цены, статистика и отзывы являются демонстрационными.</span>
+      <span>Сделано с заботой о приватности<svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <button class="close" id="modalClose" aria-label="Закрыть">
+      <svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>
+    </button>
+    <div id="modalForm">
+      <h3 id="modalTitle">Начать с XPN</h3>
+      <p id="modalText">Введите почту — пришлём ссылку для скачивания и активируем <b>7 бесплатных дней</b>. Карта не нужна.</p>
+      <form id="leadForm">
+        <input type="email" id="email" placeholder="ваша@почта.com" required autocomplete="email">
+        <input type="text" id="promo" placeholder="Промокод, если есть — например START20">
+        <button class="btn btn-p" type="submit" style="width:100%">Получить XPN бесплатно</button>
+      </form>
+      <p class="fine">Нажимая кнопку, вы принимаете условия использования и политику конфиденциальности. Никакого спама — только ссылка для скачивания.</p>
+    </div>
+    <div class="success" id="modalSuccess">
+      <div class="big"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></div>
+      <h3>Готово. Проверьте почту</h3>
+      <p>Мы отправили ссылку для скачивания XPN и активировали пробный период. Установка займёт около 2 минут — а дальше просто нажмите большую кнопку.</p>
+      <button class="btn btn-p" id="successClose" style="width:100%">Отлично, жду письмо</button>
+    </div>
+  </div>
+</div>
+
+<button class="to-top" id="toTop" aria-label="Наверх"><svg class="r" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="22"/></svg><svg class="ic" aria-hidden="true"><use href="#i-up"/></svg></button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ---------- data ----------
+const SERVERS = [
+ {cc:'NL',country:'Нидерланды',city:'Амстердам',lat:52.37,lon:4.9,ping:24,load:38},
+ {cc:'DE',country:'Германия',city:'Франкфурт',lat:50.11,lon:8.68,ping:31,load:44},
+ {cc:'FI',country:'Финляндия',city:'Хельсинки',lat:60.17,lon:24.94,ping:28,load:29},
+ {cc:'EE',country:'Эстония',city:'Таллин',lat:59.44,lon:24.75,ping:12,load:18},
+ {cc:'LV',country:'Латвия',city:'Рига',lat:56.95,lon:24.1,ping:19,load:26},
+ {cc:'LT',country:'Литва',city:'Вильнюс',lat:54.69,lon:25.28,ping:17,load:23},
+ {cc:'GB',country:'Великобритания',city:'Лондон',lat:51.5,lon:-0.12,ping:42,load:57},
+ {cc:'FR',country:'Франция',city:'Париж',lat:48.85,lon:2.35,ping:45,load:51},
+ {cc:'CH',country:'Швейцария',city:'Цюрих',lat:47.37,lon:8.54,ping:39,load:22},
+ {cc:'SE',country:'Швеция',city:'Стокгольм',lat:59.33,lon:18.07,ping:36,load:33},
+ {cc:'PL',country:'Польша',city:'Варшава',lat:52.23,lon:21.01,ping:29,load:47},
+ {cc:'US',country:'США',city:'Нью-Йорк',lat:40.71,lon:-74.0,ping:98,load:63},
+ {cc:'US',country:'США',city:'Лос-Анджелес',lat:34.05,lon:-118.24,ping:164,load:58},
+ {cc:'CA',country:'Канада',city:'Торонто',lat:43.65,lon:-79.38,ping:112,load:41},
+ {cc:'JP',country:'Япония',city:'Токио',lat:35.68,lon:139.69,ping:142,load:36},
+ {cc:'SG',country:'Сингапур',city:'Сингапур',lat:1.35,lon:103.82,ping:158,load:49},
+ {cc:'AU',country:'Австралия',city:'Сидней',lat:-33.87,lon:151.21,ping:196,load:27},
+ {cc:'AE',country:'ОАЭ',city:'Дубай',lat:25.2,lon:55.27,ping:118,load:52},
+ {cc:'BR',country:'Бразилия',city:'Сан-Паулу',lat:-23.55,lon:-46.63,ping:205,load:31},
+ {cc:'IN',country:'Индия',city:'Мумбаи',lat:19.08,lon:72.88,ping:132,load:69},
+ {cc:'ZA',country:'ЮАР',city:'Йоханнесбург',lat:-26.2,lon:28.05,ping:178,load:24},
+];
+let connected = true;
+let current = SERVERS[0];
+let sessSec = 462;
+
+// ---------- header ----------
+const header = document.getElementById('header');
+addEventListener('scroll',()=>header.classList.toggle('scrolled',scrollY>10),{passive:true});
+const mmenu = document.getElementById('mmenu');
+const burger = document.getElementById('burger');
+function setMenu(open){
+  mmenu.classList.toggle('open', open);
+  burger.classList.toggle('is-open', open);
+  burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+}
+burger.onclick = ()=>setMenu(!mmenu.classList.contains('open'));
+mmenu.querySelectorAll('a').forEach(a=>a.onclick=()=>setMenu(false));
+
+// ---------- toast ----------
+const toast = document.getElementById('toast');
+let toastT;
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>toast.classList.remove('show'),3400);
+}
+
+// ---------- servers list ----------
+const srvList = document.getElementById('srvList');
+const srvSearch = document.getElementById('srvSearch');
+const srvSort = document.getElementById('srvSort');
+function pingColor(p){return p<=50?'var(--ok)':p<=120?'var(--warn)':'var(--bad)'}
+function loadColor(l){return l<=45?'var(--ok)':l<=65?'var(--warn)':'var(--bad)'}
+function renderServers(){
+  const q = srvSearch.value.trim().toLowerCase();
+  let arr = SERVERS.filter(s=>!q || (s.country+' '+s.city).toLowerCase().includes(q));
+  if(srvSort.value==='ping') arr.sort((a,b)=>a.ping-b.ping);
+  if(srvSort.value==='name') arr.sort((a,b)=>a.country.localeCompare(b.country,'ru'));
+  if(srvSort.value==='load') arr.sort((a,b)=>a.load-b.load);
+  if(!arr.length){srvList.innerHTML='<p style="color:var(--mut);padding:14px 4px;font-size:14px">Ничего не нашлось. Попробуйте «США» или «Германия».</p>';return}
+  srvList.innerHTML = arr.map((s,i)=>`
+    <button class="srv ${s===current?'active':''}" data-i="${SERVERS.indexOf(s)}">
+      <span class="cc">${s.cc}</span>
+      <span><b>${s.country}</b><small>${s.city} · сервер #${104+((SERVERS.indexOf(s)*7)%48)}</small></span>
+      <span class="right">
+        <span class="pingval" style="color:${pingColor(s.ping)}">${s.ping} мс</span>
+        <span class="loadbar"><i style="width:${s.load}%;background:${loadColor(s.load)}"></i></span>
+        <small style="color:var(--mut-2)">загрузка ${s.load}%</small>
+      </span>
+    </button>`).join('');
+  srvList.querySelectorAll('.srv').forEach(el=>el.onclick=()=>selectServer(SERVERS[+el.dataset.i]));
+}
+function selectServer(s){
+  current = s;
+  document.getElementById('curFlag').textContent = s.cc;
+  document.getElementById('curLoc').textContent = s.country+' · '+s.city;
+  document.getElementById('curPing').textContent = s.ping+' мс';
+  document.getElementById('ipVal').textContent = (s.ping%80+30)+'.'+(s.load%200+20)+'.••.••';
+  if(!connected) setConnected(true,true);
+  renderServers();
+  if(window.drawRoute) drawRoute(true);
+  showToast('Сервер переключён: '+s.country+', '+s.city+' · пинг '+s.ping+' мс');
+}
+srvSearch.oninput = renderServers;
+srvSort.onchange = renderServers;
+renderServers();
+
+// ---------- power button / connection ----------
+const powerBtn = document.getElementById('powerBtn');
+const statusPill = document.getElementById('statusPill');
+const statusText = document.getElementById('statusText');
+const connInfo = document.getElementById('connInfo');
+function setConnected(on,silent){
+  connected = on;
+  powerBtn.classList.toggle('off',!on);
+  document.getElementById('powerWrap').classList.toggle('on',on);
+  if(window.drawRoute) drawRoute();
+  if(window.syncPrivacy) syncPrivacy(on);
+  powerBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  statusPill.className = 'status-pill '+(on?'status-on':'status-off');
+  statusText.textContent = on?'Вы защищены':'Вы не защищены';
+  statusPill.querySelector('.dot').classList.toggle('pulse',on);
+  connInfo.innerHTML = on
+    ? 'Нажмите кнопку, чтобы <b>отключиться</b><br>и увидеть, как работает XPN'
+    : 'Ваш реальный IP виден всем.<br>Нажмите кнопку, чтобы <b>подключиться</b>';
+  document.getElementById('ipVal').textContent = on ? (current.ping%80+30)+'.'+(current.load%200+20)+'.••.••' : '95.24.118.7';
+  if(!silent) showToast(on?'XPN подключён: '+current.country+', '+current.city:'VPN отключён — соединение не защищено');
+}
+powerBtn.onclick = ()=>setConnected(!connected);
+setInterval(()=>{
+  if(!connected) return;
+  sessSec++;
+  const m = String(Math.floor(sessSec/60)).padStart(2,'0'), s = String(sessSec%60).padStart(2,'0');
+  document.getElementById('sessVal').textContent = m+':'+s;
+  if(sessSec%9===0){
+    const gb = (1.2 + (sessSec-462)*0.004).toFixed(1).replace('.',',');
+    document.getElementById('dlVal').textContent = gb+' ГБ';
+    const jitter = Math.max(6, current.ping + Math.round(Math.random()*6-3));
+    document.getElementById('curPing').textContent = jitter+' мс';
+  }
+},1000);
+
+// ---------- speed test ----------
+const speedBtn = document.getElementById('speedBtn');
+const speedBtnText = document.getElementById('speedBtnText');
+const speedScene = document.getElementById('speedScene');
+let testing = false;
+// live trace: the measurement draws itself like a recording
+const spTrace = document.getElementById('spTrace');
+const spCtx = spTrace ? spTrace.getContext('2d') : null;
+let spSamples = [], spHead = 0, spSplit = .45;
+function drawTrace(){
+  if(!spCtx) return;
+  const w = spTrace.clientWidth, h = spTrace.clientHeight; if(!w) return;
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  if(spTrace.width !== Math.round(w * dpr)){ spTrace.width = Math.round(w * dpr); spTrace.height = Math.round(h * dpr); }
+  const c = spCtx; c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,w,h);
+  const L = 4, R = 4, T = 14, B = 6, pw = w - L - R, ph = h - T - B, Y = v => T + ph - v / 1000 * ph, X = p => L + p * pw;
+  c.strokeStyle = 'rgba(233,230,223,.06)';
+  [0, 500, 1000].forEach(v => { c.beginPath(); c.moveTo(L, Y(v) + .5); c.lineTo(w - R, Y(v) + .5); c.stroke(); });
+  c.font = '600 9.5px ui-monospace,Menlo,Consolas,monospace'; c.textBaseline = 'middle';
+  c.fillStyle = 'rgba(233,230,223,.34)'; c.textAlign = 'left'; c.fillText('БЕЗ VPN', L, 6);
+  c.fillStyle = 'rgba(169,183,169,.8)'; c.textAlign = 'left'; c.fillText('С XPN', X(spSplit) + 6, 6);
+  c.setLineDash([2, 4]); c.strokeStyle = 'rgba(233,230,223,.14)'; c.beginPath(); c.moveTo(X(spSplit) + .5, T - 4); c.lineTo(X(spSplit) + .5, T + ph); c.stroke(); c.setLineDash([]);
+  if(spSamples.length < 2){
+    c.strokeStyle = 'rgba(233,230,223,.12)'; c.setLineDash([3, 5]); c.beginPath(); c.moveTo(L, Y(0)); c.lineTo(w - R, Y(0)); c.stroke(); c.setLineDash([]);
+    return;
+  }
+  [0, 1].forEach(ph_ => {
+    const pts = spSamples.filter(q => ph_ ? q.p >= spSplit - .01 : q.p <= spSplit + .01);
+    if(pts.length < 2) return;
+    c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(X(q.p), Y(q.v)) : c.moveTo(X(q.p), Y(q.v)));
+    if(ph_){
+      const last = pts[pts.length - 1];
+      c.save(); c.lineTo(X(last.p), Y(0)); c.lineTo(X(pts[0].p), Y(0)); c.closePath();
+      const g = c.createLinearGradient(0, T, 0, T + ph); g.addColorStop(0, 'rgba(169,183,169,.22)'); g.addColorStop(1, 'rgba(169,183,169,0)');
+      c.fillStyle = g; c.fill(); c.restore();
+      c.beginPath(); pts.forEach((q, i) => i ? c.lineTo(X(q.p), Y(q.v)) : c.moveTo(X(q.p), Y(q.v)));
+    }
+    c.strokeStyle = ph_ ? '#a9b7a9' : 'rgba(233,230,223,.42)'; c.lineWidth = ph_ ? 1.8 : 1.3; c.stroke(); c.lineWidth = 1;
+  });
+  const hd = spSamples[spSamples.length - 1];
+  if(testing){
+    const hx = X(hd.p), hy = Y(hd.v);
+    const sg = c.createLinearGradient(hx - 36, 0, hx, 0); sg.addColorStop(0, 'rgba(169,183,169,0)'); sg.addColorStop(1, 'rgba(169,183,169,.14)');
+    c.fillStyle = sg; c.fillRect(hx - 36, T, 36, ph);
+    const rg = c.createRadialGradient(hx, hy, 0, hx, hy, 10); rg.addColorStop(0, 'rgba(215,226,213,.9)'); rg.addColorStop(1, 'rgba(169,183,169,0)');
+    c.fillStyle = rg; c.beginPath(); c.arc(hx, hy, 10, 0, 6.283); c.fill();
+  }
+}
+drawTrace();
+addEventListener('resize', drawTrace);
+speedBtn.onclick = ()=>{
+  if(testing) return;
+  testing = true;
+  if(speedScene){ speedScene.classList.remove('is-complete'); speedScene.classList.add('is-testing'); }
+  speedBtnText.textContent = 'Измеряем…';
+  const num = document.getElementById('speedNum'), arc = document.getElementById('gaugeArc'), bar = document.getElementById('speedBar');
+  const plainEl = document.getElementById('spPlain'), vpnEl = document.getElementById('spVpn'), lossEl = document.getElementById('spLoss');
+  plainEl.textContent = vpnEl.textContent = lossEl.textContent = '—';
+  const max = 1000, plain = 940+Math.random()*40, vpnTarget = plain*(0.955+Math.random()*0.02);
+  const t0 = performance.now(), dur = 3400;
+  spSamples = [];
+  (function tick(now){
+    const p = Math.min(1,(now-t0)/dur);
+    // two measurements in a row: each ramps up (slow start), then holds with natural jitter
+    const local = p < spSplit ? p / spSplit : (p - spSplit) / (1 - spSplit);
+    const e = 1 - Math.exp(-local * 9);
+    const phase = p<spSplit ? plain : vpnTarget;
+    const val = Math.round(phase*e + (Math.sin(now/90)*7 + Math.sin(now/37)*4)*(p<1?e:0));
+    const shown = p<1?Math.max(0,val):Math.round(vpnTarget);
+    spSamples.push({p, v: Math.max(0, Math.min(1000, val))});
+    drawTrace();
+    num.textContent = shown.toLocaleString('ru-RU');
+    arc.style.strokeDashoffset = 298 - 298*Math.min(1,shown/max);
+    bar.style.width = (p*100)+'%';
+    if(p<0.45 && p>0.4) plainEl.textContent = Math.round(plain)+' Мбит/с';
+    if(p>=1){
+      plainEl.textContent = Math.round(plain)+' Мбит/с';
+      vpnEl.textContent = Math.round(vpnTarget)+' Мбит/с';
+      lossEl.textContent = '−'+((1-vpnTarget/plain)*100).toFixed(1).replace('.',',')+'%';
+      speedBtnText.textContent = 'Запустить ещё раз';
+      speedBtn.querySelector('use').setAttribute('href','#i-refresh');
+      testing = false;
+      if(speedScene){ speedScene.classList.remove('is-testing'); speedScene.classList.add('is-complete'); }
+      drawTrace();
+      showToast('Результат: с XPN потеря скорости меньше 5%');
+      return;
+    }
+    requestAnimationFrame(tick);
+  })(t0);
+};
+
+// ---------- pricing toggle ----------
+function setPeriod(p){
+  document.getElementById('tMonthly').classList.toggle('on',p==='m');
+  document.getElementById('tYearly').classList.toggle('on',p==='y');
+  document.getElementById('tMonthly').setAttribute('aria-selected', p==='m' ? 'true':'false');
+  document.getElementById('tYearly').setAttribute('aria-selected', p==='y' ? 'true':'false');
+  document.querySelectorAll('.amount .num').forEach(el=>{
+    el.textContent = Number(el.dataset[p]).toLocaleString('ru-RU');
+  });
+  document.querySelectorAll('.oldprice').forEach(el=>el.textContent = el.dataset[p]);
+  document.querySelectorAll('.billed').forEach(el=>el.textContent = el.dataset[p]);
+  showToast(p==='y'?'План на 2 года: скидка 68% применена':'Выбрана ежемесячная оплата');
+}
+
+// ---------- FAQ ----------
+document.querySelectorAll('.faq-item').forEach(item=>{
+  const btn = item.querySelector('.faq-q'), ans = item.querySelector('.faq-a');
+  btn.setAttribute('aria-expanded','false');
+  btn.onclick = ()=>{
+    const open = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(o=>{
+      o.classList.remove('open');
+      o.querySelector('.faq-a').style.maxHeight = 0;
+      o.querySelector('.faq-q').setAttribute('aria-expanded','false');
+    });
+    if(!open){
+      item.classList.add('open');
+      ans.style.maxHeight = ans.scrollHeight+'px';
+      btn.setAttribute('aria-expanded','true');
+    }
+  };
+});
+// keep open answers correctly sized when the window is resized
+addEventListener('resize',()=>{
+  const o = document.querySelector('.faq-item.open .faq-a');
+  if(o) o.style.maxHeight = o.scrollHeight+'px';
+});
+
+// ---------- modal ----------
+const modalBg = document.getElementById('modalBg');
+let chosenPlan = '';
+let lastFocus = null;
+document.querySelectorAll('[data-open-modal]').forEach(b=>b.addEventListener('click',()=>{
+  chosenPlan = b.dataset.plan || '';
+  lastFocus = b;
+  document.getElementById('modalText').innerHTML = chosenPlan
+    ? 'План <b>«'+chosenPlan+'»</b> — отличный выбор. Введите почту: пришлём ссылку для скачивания и активируем <b>7 бесплатных дней</b>. Карта не нужна.'
+    : 'Введите почту — пришлём ссылку для скачивания и активируем <b>7 бесплатных дней</b>. Карта не нужна.';
+  document.getElementById('modalForm').style.display = 'block';
+  document.getElementById('modalSuccess').style.display = 'none';
+  modalBg.classList.add('open');
+  setTimeout(()=>document.getElementById('email').focus(),80);
+}));
+function closeModal(){
+  modalBg.classList.remove('open');
+  if(lastFocus) lastFocus.focus();
+}
+document.getElementById('modalClose').onclick = closeModal;
+document.getElementById('successClose').onclick = closeModal;
+modalBg.addEventListener('click',e=>{ if(e.target===modalBg) closeModal(); });
+addEventListener('keydown',e=>{ if(e.key==='Escape' && modalBg.classList.contains('open')) closeModal(); });
+document.getElementById('leadForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ showToast('Проверьте почту — кажется, там опечатка'); return; }
+  document.getElementById('modalForm').style.display = 'none';
+  document.getElementById('modalSuccess').style.display = 'block';
+  showToast('Пробный период активирован для '+email);
+});
+
+// ---------- counters + reveal ----------
+const io = new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
+  e.target.classList.add('in');
+  e.target.querySelectorAll('[data-count]').forEach(el=>{
+    if(el.dataset.done) return; el.dataset.done = 1;
+    const target = +el.dataset.count, t0 = performance.now();
+    (function step(now){
+      const p = Math.min(1,(now-t0)/1400);
+      el.textContent = Math.round(target*(1-Math.pow(1-p,3))).toLocaleString('ru-RU');
+      if(p<1) requestAnimationFrame(step);
+    })(t0);
+  });
+  io.unobserve(e.target);
+}),{threshold:.18});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+// ================= v3: visual details & interactivity =================
+(function(){
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
+const $ = id => document.getElementById(id);
+
+// ---- scroll progress, back-to-top, active nav ----
+const prog = $('scrollProg'), toTop = $('toTop'), ring = toTop.querySelector('circle');
+function onScroll(){
+  const h = document.documentElement.scrollHeight - innerHeight;
+  const p = h > 0 ? Math.min(1, scrollY / h) : 0;
+  prog.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+  ring.style.strokeDashoffset = (138.2 * (1 - p)).toFixed(1);
+  toTop.classList.toggle('show', scrollY > innerHeight * .9);
+}
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+toTop.onclick = () => scrollTo({top:0, behavior: reduce ? 'auto' : 'smooth'});
+
+const navLinks = [...document.querySelectorAll('.nav-links a')];
+const secIO = new IntersectionObserver(es => es.forEach(e => {
+  if(!e.isIntersecting) return;
+  navLinks.forEach(a => a.classList.toggle('act', a.getAttribute('href') === '#' + e.target.id));
+}), {rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('section[id], .hero').forEach(s => secIO.observe(s));
+
+// ---- rotating word in hero ----
+const rot = $('rotWord');
+const words = ['в один клик','для сериалов','для поездок','для работы','для семьи'];
+let wi = 0;
+if(!reduce) setInterval(() => {
+  rot.classList.add('swap');
+  setTimeout(() => { wi = (wi + 1) % words.length; rot.textContent = words[wi]; rot.classList.remove('swap'); }, 360);
+}, 2900);
+
+// ---- phone tilt ----
+const mock = $('mock'), phone = $('phone');
+if(fine && !reduce){
+  mock.addEventListener('mousemove', e => {
+    const r = mock.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    phone.style.transform = 'rotateY(' + (x * 11).toFixed(2) + 'deg) rotateX(' + (-y * 8).toFixed(2) + 'deg)';
+  });
+  mock.addEventListener('mouseleave', () => phone.style.transform = '');
+}
+
+// ---- cursor spotlight on cards ----
+if(fine) document.addEventListener('pointermove', e => {
+  const el = e.target.closest && e.target.closest('.spot');
+  if(!el) return;
+  const r = el.getBoundingClientRect();
+  el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+  el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+}, {passive:true});
+
+// ---- steps connector ----
+const steps = $('steps');
+new IntersectionObserver((es, o) => es.forEach(e => { if(e.isIntersecting){ steps.classList.add('in-view'); o.disconnect(); } }), {threshold:.35}).observe(steps);
+
+// ---- helpers ----
+function prng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+function hashStr(str, seed){ let h = seed >>> 0 || 2166136261; for(const ch of str){ h = Math.imul(h ^ ch.charCodeAt(0), 16777619); } return h >>> 0; }
+function noise(len, seed){ const r = prng(seed); let o = ''; for(let i = 0; i < len; i++) o += B64[Math.floor(r() * 64)]; return o; }
+function esc(t){ return t.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// ---- privacy: provider log ----
+const LOG = [
+  ['online.bank.ru','Вход в банк · логин ivan.petrov'],
+  ['google.com','Поиск: «болит спина что делать»'],
+  ['avito.ru','Смотрит: «детская коляска б/у»'],
+  ['mail.ru','Письмо: «Сканы паспорта для визы»'],
+  ['aviasales.ru','Билеты: Москва — Стамбул, 12 декабря'],
+  ['shop.ru/pay','Оплата картой •••• 4417'],
+  ['youtube.com','Видео: «как выбрать ипотеку»'],
+  ['gosuslugi.ru','Заявление: справка о доходах'],
+  ['clinic.ru','Запись к врачу: невролог, пятница'],
+];
+const term = $('term'), rowsEl = $('termRows');
+let safe = false, logIdx = 0, clock = 9 * 60 + 14, rows = [];
+function hostSafe(){ return 'xpn-' + current.cc.toLowerCase() + '-' + (104 + ((SERVERS.indexOf(current) * 7) % 48)) + '.net'; }
+function rowHTML(r){
+  const t = String(Math.floor(r.m / 60)).padStart(2,'0') + ':' + String(r.m % 60).padStart(2,'0') + ':' + String(r.s).padStart(2,'0');
+  const h = safe ? hostSafe() : r.host;
+  const w = safe ? noise(Math.max(18, r.what.length), hashStr(r.what, encKey)) : r.what;
+  return '<div class="t">' + t + '</div><div class="h">' + esc(h) + '</div><div class="w">' + esc(w) + '</div>';
+}
+function pushRow(){
+  const [host, what] = LOG[logIdx % LOG.length]; logIdx++;
+  clock += 1 + Math.floor(Math.random() * 3);
+  const r = {host, what, m: clock % 1440, s: Math.floor(Math.random() * 60)};
+  rows.push(r); if(rows.length > 6) rows.shift();
+  const div = document.createElement('div'); div.className = 'trow'; div.innerHTML = rowHTML(r);
+  rowsEl.appendChild(div);
+  while(rowsEl.children.length > 6) rowsEl.firstElementChild.remove();
+}
+function repaintRows(animate){
+  [...rowsEl.children].forEach((el, i) => {
+    const r = rows[i]; if(!r) return;
+    if(!animate || reduce){ el.innerHTML = rowHTML(r); return; }
+    const w = el.querySelector('.w'), h = el.querySelector('.h');
+    const finalW = safe ? noise(Math.max(18, r.what.length), hashStr(r.what, encKey)) : r.what;
+    const finalH = safe ? hostSafe() : r.host;
+    const t0 = performance.now(), dur = 520 + i * 60;
+    (function f(now){
+      const p = Math.min(1, (now - t0) / dur), n = Math.floor(finalW.length * p);
+      w.textContent = finalW.slice(0, n) + noise(Math.max(0, finalW.length - n), now | 0);
+      h.textContent = p < 1 ? noise(finalH.length, (now | 0) + 7).toLowerCase() : finalH;
+      if(p < 1) requestAnimationFrame(f); else { w.textContent = finalW; h.textContent = finalH; }
+    })(t0);
+  });
+}
+function setSafe(on, fromUser){
+  safe = on;
+  $('pvOn').classList.toggle('on', on); $('pvOff').classList.toggle('on', !on);
+  $('pvOn').setAttribute('aria-selected', on); $('pvOff').setAttribute('aria-selected', !on);
+  term.classList.toggle('safe', on);
+  $('termState').textContent = on ? 'зашифровано' : 'всё видно';
+  $('leakBar').style.width = on ? '3%' : '100%';
+  $('leakBar').style.background = on ? 'var(--ok)' : 'var(--bad)';
+  $('leakTxt').textContent = on ? '0 из 7 действий' : '7 из 7 действий';
+  repaintRows(true);
+  if(fromUser) showToast(on ? 'С XPN провайдер видит только шифр и адрес сервера XPN' : 'Без VPN видно всё: сайты, поиск, письма и покупки');
+}
+$('pvOn').onclick = () => setSafe(true, true);
+$('pvOff').onclick = () => setSafe(false, true);
+for(let i = 0; i < 4; i++) pushRow();
+$('leakTxt').textContent = '7 из 7 действий';
+let logTimer = null;
+new IntersectionObserver(es => es.forEach(e => {
+  if(e.isIntersecting && !logTimer) logTimer = setInterval(pushRow, 2300);
+  if(!e.isIntersecting && logTimer){ clearInterval(logTimer); logTimer = null; }
+})).observe(term);
+
+// ---- privacy: encryption playground ----
+let encKey = Math.floor(Math.random() * 4294967295);
+const encIn = $('encIn'), encOut = $('encOut');
+let encAnim = 0;
+function encrypt(text){
+  const bytes = new TextEncoder().encode(text).length;
+  const len = Math.max(24, Math.ceil((bytes + 28) / 3) * 4);
+  return noise(len, hashStr(text, encKey));
+}
+function renderEnc(){
+  const text = encIn.value;
+  $('encCount').textContent = text.length + ' ' + (text.length % 10 === 1 && text.length % 100 !== 11 ? 'символ' : (text.length % 10 >= 2 && text.length % 10 <= 4 && (text.length % 100 < 10 || text.length % 100 >= 20)) ? 'символа' : 'символов');
+  if(!text.trim()){ encOut.innerHTML = '<span class="sc">Напишите что-нибудь слева сверху…</span>'; return; }
+  const fin = encrypt(text), id = ++encAnim, t0 = performance.now();
+  if(reduce){ encOut.textContent = fin; return; }
+  (function f(now){
+    if(id !== encAnim) return;
+    const p = Math.min(1, (now - t0) / 420), n = Math.floor(fin.length * p);
+    encOut.innerHTML = esc(fin.slice(0, n)) + '<span class="sc">' + esc(noise(fin.length - n, now | 0)) + '</span>';
+    if(p < 1) requestAnimationFrame(f);
+  })(t0);
+}
+encIn.addEventListener('input', renderEnc);
+function setKeyId(){ $('keyId').textContent = (encKey >>> 16).toString(16).toUpperCase().padStart(4, '0'); }
+$('newKey').onclick = function(){
+  encKey = Math.floor(Math.random() * 4294967295); setKeyId(); renderEnc();
+  if(safe) repaintRows(true);
+  this.classList.remove('spin-once'); void this.offsetWidth; this.classList.add('spin-once');
+  showToast('Новый ключ создан. Старые данные с ним уже не расшифровать');
+};
+setKeyId(); renderEnc();
+
+// ---- world map ----
+const W = 1000, H = 400, LAT0 = 84, LATR = 142;
+const X = lon => (lon + 180) / 360 * W, Y = lat => (LAT0 - lat) / LATR * H;
+const LAND = window.XPN_LAND = [
+ [[-9.5,37],[-9,43.5],[-1.5,43.5],[-4.5,48],[-1,49.5],[2,51],[5,53.3],[8.5,53.8],[8.5,57.5],[10.5,57.7],[12.5,56],[14,55.4],[19,54.5],[21,57],[23.5,59.3],[28,59.8],[23,60.2],[21.5,61],[21.5,63],[25,65],[22,65.8],[18,62.5],[17.5,61],[19,60],[18,59],[16.5,57],[14,55.5],[12.8,55.6],[11,58.5],[10,59],[7.5,58],[5,58.8],[5,62],[10,64],[14,67.5],[19,70],[25,71],[31,70],[40,67],[44,68.5],[54,68.5],[60,69],[68,70],[73,72],[80,73],[90,75],[105,77.5],[113,74],[130,72],[140,72],[150,71],[160,70],[170,69.5],[180,68.5],[180,65],[175,64.5],[170,60],[163,58],[162,54],[156,51],[156,57],[150,59.5],[142,59],[136,54],[141,52],[140,48],[135,43],[130,42.5],[129,35.5],[126.5,34.5],[126,38],[125,40],[121,40.5],[122,37],[119,35],[121,31],[122,29],[117,24],[110,21],[108,21.5],[106,19],[109,15],[109,11.5],[105,8.6],[103,10.5],[100,13],[100.5,7],[103.5,1.5],[101,3],[98,8],[98.5,13],[97,17],[94,19],[92,22.5],[89,21.8],[87,21.5],[80,15.5],[80,10],[77.5,8],[76,10],[73,18],[72.5,21],[70,22.5],[67,24.5],[61,25],[57,25.5],[56,27],[50,30],[48,29.5],[51,24],[56,26],[56.5,24.5],[59.8,22.5],[57,19],[52,16],[45,12.6],[43,13],[39,21],[35,28],[34.3,31.3],[35.5,33.5],[36,36.5],[30,36.5],[27,37],[26,40],[29,41],[31,41.2],[36,41.5],[41.5,41.5],[40,43.5],[38,44.8],[37.5,47],[35,46],[33.5,44.5],[30,45.5],[28.5,43.5],[28,41.8],[26,40.8],[23,40.5],[24,38],[22.5,36.5],[21,38.5],[19.5,41.5],[19,42.5],[16,43.5],[13.5,45.5],[12.3,44.5],[14,42],[16,41.5],[18.5,40],[16.5,39],[15.7,38],[15.7,40],[12,42],[10,44],[8,44.4],[4,43.4],[3.2,42],[0.5,40.7],[0,38.7],[-2,36.7],[-5.5,36]],
+ [[-17,21],[-16,28],[-10,30],[-9,32],[-6,35.8],[0,35.8],[10,37.2],[11,33.5],[20,30.5],[20,32],[30,31.5],[32.3,31.2],[34,28],[33,27],[37,21.5],[38.5,18],[43,12.5],[51,12],[49,6],[41,-2],[39,-6],[40.5,-15],[35.5,-24],[32.6,-26],[29,-32.5],[22,-34],[18.5,-34.2],[17,-29],[12,-17],[13.5,-12],[12,-6],[9,-1],[9.5,4],[4,6.3],[-2,4.8],[-8,4.4],[-13,8],[-16.5,12.5],[-17.4,14.8],[-16,19]],
+ [[113.5,-22],[114,-26],[115,-34],[118,-35],[123.5,-34],[131,-31.5],[135.5,-34.8],[138,-35.5],[140,-38],[146,-39],[150,-37.5],[153.5,-28],[153,-25],[146,-19],[145.5,-15],[142.5,-10.7],[141.5,-15],[140.5,-17.5],[136,-15],[136.7,-12],[132,-11.3],[129.5,-15],[126,-14],[122,-17.5],[120,-19.8]],
+ [[-168,65.5],[-162,70],[-156,71.3],[-141,69.6],[-128,70],[-115,68.5],[-95,68],[-90,69],[-85,70],[-81,68],[-82,63],[-93,61],[-94,58.5],[-88,56],[-82,52.5],[-79.5,54.5],[-77,60],[-71,61],[-64.5,60],[-61,56],[-56,52],[-60,50],[-66,49],[-64,47],[-61,46],[-66,44.5],[-70,43],[-70,41.5],[-74,40.5],[-76,38],[-76,35],[-81,31],[-80,26.5],[-81,25],[-82.5,28],[-84,30],[-89,30.3],[-94,29.5],[-97.5,27],[-97.5,22],[-96,19],[-94,18.3],[-91,19],[-90.5,21],[-87,21.5],[-88,16],[-84,15.8],[-83.5,11],[-81.5,8.8],[-79.5,9.5],[-77.5,8.5],[-78,7.2],[-80.5,7.5],[-82.5,8.2],[-86,11.5],[-87.6,13.2],[-91.5,14],[-94.5,16],[-97,15.8],[-102,18],[-105.5,20],[-105,22.5],[-109,26],[-112.5,30],[-114.5,31.5],[-112,28],[-109.5,23],[-110,23],[-112,25],[-114.5,28],[-117,32.5],[-120.5,34.5],[-122.5,37.5],[-124.2,40.5],[-124,46],[-124.7,48.4],[-123,49],[-127,51],[-131,54.5],[-135,57.5],[-140,59.8],[-146,60.5],[-152,59],[-156,57.5],[-162,55],[-158,58],[-162,60],[-165,62.5],[-164.5,64.5]],
+ [[-73,78],[-60,82],[-30,83],[-20,80],[-19,75],[-22,70],[-32,68],[-40,65],[-43,60],[-48,61],[-52,65],[-54,69],[-58,75.5],[-68,76.5]],
+ [[-90,72],[-80,73.7],[-68,70.5],[-61.5,66.5],[-65,62.5],[-72,63],[-78,64.5],[-84,69]],
+ [[-125,72],[-118,76.5],[-100,78.5],[-85,78],[-80,76],[-95,74],[-105,73],[-115,71]],
+ [[-77.5,8.5],[-75,11],[-72,12],[-68,10.5],[-62,10.7],[-60,8.5],[-55,6],[-51.5,4.3],[-50,1.5],[-48.5,-1],[-44,-2.5],[-39,-3.5],[-35,-5.5],[-35,-9],[-39,-14],[-39,-18],[-41,-22],[-44.5,-23.2],[-48.5,-26],[-48.7,-28.5],[-53,-33.5],[-57.5,-35],[-57.5,-38.5],[-62,-39],[-65,-41],[-63.5,-42.5],[-67.5,-46],[-66,-48],[-69,-51],[-68.5,-53],[-72,-54],[-74.5,-52],[-75.5,-47],[-73.5,-42],[-73.5,-37],[-71.5,-31],[-70.3,-18.5],[-75.5,-15],[-78,-10],[-81.2,-5.5],[-80,-2.5],[-80.5,0],[-79,2],[-77.5,4],[-77.4,6.6]],
+ [[-5.7,50],[1.4,51],[1.7,52.7],[0,53.5],[-1.5,55.5],[-2,57.6],[-3,58.6],[-5,58.6],[-6.2,56.5],[-5,55],[-3,54.5],[-4.6,53.3],[-3,51.5],[-5.3,51.7]],
+ [[-10,51.6],[-6,52],[-6,54],[-7.5,55.3],[-10,54.2]],
+ [[-24,63.8],[-18,63.4],[-13.5,65],[-15,66.3],[-22.5,66.4],[-24.5,65.5]],
+ [[130,31],[132,34.3],[135.3,33.6],[140,35],[141,38],[142,40],[141.4,41.4],[140,41.5],[139.8,40],[139,38],[136.8,37.3],[133,35.5],[130.8,33.9]],
+ [[140,41.6],[141.6,42.6],[145.5,43.3],[142,45.5],[141.3,44]],
+ [[95,5.5],[98,4],[104,-2],[106,-6],[101,-3],[96,2]],
+ [[105,-6],[114,-7],[114.5,-8.5],[106,-7.5]],
+ [[109,1.5],[117,7],[119,5],[118,.5],[116,-3.5],[111,-3],[109,-1]],
+ [[131,-1],[141,-2.5],[150,-6],[147,-10],[141,-9],[137,-5]],
+ [[120,18.5],[122,18],[124,13],[126,7],[122,7],[120,14]],
+ [[44,-25],[47,-25],[50,-16],[49,-12],[44,-17]],
+ [[172,-34],[178,-38],[174,-41.5],[167,-46.5],[172,-41]],
+ [[79.8,9.8],[81.8,7.5],[81.2,6.2],[80,6.2]],
+];
+function inPoly(x, y, poly){ let c = false; for(let i = 0, j = poly.length - 1; i < poly.length; j = i++){ const [xi, yi] = poly[i], [xj, yj] = poly[j]; if(((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) c = !c; } return c; }
+let d = '', row = 0;
+for(let lat = 80.5; lat > -56; lat -= 2.5, row++){
+  for(let lon = -170 + (row % 2) * 1.25; lon < 180; lon += 2.5){
+    if(LAND.some(p => inPoly(lon, lat, p))) d += 'M' + X(lon).toFixed(1) + ' ' + Y(lat).toFixed(1) + 'h0';
+  }
+}
+$('mapLand').setAttribute('d', d);
+let dEu = ''; row = 0;
+for(let lat = 74; lat > 34; lat -= .8, row++){
+  for(let lon = -32 + (row % 2) * .4; lon < 64; lon += .8){
+    if(LAND.some(p => inPoly(lon, lat, p))) dEu += 'M' + X(lon).toFixed(2) + ' ' + Y(lat).toFixed(2) + 'h0';
+  }
+}
+$('mapLandEu').setAttribute('d', dEu);
+
+const NS = 'http://www.w3.org/2000/svg';
+const svg = $('mapSvg'), pinsG = $('mapPins'), routeG = $('mapRoute'), tip = $('mapTip'), mapBox = $('mapBox');
+const ME = {lat:59.44, lon:24.75};
+let vb = [0, 0, 1000, 400], k = 1;
+function mk(tag, attrs, parent){ const el = document.createElementNS(NS, tag); for(const a in attrs) el.setAttribute(a, attrs[a]); if(parent) parent.appendChild(el); return el; }
+const meG = mk('g', {class:'me'}, pinsG);
+mk('circle', {class:'ring', r:7, 'stroke-width':1}, meG);
+mk('circle', {class:'core', r:3.4}, meG);
+const pinEls = SERVERS.map(s => {
+  const g = mk('g', {class:'pin', tabindex:0, role:'button', 'aria-label': s.country + ', ' + s.city}, pinsG);
+  mk('circle', {class:'halo', r:10}, g);
+  mk('circle', {class:'core', r:3.8, 'stroke-width':1.4}, g);
+  mk('circle', {r:11, fill:'transparent'}, g);
+  g.addEventListener('click', () => selectServer(s));
+  g.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectServer(s); } });
+  g.addEventListener('mouseenter', () => showTip(s, g));
+  g.addEventListener('mouseleave', () => tip.classList.remove('show'));
+  return g;
+});
+function placePins(){
+  const z = Math.max(0, Math.min(1, (1 - k) / .73));
+  $('mapLand').style.opacity = 1 - z; $('mapLandEu').style.opacity = z;
+  const ps = k * (1 + z * .45);
+  meG.setAttribute('transform', 'translate(' + X(ME.lon) + ' ' + Y(ME.lat) + ') scale(' + ps + ')');
+  pinEls.forEach((g, i) => g.setAttribute('transform', 'translate(' + X(SERVERS[i].lon) + ' ' + Y(SERVERS[i].lat) + ') scale(' + ps + ')'));
+}
+function showTip(s, g){
+  const r = g.querySelector('.core').getBoundingClientRect(), b = mapBox.getBoundingClientRect();
+  tip.innerHTML = '<b>' + s.country + ', ' + s.city + '</b><small>' + s.ping + ' мс · загрузка ' + s.load + '%</small>';
+  let x = r.left + r.width / 2 - b.left;
+  x = Math.max(90, Math.min(b.width - 90, x));
+  tip.style.left = (x + mapBox.scrollLeft) + 'px'; tip.style.top = (r.top - b.top) + 'px';
+  tip.classList.add('show');
+}
+function km(a, b){ const R = 6371, t = Math.PI / 180, dLa = (b.lat - a.lat) * t, dLo = (b.lon - a.lon) * t; const h = Math.sin(dLa / 2) ** 2 + Math.cos(a.lat * t) * Math.cos(b.lat * t) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
+const glow = mk('path', {class:'route-glow', 'vector-effect':'non-scaling-stroke', 'stroke-width':7}, routeG);
+const path = mk('path', {class:'route', 'vector-effect':'non-scaling-stroke', 'stroke-width':1.7}, routeG);
+const pkt = mk('circle', {class:'packet', r:3}, routeG);
+let pktT0 = performance.now();
+function drawRoute(restart){
+  const x1 = X(ME.lon), y1 = Y(ME.lat), x2 = X(current.lon), y2 = Y(current.lat);
+  const dist = Math.hypot(x2 - x1, y2 - y1);
+  let dPath;
+  if(dist < 4){ dPath = 'M' + x1 + ' ' + y1 + ' C' + (x1 - 16 * k) + ' ' + (y1 - 22 * k) + ' ' + (x1 + 16 * k) + ' ' + (y1 - 22 * k) + ' ' + x2 + ' ' + y2; }
+  else { const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - Math.min(110, dist * .32) - 4 * k; dPath = 'M' + x1 + ' ' + y1 + ' Q' + mx + ' ' + my + ' ' + x2 + ' ' + y2; }
+  path.setAttribute('d', dPath); glow.setAttribute('d', dPath);
+  path.classList.toggle('off', !connected);
+  glow.style.opacity = connected ? 1 : 0;
+  pkt.style.display = connected && !reduce ? '' : 'none';
+  pinEls.forEach((g, i) => g.classList.toggle('active', SERVERS[i] === current));
+  $('riTo').textContent = current.city + ', ' + current.cc;
+  const D = km(ME, current);
+  $('riDist').textContent = D < 30 ? 'в вашем городе' : Math.round(D / 10) * 10 >= 1000 ? (Math.round(D / 10) * 10).toLocaleString('ru-RU') + ' км' : Math.round(D) + ' км';
+  $('riState').textContent = connected ? 'Зашифрован' : 'Открыт — VPN выключен';
+  $('riState').style.color = connected ? 'var(--ok)' : 'var(--bad)';
+  if(restart) pktT0 = performance.now();
+  if(safe) repaintRows(false);
+}
+window.drawRoute = drawRoute;
+/* share the projection with the motion layer (extras.js) */
+window.XPN_MAP = {X, Y, me:ME, current:()=>current, connected:()=>connected};
+(function animPkt(now){
+  if(connected && path.getAttribute('d')){
+    const L = path.getTotalLength(), dur = 1600 + L * 4;
+    const p = ((now - pktT0) % dur) / dur;
+    const pt = path.getPointAtLength(L * p);
+    pkt.setAttribute('cx', pt.x); pkt.setAttribute('cy', pt.y);
+    pkt.setAttribute('r', 2.8 * k);
+    pkt.style.opacity = Math.min(1, Math.sin(p * Math.PI) * 2.2);
+  }
+  requestAnimationFrame(animPkt);
+})(performance.now());
+
+function zoomTo(target){
+  const from = vb.slice(), t0 = performance.now(), dur = reduce ? 1 : 750;
+  (function f(now){
+    const p = Math.min(1, (now - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    vb = from.map((v, i) => v + (target[i] - v) * e);
+    k = vb[2] / 1000;
+    svg.setAttribute('viewBox', vb.map(v => v.toFixed(2)).join(' '));
+    placePins(); drawRoute();
+    if(p < 1) requestAnimationFrame(f);
+  })(t0);
+}
+$('zWorld').onclick = () => { $('zWorld').classList.add('on'); $('zEurope').classList.remove('on'); $('zWorld').setAttribute('aria-selected', true); $('zEurope').setAttribute('aria-selected', false); tip.classList.remove('show'); zoomTo([0, 0, 1000, 400]); };
+$('zEurope').onclick = () => { $('zEurope').classList.add('on'); $('zWorld').classList.remove('on'); $('zEurope').setAttribute('aria-selected', true); $('zWorld').setAttribute('aria-selected', false); tip.classList.remove('show'); zoomTo([408, 32, 270, 108]); };
+placePins(); drawRoute(true);
+if(mapBox.scrollWidth > mapBox.clientWidth) mapBox.scrollLeft = (mapBox.scrollWidth * .56) - mapBox.clientWidth / 2;
+
+// ---- plan picker ----
+const PLANS = [
+  {n:'Базовый', why:'Всё необходимое для одного человека: все 105 стран, защита от слежки и 10 устройств — от 249 ₽/мес.'},
+  {n:'Плюс', why:'Менеджер паролей, антивирус и скорость без очередей в час пик — от 349 ₽/мес.'},
+  {n:'Максимум', why:'Облако 1 ТБ, личный IP для банка и работы и страховка от кражи данных — от 499 ₽/мес.'},
+];
+const FAMILY_WHY = 'Для семьи важны пароли и защита детей от опасных сайтов — всё это есть в «Плюсе». От 349 ₽/мес.';
+const ans = {who:0, need:0};
+const priceCards = [...document.querySelectorAll('.prices .price')];
+let rec = 0;
+function updPick(){
+  rec = ans.need; let why = PLANS[rec].why;
+  if(ans.who === 1 && ans.need === 0){ rec = 1; why = FAMILY_WHY; }
+  $('pickName').textContent = '«' + PLANS[rec].n + '»';
+  $('pickWhy').textContent = why;
+  priceCards.forEach((c, i) => c.classList.toggle('match', i === rec));
+}
+document.querySelectorAll('.opts').forEach(g => g.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+  g.querySelectorAll('.opt').forEach(x => x.classList.toggle('on', x === b));
+  ans[g.dataset.q] = +b.dataset.v; updPick();
+}));
+$('pickGo').onclick = () => {
+  const c = priceCards[rec];
+  c.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block:'center'});
+  c.animate && c.animate([{transform:'none'},{transform:'translateY(-6px)'},{transform:'none'}], {duration:700, delay:450, easing:'ease-in-out'});
+};
+updPick();
+})();
+
+/* ============================================================
+   CINEMATIC ENGINE — camera, depth, magnetic, spotlight
+   ============================================================ */
+(function(){
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine   = matchMedia('(hover:hover) and (pointer:fine)').matches;
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b)=>v<a?a:v>b?b:v;
+const lerp  = (a,b,t)=>a+(b-a)*t;
+
+/* ---------- A. Cinematic body state ---------- */
+if(!reduce){
+  requestAnimationFrame(()=>document.body.classList.add('cine-on'));
+}
+
+/* ---------- B. Hero title reveal ---------- */
+const heroTitle = $('heroTitle');
+if(heroTitle){
+  const fire = ()=>heroTitle.classList.add('cine-in');
+  if(reduce){ fire(); }
+  else setTimeout(fire, 120);
+}
+
+/* ---------- C. Scroll-linked camera (seamless, lerped) ---------- */
+/* Depth planes move at different rates -> parallax "camera dolly" */
+const camPlanes = [...document.querySelectorAll('[data-cam-depth]')];
+let camTarget = 0, camCurrent = 0, camRaf = 0;
+
+function camCompute(){
+  const vh = innerHeight;
+  const docH = document.documentElement.scrollHeight - vh;
+  camTarget = docH > 0 ? clamp(scrollY / docH, 0, 1) : 0;
+  if(!camRaf) camRaf = requestAnimationFrame(camTick);
+}
+function camTick(){
+  camRaf = 0;
+  camCurrent = lerp(camCurrent, camTarget, reduce ? 1 : .085);
+  const d = camCurrent;
+  camPlanes.forEach(el=>{
+    const depth = parseFloat(el.dataset.camDepth) || .5;
+    // continuous, endless-feeling drift; wraps seamlessly at both ends
+    const y = (d - .5) * depth * 140;
+    const z = (d - .5) * depth * -180;
+    const rot = (d - .5) * depth * 2.2;
+    el.style.transform = 'translate3d(0,' + y.toFixed(2) + 'px,' + z.toFixed(2) + 'px) rotateX(' + rot.toFixed(3) + 'deg)';
+  });
+  // HUD rail marker
+  const dot = $('camDot');
+  if(dot){
+    const rail = dot.parentElement;
+    const h = rail.clientHeight;
+    dot.style.top = (d * h).toFixed(1) + 'px';
+  }
+  // continue easing toward target (seamless, never snaps)
+  if(Math.abs(camCurrent - camTarget) > .0004) camRaf = requestAnimationFrame(camTick);
+}
+addEventListener('scroll', camCompute, {passive:true});
+addEventListener('resize', camCompute, {passive:true});
+camCompute();
+
+/* ---------- D. Section camera: active nav + HUD dots ---------- */
+const hudDots = [...document.querySelectorAll('.cam-hud .dot')];
+const camSections = [...document.querySelectorAll('section[id], .hero')];
+if(camSections.length && hudDots.length){
+  const hudIO = new IntersectionObserver(es=>{
+    es.forEach(e=>{
+      if(!e.isIntersecting) return;
+      const i = camSections.indexOf(e.target);
+      hudDots.forEach((d,k)=>d.classList.toggle('act', k === i));
+    });
+  }, {rootMargin:'-50% 0px -50% 0px'});
+  camSections.forEach(s=>hudIO.observe(s));
+}
+
+/* ---------- E. Parallax on decorative planes (scroll-driven) ---------- */
+const parallaxEls = [...document.querySelectorAll('[data-parallax]')];
+if(parallaxEls.length && !reduce){
+  const pState = parallaxEls.map(el=>({el, y:0, t:0, f:parseFloat(el.dataset.parallax)||.12}));
+  const pTick = ()=>{
+    let moving = false;
+    pState.forEach(s=>{
+      const r = s.el.getBoundingClientRect();
+      const centre = r.top + r.height/2 - innerHeight/2;
+      const t = -centre * s.f;
+      s.y = lerp(s.y, t, .1);
+      s.el.style.transform = 'translate3d(0,' + s.y.toFixed(2) + 'px,0)';
+      if(Math.abs(s.y - t) > .05) moving = true;
+    });
+    if(moving) requestAnimationFrame(pTick);
+  };
+  addEventListener('scroll', ()=>{ if(!pTick._q){ pTick._q = true; requestAnimationFrame(()=>{ pTick._q=false; pTick(); }); } }, {passive:true});
+  pTick();
+}
+
+/* ---------- F. 3D tilt on cards ---------- */
+if(fine && !reduce){
+  const tiltables = [...document.querySelectorAll('.card-cine, .case, .price, .testi, .dev, .feature, .step')];
+  tiltables.forEach(el=>{
+    if(el.dataset.tiltBound) return;
+    el.dataset.tiltBound = '1';
+    el.classList.add('tilt');
+    let raf = 0, tx = 0, ty = 0;
+    const onMove = ev=>{
+      const r = el.getBoundingClientRect();
+      const px = (ev.clientX - r.left) / r.width;
+      const py = (ev.clientY - r.top) / r.height;
+      tx = (px - .5) * 12;
+      ty = (.5 - py) * 10;
+      if(!raf) raf = requestAnimationFrame(()=>{
+        raf = 0;
+        el.style.transform = 'translate3d(0,-6px,0) rotateX(' + ty.toFixed(2) + 'deg) rotateY(' + tx.toFixed(2) + 'deg)';
+      });
+    };
+    const onLeave = ()=>{ el.style.transform = ''; };
+    el.addEventListener('pointermove', onMove);
+    el.addEventListener('pointerleave', onLeave);
+  });
+}
+
+/* ---------- G. Cursor spotlight (var --mx/--my) ---------- */
+if(fine){
+  const spots = [...document.querySelectorAll('.card-cine, .case, .panel, .price, .testi, .sec-head')];
+  spots.forEach(el=>{
+    if(el.dataset.spotBound) return;
+    el.dataset.spotBound = '1';
+    el.classList.add('spot');
+    el.addEventListener('pointermove', ev=>{
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (ev.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (ev.clientY - r.top) + 'px');
+    });
+  });
+}
+
+/* ---------- H. Magnetic buttons ---------- */
+if(fine && !reduce){
+  const magnets = [...document.querySelectorAll('.btn-p, .btn-w, .logo-mark')];
+  magnets.forEach(el=>{
+    if(el.dataset.magBound) return;
+    el.dataset.magBound = '1';
+    el.classList.add('magnetic');
+    let raf = 0, cx = 0, cy = 0;
+    el.addEventListener('pointermove', ev=>{
+      const r = el.getBoundingClientRect();
+      cx = (ev.clientX - r.left - r.width/2) * .22;
+      cy = (ev.clientY - r.top - r.height/2) * .28;
+      if(!raf) raf = requestAnimationFrame(()=>{
+        raf = 0;
+        el.style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0)';
+      });
+    });
+    el.addEventListener('pointerleave', ()=>{ el.style.transform = ''; });
+  });
+}
+
+/* ---------- I. 3D phone tilt (pointer parallax on hero mock) ---------- */
+if(fine && !reduce){
+  const mock = $('mock');
+  if(mock){
+    let raf = 0, rx = 0, ry = 0;
+    mock.addEventListener('pointermove', ev=>{
+      const r = mock.getBoundingClientRect();
+      const px = (ev.clientX - r.left)/r.width - .5;
+      const py = (ev.clientY - r.top)/r.height - .5;
+      ry = px * 16; rx = -py * 12;
+      if(!raf) raf = requestAnimationFrame(()=>{
+        raf = 0;
+        const ph = $('phone');
+        if(ph) ph.style.transform = 'rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateZ(0)';
+      });
+    });
+    mock.addEventListener('pointerleave', ()=>{
+      const ph = $('phone');
+      if(ph) ph.style.transform = '';
+    });
+  }
+}
+
+/* ---------- J. Hero title char cascade for accent words ---------- */
+if(!reduce){
+  document.querySelectorAll('.sec-head h2 .accent, .hero h1 .rot').forEach(el=>{
+    if(el.dataset.cascadeDone) return;
+    el.dataset.cascadeDone = '1';
+    const txt = el.textContent;
+    el.textContent = '';
+    [...txt].forEach((ch,i)=>{
+      const s = document.createElement('span');
+      s.textContent = ch === ' ' ? '\u00A0' : ch;
+      s.style.transitionDelay = (i * 26) + 'ms';
+      el.appendChild(s);
+    });
+    el.classList.add('cine-chars');
+  });
+}
+
+/* ---------- K. Stagger assignment for grids ---------- */
+document.querySelectorAll('.grid3, .grid2, .dev-grid, .prices, .steps, .faq, .stat-grid').forEach(g=>{
+  [...g.children].forEach((c,i)=>c.style.setProperty('--i', i));
+});
+
+/* ---------- L. Smooth scroll for all in-page anchors ---------- */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', ev=>{
+    const id = a.getAttribute('href');
+    if(id.length < 2) return;
+    const t = document.querySelector(id);
+    if(!t) return;
+    ev.preventDefault();
+    const top = t.getBoundingClientRect().top + scrollY - (id === '#top' ? 0 : 78);
+    scrollTo({top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth'});
+  });
+});
+
+/* ---------- M. Scroll velocity skew (subtle cinematic) ---------- */
+if(!reduce){
+  let lastY = scrollY, skew = 0, sRaf = 0;
+  addEventListener('scroll', ()=>{
+    const dy = scrollY - lastY; lastY = scrollY;
+    const s = clamp(dy * .06, -5, 5);
+    if(sRaf) return;
+    sRaf = requestAnimationFrame(()=>{
+      sRaf = 0;
+      skew = lerp(skew, s, .2);
+      document.documentElement.style.setProperty('--skew', skew.toFixed(3) + 'deg');
+    });
+  }, {passive:true});
+}
+
+})();
+</script>
+<script src="film.js"></script>
+<script src="cinema.js" defer></script>
+<script src="extras.js" defer></script>
+</html>

@@ -1,0 +1,184 @@
+/* =====================================================================
+   PLAN CINEMA — полноэкранный моушен-ролик по тарифу.
+   Камера приближается к карточке, затем к пункту, пункт разворачивается
+   в короткое описание, затем карточка улетает и камера уезжает
+   на подробное описание. Всё — на одном rAF, только transform/opacity.
+   ===================================================================== */
+.pcx-more{
+  width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:9px;
+  background:transparent;border:1px solid var(--line,rgba(255,255,255,.1));color:var(--mut,#9aa0a6);
+  border-radius:12px;padding:10px 14px;font:inherit;font-size:13.5px;cursor:pointer;
+  transition:color .35s cubic-bezier(.22,.61,.36,1),border-color .35s,background-color .35s;
+}
+.pcx-more:hover,.pcx-more:focus-visible{color:var(--txt,#e9e6df);border-color:var(--line-3,rgba(255,255,255,.22));background:rgba(255,255,255,.03)}
+.pcx-more i{display:block;width:5px;height:5px;border-radius:50%;background:rgba(169,183,169,.85);
+  transition:transform .4s cubic-bezier(.22,.61,.36,1),box-shadow .4s}
+.pcx-more:hover i{transform:scale(1.9);box-shadow:0 0 14px rgba(169,183,169,.55)}
+
+.pcx{
+  position:fixed;inset:0;z-index:300;display:none;overflow:hidden;
+  background:#0a0c0f;color:#e9e6df;opacity:0;contain:strict;
+  transition:opacity .45s cubic-bezier(.22,.61,.36,1);
+  -webkit-tap-highlight-color:transparent;
+}
+.pcx.live{display:block}
+.pcx.shown{opacity:1}
+.pcx-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(60% 50% at 46% 44%,rgba(30,35,40,.9),rgba(10,12,15,0) 72%),
+    linear-gradient(180deg,rgba(8,9,12,.9),transparent 18%,transparent 82%,rgba(8,9,12,.92));
+}
+.pcx-cv{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.pcx-cv-f{z-index:2}
+.pcx-vp{position:absolute;inset:0;perspective:1600px;perspective-origin:50% 46%;z-index:1}
+.pcx-world{position:absolute;left:0;top:0;width:2000px;height:1100px;transform-origin:0 0;transform-style:preserve-3d;will-change:transform}
+
+/* ---------- общая типографика ---------- */
+.pcx .nk,.pcx-card .kic{display:flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:#868d84;font-family:var(--mono,monospace)}
+.pcx .nk i,.pcx-card .kic i{display:block;height:1px;width:28px;background:rgba(169,183,169,.45);transform-origin:0 50%}
+.pcx .nk .ix{color:#d6ddd2;letter-spacing:.14em}
+.pcx-m{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
+.pcx-w{display:inline-block;transform:translateY(108%) rotate(4deg);transform-origin:0 100%;opacity:0;
+  transition:transform .8s cubic-bezier(.16,.84,.28,1),opacity .5s cubic-bezier(.22,.61,.36,1)}
+.pcx-note.on .pcx-w,.pcx-doc.on .pcx-w{transform:none;opacity:1}
+.pcx-note:not(.on) .pcx-w,.pcx-doc:not(.on) .pcx-w{transition-duration:.28s,.22s;transition-delay:0s!important}
+
+/* ---------- карточка ---------- */
+.pcx-card{
+  position:absolute;left:80px;top:130px;width:452px;
+  padding:30px 30px 24px;border-radius:20px;
+  background:linear-gradient(180deg,rgba(28,32,37,.97),rgba(20,23,27,.97));
+  border:1px solid rgba(255,255,255,.09);box-shadow:0 40px 90px rgba(0,0,0,.5);
+  transform-style:preserve-3d;will-change:transform,opacity;backface-visibility:hidden;
+}
+.pcx-card h3{font-family:var(--disp);font-weight:400;font-size:44px;line-height:1;margin-top:12px;letter-spacing:-.025em}
+.pcx-card .pr{margin-top:14px;display:flex;align-items:baseline;gap:7px}
+.pcx-card .pr b{font-size:34px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.pcx-card .pr s{color:#6d7277;font-size:13.5px}
+.pcx-card .pr span{color:#9aa0a6;font-size:13.5px}
+.pcx-card .bl{color:#858a90;font-size:12.5px;margin-top:6px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.pcx-list{margin:14px 0 0;padding:0}
+.pcx-it{
+  position:relative;display:flex;align-items:baseline;gap:12px;width:100%;
+  padding:10px 12px 10px 30px;margin:1px 0;border-radius:10px;
+  font:inherit;font-size:15px;line-height:1.35;color:#cbc9c2;text-align:left;cursor:pointer;
+  background:transparent;border:1px solid transparent;
+  transition:opacity .55s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.16,.84,.28,1),color .4s,border-color .4s,background-color .4s;
+}
+.pcx-it em{font-style:normal;font-family:var(--mono,monospace);font-size:10.5px;letter-spacing:.08em;color:#6f766e;min-width:18px;transition:color .4s}
+.pcx-it::before{
+  content:'';position:absolute;left:11px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;
+  background:rgba(169,183,169,.5);transition:transform .5s cubic-bezier(.22,.61,.36,1),background-color .4s;
+}
+.pcx-it:hover{color:#f1efe9;background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.07)}
+.pcx-it:hover::before{transform:scale(1.5);background:#d8e0d4}
+.pcx-it.sel{color:#f6f4ee;background:rgba(169,183,169,.07);border-color:rgba(169,183,169,.24)}
+.pcx-it.sel em{color:#d6ddd2}
+.pcx-it.sel::before{transform:scale(1.7);background:#eef1e8}
+.pcx-it.dim{opacity:0;pointer-events:none}
+.pcx-it.dim.up{transform:translateY(-18px) scale(.97)}
+.pcx-it.dim.dn{transform:translateY(18px) scale(.97)}
+
+/* ---------- панели: рамку чертит канвас, здесь — только заливка ---------- */
+.pcx-note,.pcx-doc{
+  position:absolute;top:0;border-radius:3px;
+  background:linear-gradient(180deg,rgba(24,28,33,.94),rgba(17,20,24,.94));
+  opacity:0;pointer-events:none;
+  transition:opacity .5s cubic-bezier(.22,.61,.36,1);
+}
+.pcx-note.on,.pcx-doc.on{opacity:1;pointer-events:auto}
+.pcx-note .nk i,.pcx-doc .nk i{transform:scaleX(0);transition:transform .9s cubic-bezier(.16,.84,.28,1) .1s}
+.pcx-note.on .nk i,.pcx-doc.on .nk i{transform:none}
+
+/* короткое */
+.pcx-note{left:640px;width:470px;padding:24px 26px 22px;cursor:pointer;transition:opacity .5s cubic-bezier(.22,.61,.36,1),filter .6s}
+.pcx-note.src{opacity:.55;cursor:default;filter:saturate(.6)}
+.pcx-note h4{font-family:var(--disp);font-weight:400;font-size:31px;line-height:1.04;letter-spacing:-.022em;margin-top:14px;text-wrap:balance}
+.pcx-note p{margin-top:12px;font-size:15.5px;line-height:1.5;color:#b9b7b0}
+.pcx-note .go{
+  margin-top:20px;display:inline-flex;align-items:center;gap:12px;
+  background:transparent;border:0;color:#dcd9d1;font:inherit;font-size:13.5px;cursor:pointer;padding:0;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .5s .55s,transform .7s cubic-bezier(.16,.84,.28,1) .55s,color .3s;
+}
+.pcx-note.on .go{opacity:1;transform:none}
+.pcx-note.src .go{opacity:.9}
+.pcx-note .go u{display:block;width:40px;height:1px;background:rgba(214,226,212,.7);transition:width .5s cubic-bezier(.22,.61,.36,1)}
+.pcx-note:hover .go u{width:64px}
+.pcx-note.src .go u{width:64px}
+
+/* подробное */
+.pcx-doc{left:1280px;width:600px;padding:38px 38px 32px;overflow:hidden}
+.pcx-big{
+  position:absolute;right:22px;top:-6px;font-family:var(--disp);font-size:190px;line-height:1;letter-spacing:-.05em;
+  color:transparent;-webkit-text-stroke:1px rgba(169,183,169,.2);pointer-events:none;
+  transform:translateX(60px);opacity:0;transition:transform 1.2s cubic-bezier(.16,.84,.28,1),opacity .8s;
+}
+.pcx-doc.on .pcx-big{transform:none;opacity:1}
+.pcx-doc h4{position:relative;font-family:var(--disp);font-weight:400;font-size:46px;line-height:1;letter-spacing:-.028em;margin-top:16px;max-width:80%;text-wrap:balance}
+.pcx-doc .dp p{position:relative;margin-top:14px;font-size:15px;line-height:1.62;color:#b4b2ab;
+  opacity:0;transform:translateY(14px);transition:opacity .7s,transform .9s cubic-bezier(.16,.84,.28,1)}
+.pcx-doc .dp p:first-child{margin-top:20px;font-size:17px;line-height:1.55;color:#d7d4cc}
+.pcx-doc.on .dp p{opacity:1;transform:none}
+.pcx-doc:not(.on) .dp p{transition-delay:0s!important;transition-duration:.25s}
+.pcx-facts{list-style:none;margin:26px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;column-gap:26px}
+.pcx-facts li{position:relative;padding:13px 0 12px;display:flex;flex-direction:column;gap:5px}
+.pcx-facts li::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:rgba(214,226,212,.22);
+  transform:scaleX(0);transform-origin:0 50%;transition:transform .9s cubic-bezier(.16,.84,.28,1) var(--d,0ms)}
+.pcx-facts li span{font-family:var(--mono,monospace);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7f867e}
+.pcx-facts li b{font-size:19px;font-weight:560;letter-spacing:-.01em;color:#ece9e2;font-variant-numeric:tabular-nums}
+.pcx-facts li span,.pcx-facts li b{opacity:0;transform:translateY(10px);transition:opacity .6s var(--d,0ms),transform .8s cubic-bezier(.16,.84,.28,1) var(--d,0ms)}
+.pcx-doc.on .pcx-facts li::before{transform:none}
+.pcx-doc.on .pcx-facts li span,.pcx-doc.on .pcx-facts li b{opacity:1;transform:none}
+.pcx-doc:not(.on) .pcx-facts li::before,.pcx-doc:not(.on) .pcx-facts li span,.pcx-doc:not(.on) .pcx-facts li b{transition-delay:0s;transition-duration:.25s}
+
+/* узкий экран: мир компактнее, камера всё равно ведёт */
+.pcx-world.sm .pcx-card{padding:24px 22px 18px}
+.pcx-world.sm .pcx-card h3{font-size:36px}
+.pcx-world.sm .pcx-note{padding:20px 20px 18px}
+.pcx-world.sm .pcx-note h4{font-size:25px}
+.pcx-world.sm .pcx-doc{padding:26px 22px 22px}
+.pcx-world.sm .pcx-doc h4{font-size:30px;max-width:none}
+.pcx-world.sm .pcx-big{font-size:120px}
+.pcx-world.sm .pcx-doc .dp p{font-size:13.5px}
+.pcx-world.sm .pcx-doc .dp p:first-child{font-size:15px}
+.pcx-world.sm .pcx-facts li b{font-size:15px}
+
+/* ---------- интерфейс ---------- */
+.pcx-ui{position:absolute;inset:0;pointer-events:none;z-index:3}
+.pcx-ui > *{pointer-events:auto}
+.pcx-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px}
+.pcx-ttl{display:flex;align-items:center;gap:10px;font-family:var(--mono,monospace);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:#7c8288}
+.pcx-ttl i{display:block;width:22px;height:1px;background:rgba(169,183,169,.5)}
+.pcx-ttl b{color:#d9d6ce;font-weight:500}
+.pcx-btn{
+  display:inline-flex;align-items:center;gap:9px;background:rgba(10,12,15,.55);
+  border:1px solid rgba(255,255,255,.12);color:#cfcdc6;border-radius:999px;
+  padding:9px 16px;font:inherit;font-size:13px;cursor:pointer;
+  transition:color .3s,border-color .3s,background-color .3s;
+}
+.pcx-btn:hover{color:#f3f1ea;border-color:rgba(255,255,255,.26);background:rgba(255,255,255,.07)}
+.pcx-btn[hidden]{display:none}
+.pcx-bot{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;
+  background:linear-gradient(0deg,rgba(8,9,12,.7),transparent)}
+.pcx-steps{display:flex;align-items:center;gap:8px;font-size:12px;color:#80868c}
+.pcx-steps i{display:block;width:22px;height:2px;border-radius:2px;background:rgba(255,255,255,.14);
+  transition:background-color .5s,width .6s cubic-bezier(.16,.84,.28,1)}
+.pcx-steps i.on{background:rgba(214,226,212,.8);width:40px}
+.pcx-hint{margin-left:8px;font-size:12.5px;color:#767b81}
+@media(max-width:720px){
+  .pcx-top,.pcx-bot{padding:14px}
+  .pcx-hint{display:none}
+  .pcx-ttl{font-size:9.5px;letter-spacing:.2em}
+  .pcx-btn{padding:8px 13px;font-size:12.5px;white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis;display:block}
+}
+@media(prefers-reduced-motion:reduce){
+  .pcx *,.pcx{transition-duration:.01ms!important;transition-delay:0s!important}
+}
+body.pcx-open{overflow:hidden}
+
+/* полностью перекрывающая заставка главы — плоский фон вместо градиента,
+   чтобы кадр за ней можно было не перерисовывать */
+.chapter-intro.ci-cover{background:#101217!important}
+.chapter-intro.ci-cover::after{opacity:0}

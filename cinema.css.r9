@@ -1,0 +1,157 @@
+/* =====================================================================
+   PLAN CINEMA — полноэкранный моушен-ролик по тарифу.
+   Камера приближается к карточке, затем к пункту, пункт разворачивается
+   в короткое описание, затем карточка улетает и камера уезжает
+   на подробное описание. Всё — на одном rAF, только transform/opacity.
+   ===================================================================== */
+.pcx-more{
+  width:100%;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:9px;
+  background:transparent;border:1px solid var(--line,rgba(255,255,255,.1));color:var(--mut,#9aa0a6);
+  border-radius:12px;padding:10px 14px;font:inherit;font-size:13.5px;cursor:pointer;
+  transition:color .35s cubic-bezier(.22,.61,.36,1),border-color .35s,background-color .35s;
+}
+.pcx-more:hover,.pcx-more:focus-visible{color:var(--txt,#e9e6df);border-color:var(--line-3,rgba(255,255,255,.22));background:rgba(255,255,255,.03)}
+.pcx-more i{display:block;width:5px;height:5px;border-radius:50%;background:rgba(169,183,169,.85);
+  transition:transform .4s cubic-bezier(.22,.61,.36,1),box-shadow .4s}
+.pcx-more:hover i{transform:scale(1.9);box-shadow:0 0 14px rgba(169,183,169,.55)}
+
+.pcx{
+  position:fixed;inset:0;z-index:300;display:none;overflow:hidden;
+  background:#0b0d10;color:#e9e6df;
+  opacity:0;contain:strict;
+  -webkit-tap-highlight-color:transparent;
+}
+.pcx.live{display:block}
+.pcx-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(70% 55% at 50% 42%,rgba(28,32,38,.95),rgba(11,13,16,.98) 70%),
+    linear-gradient(180deg,rgba(13,15,18,.9),transparent 22%,transparent 78%,rgba(9,10,13,.95));
+}
+.pcx-cv{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.pcx-vp{position:absolute;inset:0;perspective:1400px;perspective-origin:50% 48%}
+.pcx-world{
+  position:absolute;left:0;top:0;width:1760px;height:980px;
+  transform-origin:0 0;transform-style:preserve-3d;will-change:transform;
+}
+
+/* ---------- карточка ---------- */
+.pcx-card{
+  position:absolute;left:96px;top:118px;width:452px;
+  padding:30px 30px 26px;border-radius:22px;
+  background:linear-gradient(180deg,rgba(29,33,38,.96),rgba(22,25,29,.96));
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 40px 90px rgba(0,0,0,.5);
+  transform-style:preserve-3d;will-change:transform,opacity;
+}
+.pcx-card .kic{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#8d9488}
+.pcx-card h3{font-size:30px;font-weight:620;margin-top:8px;letter-spacing:-.02em}
+.pcx-card .pr{margin-top:12px;display:flex;align-items:baseline;gap:6px}
+.pcx-card .pr b{font-size:42px;font-weight:640;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.pcx-card .pr s{color:#71767c;font-size:14px}
+.pcx-card .pr span{color:#9aa0a6;font-size:14px}
+.pcx-card .bl{color:#8b9097;font-size:12.5px;margin-top:6px}
+.pcx-list{list-style:none;margin:22px 0 0;padding:0}
+.pcx-it{
+  position:relative;padding:11px 14px 11px 30px;margin:2px 0;border-radius:12px;
+  font-size:15px;line-height:1.35;color:#cfcdc6;cursor:pointer;
+  background:transparent;border:1px solid transparent;width:100%;text-align:left;font-family:inherit;
+  transition:opacity .5s cubic-bezier(.22,.61,.36,1),transform .55s cubic-bezier(.22,.61,.36,1),
+             color .4s,border-color .4s,background-color .4s;
+  will-change:transform,opacity;
+}
+.pcx-it::before{
+  content:'';position:absolute;left:10px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;
+  background:rgba(169,183,169,.5);
+  transition:transform .5s cubic-bezier(.22,.61,.36,1),background-color .4s,box-shadow .5s;
+}
+.pcx-it:hover{color:#f1efe9;background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.08)}
+.pcx-it:hover::before{transform:scale(1.5);background:#d8e0d4}
+.pcx-it.sel{color:#f6f4ee;background:rgba(169,183,169,.08);border-color:rgba(169,183,169,.3)}
+.pcx-it.sel::before{transform:scale(1.9);background:#eef1e8;box-shadow:0 0 18px rgba(214,226,212,.6)}
+.pcx-it.dim{opacity:0;pointer-events:none}
+.pcx-it.dim.up{transform:translateY(-16px)}
+.pcx-it.dim.dn{transform:translateY(16px)}
+
+/* ---------- короткое описание, разворачивается у пункта ---------- */
+.pcx-note{
+  position:absolute;left:616px;top:0;width:470px;
+  padding:22px 24px;border-radius:18px;
+  background:linear-gradient(180deg,rgba(26,30,35,.97),rgba(19,22,26,.97));
+  border:1px solid rgba(169,183,169,.26);
+  box-shadow:0 30px 70px rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;transform-origin:0 50%;will-change:transform,opacity,clip-path;
+  clip-path:inset(46% 0 46% 0 round 18px);
+}
+.pcx-note.on{opacity:1;pointer-events:auto;clip-path:inset(0 0 0 0 round 18px)}
+.pcx-note .nk{font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:#8d9488}
+.pcx-note h4{font-size:21px;font-weight:620;margin-top:9px;letter-spacing:-.015em}
+.pcx-note p{margin-top:10px;font-size:15px;line-height:1.52;color:#bdbbb4}
+.pcx-note .go{
+  margin-top:18px;display:inline-flex;align-items:center;gap:10px;
+  background:transparent;border:0;color:#d9d6ce;font:inherit;font-size:13.5px;cursor:pointer;padding:0;
+}
+.pcx-note .go u{display:block;width:34px;height:1px;background:rgba(214,226,212,.6);text-decoration:none;
+  transition:width .45s cubic-bezier(.22,.61,.36,1)}
+.pcx-note .go:hover u{width:58px}
+.pcx-w{display:inline-block;opacity:0;transform:translateY(14px);
+  transition:opacity .5s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1)}
+.pcx-note.on .pcx-w,.pcx-doc.on .pcx-w{opacity:1;transform:none}
+
+/* ---------- подробное описание ---------- */
+.pcx-doc{
+  position:absolute;left:1120px;top:96px;width:560px;
+  padding:34px 34px 30px;border-radius:22px;
+  background:linear-gradient(180deg,rgba(25,28,33,.97),rgba(18,21,25,.97));
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 44px 100px rgba(0,0,0,.5);
+  opacity:0;pointer-events:none;will-change:transform,opacity;
+}
+.pcx-doc.on{opacity:1;pointer-events:auto}
+.pcx-doc .nk{font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;color:#8d9488}
+.pcx-doc h4{font-size:27px;font-weight:620;margin-top:10px;letter-spacing:-.02em}
+.pcx-doc p{margin-top:13px;font-size:15px;line-height:1.6;color:#bdbbb4}
+.pcx-facts{list-style:none;margin:20px 0 0;padding:0;border-top:1px solid rgba(255,255,255,.08)}
+.pcx-facts li{display:flex;justify-content:space-between;gap:18px;padding:11px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);font-size:14px;color:#9aa0a6}
+.pcx-facts li b{color:#e9e6df;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+
+/* ---------- интерфейс ---------- */
+.pcx-ui{position:absolute;inset:0;pointer-events:none}
+.pcx-ui > *{pointer-events:auto}
+.pcx-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:20px 24px}
+.pcx-ttl{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#80868c}
+.pcx-ttl b{color:#d9d6ce;font-weight:600}
+.pcx-btn{
+  display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);color:#cfcdc6;border-radius:999px;
+  padding:9px 16px;font:inherit;font-size:13px;cursor:pointer;
+  transition:color .3s,border-color .3s,background-color .3s,opacity .4s,transform .4s;
+}
+.pcx-btn:hover{color:#f3f1ea;border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.07)}
+.pcx-btn[hidden]{display:none}
+.pcx-bot{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:20px 24px}
+.pcx-steps{display:flex;align-items:center;gap:10px;font-size:12px;color:#80868c}
+.pcx-steps i{display:block;width:26px;height:2px;border-radius:2px;background:rgba(255,255,255,.14);
+  transition:background-color .45s,width .45s cubic-bezier(.22,.61,.36,1)}
+.pcx-steps i.on{background:rgba(214,226,212,.8);width:44px}
+.pcx-hint{font-size:12.5px;color:#767b81}
+
+@media(max-width:720px){
+  .pcx-top,.pcx-bot{padding:14px 14px}
+  .pcx-hint{display:none}
+  .pcx-ttl{font-size:10px;letter-spacing:.22em}
+}
+@media(prefers-reduced-motion:reduce){
+  .pcx-it,.pcx-note,.pcx-doc,.pcx-w{transition-duration:.01ms!important}
+}
+
+/* перекрытие прокрутки, пока идёт ролик */
+body.pcx-open{overflow:hidden}
+
+/* полностью перекрывающая заставка главы — плоский фон вместо градиента,
+   чтобы кадр за ней можно было не перерисовывать */
+.chapter-intro.ci-cover{background:#101217!important}
+.chapter-intro.ci-cover::after{opacity:0}

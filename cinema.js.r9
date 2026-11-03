@@ -1,0 +1,435 @@
+/* =====================================================================
+   PLAN CINEMA
+   «Подробнее» у тарифа -> полноэкранный ролик:
+   карточка подлетает, камера наезжает на пункт, пункт разворачивается
+   в короткое описание (остальные уходят), клик по нему -> карточка
+   улетает, камера уезжает на подробное описание. Назад — тем же путём.
+   Один rAF, только transform/opacity, канвас для моушен-графики.
+   ===================================================================== */
+(function(){
+'use strict';
+const prices = [...document.querySelectorAll('.prices .price')];
+if(!prices.length) return;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v,a,b)=>v<a?a:v>b?b:v;
+const eOut  = t=>1-Math.pow(1-clamp(t,0,1),3);
+const eIO   = t=>{t=clamp(t,0,1);return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;};
+
+/* ---------------- содержание пунктов ---------------- */
+const DB = [
+ {m:'серверов', t:'3 200+ серверов в 105 странах',
+  s:'Нужная страна почти всегда рядом — а значит, соединение быстрое и стабильное.',
+  b:['Чем ближе сервер, тем меньше задержка и тем меньше заметно, что защита вообще включена. В каждой крупной стране у нас не одна точка, а несколько, и трафик сам уходит на ту, где сейчас свободнее.',
+     'Переключение занимает пару секунд и не рвёт загрузки: приложение держит соединение, пока новое не поднимется.'],
+  f:[['Серверов','3 200+'],['Стран','105'],['Городов','230'],['Смена страны','~2 сек']]},
+ {m:'10 устройств', t:'10 устройств одновременно',
+  s:'Один аккаунт на телефон, ноутбук, планшет, телевизор — и ещё останется запас.',
+  b:['Лимит считается по устройствам, а не по людям: можно подключить всю технику дома и не выходить каждый раз из одного приложения, чтобы войти в другое.',
+     'Есть приложения для iOS, Android, Windows, macOS, Linux, Android TV и расширения для браузеров. Настройка — один вход по коду.'],
+  f:[['Устройств','10'],['Платформ','7'],['Маршрутизатор','считается за одно'],['Переустановка','не нужна']]},
+ {m:'шифрован', t:'Шифрование AES-256 и No-Logs',
+  s:'Трафик закрыт банковским шифром, а история посещений нигде не хранится.',
+  b:['AES-256 — тот же стандарт, которым пользуются банки и государственные сервисы. Между вашим устройством и сервером никто не видит содержимое — ни провайдер, ни владелец публичного Wi-Fi.',
+     'Политику No-Logs подтверждает ежегодный независимый аудит: мы не храним, какие сайты вы открывали, когда и с какого адреса.'],
+  f:[['Шифр','AES-256-GCM'],['Протоколы','WireGuard, OpenVPN'],['Логи','не ведутся'],['Аудит','ежегодный, внешний']]},
+ {m:'kill switch', t:'Kill Switch и блокировка рекламы',
+  s:'Если связь оборвётся, интернет выключится раньше, чем утечёт хоть один байт.',
+  b:['Kill Switch следит за туннелем постоянно. Пропала сеть в метро или переключились с Wi-Fi на мобильный — трафик замирает и ждёт, пока защита поднимется снова.',
+     'Параллельно работает фильтр: рекламные и следящие домены не загружаются вовсе. Страницы открываются заметно быстрее и расходуют меньше трафика.'],
+  f:[['Реакция','< 30 мс'],['Фильтр доменов','1.9 млн'],['Экономия трафика','до 22 %'],['Можно выключить','да']]},
+ {m:'менеджер паролей', t:'Менеджер паролей XPN Pass',
+  s:'Пароли живут в одном защищённом хранилище и подставляются сами.',
+  b:['Хранилище шифруется на вашем устройстве — мы физически не можем прочитать его содержимое. Синхронизация идёт между всеми устройствами аккаунта.',
+     'Pass подсказывает слабые и повторяющиеся пароли, генерирует новые и сам заполняет формы входа в приложениях и браузере.'],
+  f:[['Записей','без лимита'],['Шифрование','на устройстве'],['Автозаполнение','да'],['Общий доступ','до 6 человек']]},
+ {m:'антивирус', t:'Антивирус и контроль утечек почты',
+  s:'Файлы проверяются при скачивании, а почта — по базам утечек.',
+  b:['Проверка идёт в момент загрузки: заражённый файл не успевает попасть в систему. Базы обновляются несколько раз в сутки.',
+     'Отдельно мы следим за вашими адресами почты в утечках. Если адрес всплыл в новой базе — придёт уведомление и подсказка, что сменить.'],
+  f:[['Проверка','в реальном времени'],['Обновления','4 раза в сутки'],['Адресов почты','5'],['Отчёт','раз в месяц']]},
+ {m:'приоритетная скорость', t:'Приоритетная скорость в час пик',
+  s:'Вечером, когда сеть загружена, ваш трафик идёт в первой очереди.',
+  b:['С 19:00 до 23:00 нагрузка на популярные серверы вырастает в несколько раз. Приоритетные соединения получают отдельную полосу, поэтому видео не уходит в низкое качество.',
+     'Скорость канала не ограничена искусственно ни на одном тарифе — приоритет влияет только на поведение в пиковые часы.'],
+  f:[['Пик','19:00 – 23:00'],['Держит','4K без буферизации'],['Лимит трафика','нет'],['Полоса','до 1 Гбит/с']]},
+ {m:'поддержк', t:'Поддержка без очереди',
+  s:'Живой человек в чате отвечает в среднем за полторы минуты.',
+  b:['Чат работает круглосуточно на русском языке. Первым отвечает не бот, а инженер, который видит состояние вашего подключения и может подсказать по делу.',
+     'Если вопрос сложный, диалог остаётся в истории — не нужно пересказывать всё заново при следующем обращении.'],
+  f:[['Ответ','~1,5 мин'],['Время работы','24/7'],['Язык','русский'],['История диалогов','хранится']]},
+ {m:'облач', t:'Облачное хранилище 1 ТБ',
+  s:'Терабайт зашифрованного места для фото, документов и резервных копий.',
+  b:['Файлы шифруются до отправки, ключ остаётся у вас. Даже мы видим только размер и дату — не содержимое.',
+     'Работает автозагрузка фотографий с телефона и версии файлов за 30 дней: случайно затёртый документ можно вернуть.'],
+  f:[['Объём','1 ТБ'],['Версии файлов','30 дней'],['Автозагрузка фото','да'],['Общие папки','да']]},
+ {m:'выделенный ip', t:'Выделенный IP в выбранной стране',
+  s:'Личный адрес, которым не пользуется никто, кроме вас.',
+  b:['Банк, рабочая почта и корпоративные сервисы перестают просить лишние подтверждения: адрес всегда один и тот же и не отмечен как общий.',
+     'Страну можно выбрать при подключении и сменить раз в месяц бесплатно.'],
+  f:[['Адрес','только ваш'],['Стран на выбор','34'],['Смена страны','1 раз в месяц'],['Капчи','почти исчезают']]},
+ {m:'страхован', t:'Страхование от кражи личности',
+  s:'Если данными воспользуются, вы не останетесь с проблемой один на один.',
+  b:['Страховая покрывает прямой ущерб до 1 000 000 ₽ и юридическое сопровождение: блокировку, переоформление документов, переписку с банками.',
+     'Заявление подаётся в приложении, куратор ведёт дело до закрытия.'],
+  f:[['Покрытие','до 1 000 000 ₽'],['Юрист','включён'],['Срок рассмотрения','до 10 дней'],['Доплата','нет']]},
+ {m:'личный менеджер', t:'Личный менеджер в поддержке',
+  s:'Один и тот же человек, который уже знает вашу историю.',
+  b:['У менеджера есть прямой канал связи и доступ к инженерам без общей очереди. Он помогает с настройкой на всех устройствах и с нетипичными задачами.',
+     'Связаться можно в чате, по почте или в созвоне по записи.'],
+  f:[['Ответ','до 5 минут'],['Созвон','по записи'],['Настройка техники','включена'],['Канал','чат, почта, звонок']]},
+ {m:'ранний доступ', t:'Ранний доступ к новым функциям',
+  s:'Новые возможности приходят к вам за пару месяцев до остальных.',
+  b:['Мы открываем бета-ветку приложения: можно включить функции, которые ещё не вышли, и вернуться назад одним переключателем.',
+     'Отзывы из этой группы напрямую влияют на то, каким выйдет релиз.'],
+  f:[['Опережение','1–3 месяца'],['Откат','одним переключателем'],['Канал обратной связи','прямой'],['Стабильная версия','всегда рядом']]},
+];
+function info(txt){
+  const l = txt.toLowerCase();
+  const d = DB.find(e=>l.indexOf(e.m)>=0);
+  if(d) return d;
+  return {t:txt, s:'Входит в тариф и работает сразу после установки — настраивать ничего не нужно.',
+    b:['Функция включена в тариф и не требует отдельной оплаты.','Включается в приложении одним переключателем.'],
+    f:[['В тарифе','да'],['Доплата','нет']]};
+}
+
+/* ---------------- разметка оверлея ---------------- */
+const words = (s)=>s.split(' ').map((w,i)=>'<span class="pcx-w" style="transition-delay:'+(70+i*22)+'ms">'+w+'</span>').join(' ');
+const ov = document.createElement('div');
+ov.className = 'pcx'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true'); ov.setAttribute('aria-label','Подробно о тарифе');
+ov.innerHTML =
+ '<div class="pcx-bg"></div>'+
+ '<canvas class="pcx-cv"></canvas>'+
+ '<div class="pcx-vp"><div class="pcx-world">'+
+   '<div class="pcx-card"><div class="kic">Тариф XPN</div><h3></h3>'+
+     '<div class="pr"><b></b><span></span><s></s></div><div class="bl"></div>'+
+     '<div class="pcx-list"></div></div>'+
+   '<div class="pcx-note"><div class="nk">Коротко</div><h4></h4><p></p>'+
+     '<button class="go" type="button"><span>Подробное описание</span><u></u></button></div>'+
+   '<div class="pcx-doc"><div class="nk">Подробно</div><h4></h4><div class="dp"></div><ul class="pcx-facts"></ul></div>'+
+ '</div></div>'+
+ '<div class="pcx-ui">'+
+   '<div class="pcx-top"><div class="pcx-ttl">XPN · <b class="pt"></b></div>'+
+     '<button class="pcx-btn px-close" type="button">Закрыть</button></div>'+
+   '<div class="pcx-bot">'+
+     '<button class="pcx-btn px-back" type="button" hidden>Назад</button>'+
+     '<div class="pcx-steps"><i class="s0"></i><i class="s1"></i><i class="s2"></i><span class="pcx-hint">Выберите пункт тарифа</span></div>'+
+     '<button class="pcx-btn px-next" type="button" hidden>Следующий пункт</button>'+
+   '</div></div>';
+document.body.appendChild(ov);
+ov.style.transition = 'opacity .42s cubic-bezier(.22,.61,.36,1)';
+
+const Q = s=>ov.querySelector(s);
+const cv = Q('.pcx-cv'), ctx = cv.getContext('2d');
+const world = Q('.pcx-world'), card = Q('.pcx-card'), list = Q('.pcx-list');
+const note = Q('.pcx-note'), doc = Q('.pcx-doc');
+const bBack = Q('.px-back'), bNext = Q('.px-next'), bClose = Q('.px-close'), hint = Q('.pcx-hint');
+const steps = [Q('.s0'),Q('.s1'),Q('.s2')];
+
+/* ---------------- состояние ---------------- */
+const WW = 1760, WH = 980;
+let open = false, state = 'list', items = [], sel = -1, srcBtn = null;
+let vw = 0, vh = 0, fit = 1, dpr = 1;
+const cam = {x:0, y:0, z:1}, tgt = {x:0, y:0, z:1};
+let oa = 0, oaT = 0;               // появление / FLIP
+let pNote = 0, pNoteT = 0;         // раскрытие короткого описания
+let pDoc  = 0, pDocT  = 0;         // уход на подробное
+let fly   = 0, flyT   = 0;         // улёт карточки
+let flip = null, raf = 0, last = 0, lt = 0;
+
+function resize(){
+  vw = innerWidth; vh = innerHeight;
+  dpr = Math.min(devicePixelRatio || 1, 1.6);
+  cv.width = Math.round(vw*dpr); cv.height = Math.round(vh*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  fit = clamp(Math.min(vw/1240, vh/860), .34, 1.05);
+}
+addEventListener('resize', ()=>{ if(open){ resize(); bust(); layout(); } }, {passive:true});
+
+/* мировые координаты элемента внутри .pcx-world (кэшируются: чтение
+   offsetLeft в каждом кадре заставляло бы браузер пересчитывать лэйаут) */
+let RC = new Map();
+function bust(){ RC = new Map(); }
+function wrect(el){ let r = RC.get(el); if(!r){ r = wraw(el); RC.set(el, r); } return r; }
+function wraw(el){
+  let x = 0, y = 0, n = el;
+  while(n && n !== world){ x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+  return {x, y, w: el.offsetWidth, h: el.offsetHeight, cx: x + el.offsetWidth/2, cy: y + el.offsetHeight/2};
+}
+function s2(){ return fit * cam.z; }
+function toS(x,y){ const s = s2(); return [vw/2 + (x-cam.x)*s, vh/2 + (y-cam.y)*s]; }
+
+/* ---------------- сборка карточки ---------------- */
+function build(src){
+  srcBtn = src;
+  const name  = src.querySelector('h3').textContent.trim();
+  const num   = src.querySelector('.amount .num').textContent.trim();
+  const per   = src.querySelector('.amount .per').textContent.trim();
+  const oldp  = (src.querySelector('.oldprice')||{}).textContent || '';
+  const bill  = (src.querySelector('.billed')||{}).textContent || '';
+  card.querySelector('h3').textContent = name;
+  card.querySelector('.pr b').textContent = '₽ ' + num;
+  card.querySelector('.pr span').textContent = per;
+  card.querySelector('.pr s').textContent = oldp.trim();
+  card.querySelector('.bl').textContent = bill.trim();
+  Q('.pt').textContent = name;
+
+  list.innerHTML = '';
+  items = [];
+  [...src.querySelectorAll('li')].forEach(li=>{
+    if(li.classList.contains('off') || li.querySelector('b')) return;
+    const txt = li.textContent.trim();
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'pcx-it'; b.textContent = txt;
+    list.appendChild(b);
+    const d = info(txt);
+    const o = {el:b, d};
+    b.addEventListener('click', ()=>focus(items.indexOf(o)));
+    items.push(o);
+  });
+}
+function layout(){
+  bust();
+  const cr = wrect(card);
+  HOME.x = cr.cx + 120; HOME.y = cr.cy; HOME.z = .92;
+}
+const HOME = {x: 480, y: 490, z: .92};
+
+/* ---------------- переходы ---------------- */
+function setSteps(i){ steps.forEach((s,k)=>s.classList.toggle('on', k<=i)); }
+function show(el, on){ el.classList.toggle('on', on); }
+
+function goList(){
+  bust();
+  state = 'list'; sel = -1;
+  items.forEach(o=>{ o.el.classList.remove('sel','dim','up','dn'); });
+  show(note,false); show(doc,false);
+  pNoteT = 0; pDocT = 0; flyT = 0;
+  tgt.x = HOME.x; tgt.y = HOME.y; tgt.z = HOME.z;
+  bBack.hidden = true; bNext.hidden = true;
+  hint.textContent = 'Выберите пункт тарифа';
+  setSteps(0);
+}
+function focus(i){
+  bust();
+  if(i<0 || i>=items.length) return;
+  const back = state === 'detail';
+  state = 'note'; sel = i;
+  const r = wrect(items[i].el);
+  items.forEach((o,k)=>{
+    o.el.classList.toggle('sel', k===i);
+    o.el.classList.toggle('dim', k!==i);
+    o.el.classList.toggle('up', k<i);
+    o.el.classList.toggle('dn', k>i);
+  });
+  const d = items[i].d;
+  note.querySelector('h4').innerHTML = words(d.t);
+  note.querySelector('p').innerHTML = words(d.s);
+  note.style.top = (r.cy - 96) + 'px';
+  show(note,true); show(doc,false); bust();
+  pNoteT = 1; pDocT = 0; flyT = 0;
+  const nr = wrect(note);
+  tgt.x = (r.cx + nr.cx)/2 + 40; tgt.y = r.cy; tgt.z = 1.16;
+  bBack.hidden = false; bNext.hidden = items.length<2;
+  bNext.textContent = 'Следующий пункт';
+  hint.textContent = back ? 'Короткое описание' : 'Пункт раскрыт — нажмите, чтобы узнать подробности';
+  setSteps(1);
+}
+function detail(){
+  bust();
+  if(sel<0) return;
+  state = 'detail';
+  const d = items[sel].d;
+  doc.querySelector('h4').innerHTML = words(d.t);
+  doc.querySelector('.dp').innerHTML = d.b.map(p=>'<p>'+p+'</p>').join('');
+  doc.querySelector('.pcx-facts').innerHTML = d.f.map(f=>'<li><span>'+f[0]+'</span><b>'+f[1]+'</b></li>').join('');
+  show(doc,true); bust();
+  pNoteT = 0; pDocT = 1; flyT = 1;
+  show(note,false);
+  const dr = wrect(doc);
+  tgt.x = dr.cx; tgt.y = dr.cy; tgt.z = Math.min(1, .96);
+  bBack.hidden = false; bNext.hidden = items.length<2;
+  bNext.textContent = 'Дальше: ' + short(items[(sel+1)%items.length].d.t);
+  hint.textContent = 'Подробное описание';
+  setSteps(2);
+}
+function short(s){ return s.length>26 ? s.slice(0,24).trim()+'…' : s; }
+function back(){
+  if(state === 'detail'){ focus(sel); }
+  else if(state === 'note'){ goList(); }
+  else close();
+}
+function next(){
+  const n = (sel+1) % items.length;
+  if(state === 'detail'){ sel = n; detail(); camKick(); }
+  else focus(n);
+}
+function camKick(){ cam.z *= .97; }
+
+note.querySelector('.go').addEventListener('click', detail);
+bBack.addEventListener('click', back);
+bNext.addEventListener('click', next);
+bClose.addEventListener('click', close);
+ov.tabIndex = -1;
+addEventListener('keydown', e=>{
+  if(!open) return;
+  if(e.key === 'Escape'){ e.preventDefault(); back(); }
+  else if(e.key === 'ArrowRight'){ e.preventDefault(); next(); }
+  else if(e.key === 'ArrowLeft'){ e.preventDefault(); if(sel>0) focus(sel-1); }
+});
+
+/* ---------------- открытие / закрытие ---------------- */
+function openFor(src, btn){
+  build(src, btn);
+  ov.classList.add('live');
+  document.body.classList.add('pcx-open');
+  resize(); bust(); layout();
+  goList();
+  card.style.transform = ''; card.style.opacity = ''; note.style.transform = ''; doc.style.transform = '';
+  cam.x = HOME.x; cam.y = HOME.y; cam.z = HOME.z;
+  pNote = pDoc = fly = 0; oa = reduce ? 1 : 0; oaT = 1;
+  // FLIP из реальной карточки тарифа
+  const sr = src.getBoundingClientRect();
+  applyCam();
+  const cr = card.getBoundingClientRect();
+  const s = s2();
+  flip = reduce ? null : {
+    dx: (sr.left + sr.width/2 - (cr.left + cr.width/2))/s,
+    dy: (sr.top + sr.height/2 - (cr.top + cr.height/2))/s,
+    sc: sr.width / card.offsetWidth
+  };
+  if(!reduce){ cam.z = HOME.z * .64; applyCam(); }
+  requestAnimationFrame(()=>{ ov.style.opacity = '1'; });
+  open = true; last = performance.now(); lt = 0;
+  if(!raf) raf = requestAnimationFrame(frame);
+  setTimeout(()=>bClose.focus({preventScroll:true}), 60);
+}
+function close(){
+  if(!open) return;
+  open = false;
+  ov.style.opacity = '0';
+  document.body.classList.remove('pcx-open');
+  setTimeout(()=>{ if(!open){ ov.classList.remove('live'); ctx.clearRect(0,0,vw,vh); } }, 440);
+  if(raf){ cancelAnimationFrame(raf); raf = 0; }
+  if(srcBtn) (srcBtn.querySelector('.pcx-more')||srcBtn).focus({preventScroll:true});
+}
+
+/* ---------------- кадр ---------------- */
+function applyCam(){
+  const s = s2();
+  world.style.transform = 'translate3d(' + (vw/2 - cam.x*s).toFixed(2) + 'px,' + (vh/2 - cam.y*s).toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
+}
+function frame(now){
+  raf = open ? requestAnimationFrame(frame) : 0;
+  const dt = Math.min(.05, (now - last)/1000); last = now; lt += dt;
+  const k  = 1 - Math.exp(-dt*3.4), kf = 1 - Math.exp(-dt*4.2);
+  cam.x += (tgt.x - cam.x)*k; cam.y += (tgt.y - cam.y)*k; cam.z += (tgt.z - cam.z)*k;
+  oa += (oaT - oa)*kf;
+  pNote += (pNoteT - pNote)*kf; pDoc += (pDocT - pDoc)*kf; fly += (flyT - fly)*kf;
+  // мягкое дыхание камеры — кадр никогда не «стоит»
+  if(!reduce){
+    const bx = Math.sin(lt*.33)*6, by = Math.cos(lt*.27)*4;
+    const s = fit*cam.z;
+    world.style.transform = 'translate3d(' + (vw/2 - (cam.x+bx)*s).toFixed(2) + 'px,' + (vh/2 - (cam.y+by)*s).toFixed(2) + 'px,0) scale(' + s.toFixed(4) + ')';
+  } else applyCam();
+  // карточка: FLIP-вход + улёт
+  let tr = '';
+  if(flip && oa < .999){
+    const q = 1 - eIO(oa);
+    tr += 'translate3d(' + (flip.dx*q).toFixed(1) + 'px,' + (flip.dy*q).toFixed(1) + 'px,0) scale(' + (1 + (flip.sc-1)*q).toFixed(4) + ') ';
+  }
+  if(fly > .001){
+    const f = eIO(fly);
+    tr += 'translate3d(' + (-980*f).toFixed(1) + 'px,' + (-40*f).toFixed(1) + 'px,' + (-260*f).toFixed(0) + 'px) rotateY(' + (-30*f).toFixed(2) + 'deg)';
+  }
+  card.style.transform = tr;
+  card.style.opacity = ((1 - fly*.92) * Math.min(1, .35 + oa*2)).toFixed(3);
+  // короткое описание слегка выезжает из пункта
+  if(sel >= 0){
+    const e = eOut(pNote);
+    note.style.transform = 'translate3d(' + ((1-e)*-46).toFixed(1) + 'px,0,0) scale(' + (.9 + .1*e).toFixed(3) + ')';
+  }
+  doc.style.transform = 'translate3d(' + ((1-eOut(pDoc))*70).toFixed(1) + 'px,0,0)';
+  paint();
+}
+
+/* ---------------- моушен-графика ---------------- */
+function paint(){
+  ctx.clearRect(0,0,vw,vh);
+  const s = s2();
+  if(s < .05) return;
+  const cr = wrect(card);
+  // 1. точечная сетка глубины
+  ctx.fillStyle = 'rgba(169,183,169,.14)';
+  const gs = 64, x0 = Math.floor((cam.x - vw/(2*s))/gs)*gs, x1 = cam.x + vw/(2*s);
+  const y0 = Math.floor((cam.y - vh/(2*s))/gs)*gs, y1 = cam.y + vh/(2*s);
+  for(let x = x0; x <= x1; x += gs) for(let y = y0; y <= y1; y += gs){
+    const p = toS(x,y); ctx.fillRect(p[0], p[1], 1.2, 1.2);
+  }
+  // 2. рельс вдоль пунктов — отрисовывается на входе
+  if(items.length){
+    const ra = wrect(items[0].el), rb = wrect(items[items.length-1].el);
+    const rx = cr.x + cr.w + 22;
+    const a = toS(rx, ra.cy), b = toS(rx, rb.cy);
+    const g = eOut(clamp((oa-.15)/.7,0,1)) * (1 - fly*.9);
+    if(g > .01){
+      ctx.strokeStyle = 'rgba(169,183,169,' + (.3*g).toFixed(3) + ')'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(a[0], a[1] + (b[1]-a[1])*g); ctx.stroke();
+      ctx.strokeStyle = 'rgba(169,183,169,' + (.22*g).toFixed(3) + ')';
+      items.forEach((o,i)=>{
+        const r = wrect(o.el), p = toS(r.x + r.w, r.cy), q = toS(rx, r.cy);
+        const li = clamp((g - i/items.length*.5)*2.4,0,1);
+        if(li <= .02) return;
+        ctx.globalAlpha = (sel<0 ? 1 : (i===sel ? 1 : 1-pNote)) ;
+        ctx.beginPath(); ctx.moveTo(q[0],q[1]); ctx.lineTo(q[0] + (p[0]-q[0])*li, q[1]); ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+  }
+  // 3. фокус: кольца у пункта и линия к короткому описанию
+  if(sel >= 0 && pNote > .01){
+    const r = wrect(items[sel].el), nr = wrect(note);
+    const d = toS(r.x + 13.5, r.cy);
+    const e = eOut(pNote);
+    for(let i=0;i<3;i++){
+      const ph = ((lt*.45 + i/3) % 1);
+      ctx.beginPath(); ctx.arc(d[0], d[1], (6 + ph*34)*Math.max(.4,s), 0, 6.2832);
+      ctx.strokeStyle = 'rgba(214,226,212,' + (.26*(1-ph)*e*(1-pDoc)).toFixed(3) + ')';
+      ctx.lineWidth = 1; ctx.stroke();
+    }
+    const n0 = toS(nr.x, nr.y + 26), n1 = toS(nr.x, nr.cy);
+    ctx.strokeStyle = 'rgba(214,226,212,' + (.42*e*(1-pDoc)).toFixed(3) + ')'; ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(d[0], d[1]);
+    const mx = d[0] + (n1[0]-d[0])*.55;
+    ctx.bezierCurveTo(mx, d[1], mx, n1[1], d[0] + (n1[0]-d[0])*e, d[1] + (n1[1]-d[1])*e);
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(d[0] + (n1[0]-d[0])*e, d[1] + (n1[1]-d[1])*e, 2.6, 0, 6.2832);
+    ctx.fillStyle = 'rgba(238,241,232,' + (.9*e*(1-pDoc)).toFixed(3) + ')'; ctx.fill();
+    void n0;
+  }
+  // 4. переход на подробное: дуга, по которой уезжает камера
+  if(pDoc > .01 && sel >= 0){
+    const r = wrect(items[sel].el), dr = wrect(doc);
+    const a = toS(r.x + 13.5, r.cy), b = toS(dr.x, dr.y + 60);
+    const e = eIO(pDoc);
+    ctx.strokeStyle = 'rgba(169,183,169,' + (.36*e).toFixed(3) + ')'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(a[0],a[1]);
+    const cx1 = a[0] + (b[0]-a[0])*.4, cy1 = a[1] - 180*s;
+    ctx.bezierCurveTo(cx1, cy1, cx1, b[1], a[0] + (b[0]-a[0])*e, a[1] + (b[1]-a[1])*e);
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(a[0] + (b[0]-a[0])*e, a[1] + (b[1]-a[1])*e, 3.2, 0, 6.2832);
+    ctx.fillStyle = 'rgba(238,241,232,' + (.95*e).toFixed(3) + ')'; ctx.fill();
+  }
+}
+
+/* ---------------- кнопки «Подробнее» ---------------- */
+prices.forEach(p=>{
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'pcx-more';
+  const n = p.querySelector('h3').textContent.trim();
+  b.innerHTML = '<i></i><span>Подробнее о «' + n + '»</span>';
+  b.setAttribute('aria-label', 'Подробнее о тарифе ' + n);
+  p.appendChild(b);
+  b.addEventListener('click', ()=>openFor(p, b));
+});
+})();
