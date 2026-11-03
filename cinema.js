@@ -117,7 +117,8 @@ ov.innerHTML =
      '<p class="for"></p>'+
      '<div class="amount"><span class="cur">₽</span><span class="num"></span><span class="per"></span><span class="oldprice"></span></div>'+
      '<p class="billed"></p>'+
-     '<ul class="pcx-list"></ul></div>'+
+     '<ul class="pcx-list"></ul>'+
+     '<button class="btn btn-p px-buy" type="button"><span></span></button></div>'+
    '<div class="pcx-note">'+
      '<div class="nk"><span class="ix"></span><i></i><span>Коротко</span></div>'+
      '<h4></h4><p></p>'+
@@ -155,6 +156,7 @@ const glow = document.createElement('canvas'); glow.width = glow.height = 64;
 
 /* ---------------- состояние ---------------- */
 let open = false, closing = false, state = 'list', items = [], sel = -1, srcBtn = null, seq = 0;
+let closingPlan = '';
 let vw = 0, vh = 0, dpr = 1, base = 1, sm = false;
 const cam = {x:0, y:0, z:1, r:0};
 let camT = null;                 // активный пролёт камеры
@@ -247,6 +249,17 @@ function build(src){
   card.querySelector('.billed').textContent = bill.trim();
   card.classList.toggle('pop', src.classList.contains('pop'));
   if(badge){ bEl.hidden = false; bEl.textContent = badge.textContent.trim(); } else bEl.hidden = true;
+  // the CTA is part of the tariff, not an afterthought: same label, and the
+  // "Плюс" plan keeps its filled primary style exactly like on the landing
+  const cta = src.querySelector('[data-open-modal]');
+  const buy = card.querySelector('.px-buy');
+  if(buy && cta){
+    buy.querySelector('span').textContent = cta.textContent.trim();
+    buy.dataset.plan = cta.dataset.plan || name;
+    buy.className = 'btn ' + (cta.classList.contains('btn-p') ? 'btn-p' : 'btn-o') + ' px-buy';
+  }
+  // keep the selling point line height identical to the landing card
+  card.querySelector('.for').style.minHeight = '44px';
   Q('.pt').textContent = name;
   list.innerHTML = ''; items = [];
   [...src.querySelectorAll('li')].forEach(li=>{
@@ -405,6 +418,16 @@ function next(){
 }
 
 note.addEventListener('click', e=>{ if(state === 'note' && note.classList.contains('on')) detail(); e.stopPropagation(); });
+// CTA inside the film card behaves like the one on the landing: it leaves the
+// film (reverse motion) and opens the real signup modal on the page.
+card.addEventListener('click', e=>{
+  const buy = e.target.closest('.px-buy');
+  if(!buy) return;
+  e.preventDefault(); e.stopPropagation();
+  const plan = buy.dataset.plan;
+  closingPlan = plan || '';
+  close();
+});
 bBack.addEventListener('click', back);
 bNext.addEventListener('click', next);
 bClose.addEventListener('click', close);
@@ -444,6 +467,8 @@ function openFor(src){
     camTo(h.x, h.y, h.z, 1650, 26, .02, -.01);
   }
   tw('oa', 1, 1300, lin);
+  ov.style.opacity = '';
+  ov.classList.remove('rewind');
   ov.classList.remove('shown'); void ov.offsetWidth; ov.classList.add('shown');
   last = performance.now(); lt = 0;
   if(!raf) raf = requestAnimationFrame(frame);
@@ -451,23 +476,58 @@ function openFor(src){
 }
 function close(){
   if(!open || closing) return;
-  // reverse motion: the film rewinds itself instead of cutting to black
-  closing = true; seq++;
-  state = 'list'; sel = -1;
-  note.classList.remove('on'); doc.classList.remove('on');
-  tw('pNote', 0, 420, eIO); tw('pDoc', 0, 420, eIO);
+  // ── REVERSE MOTION ────────────────────────────────────────────────
+  // The film rewinds along its own path, beat by beat: the long description
+  // folds back into the short one, the short one retracts into its line,
+  // the card flies home into the real tariff card, and only then the
+  // overlay dissolves. Nothing is cut to black.
+  closing = true; const tok = ++seq;
+  const from = state;
   document.body.classList.remove('pcx-open');
-  const h = homeCam();
-  camTo(h.x - 110, h.y + 30, h.z * .76, 860, 14, 0, .006);
-  tw('oa', 0, 820, eIO);
+  ov.classList.add('rewind');
+  if(from === 'detail'){
+    doc.classList.remove('on'); note.classList.remove('src','on');
+    tw('pDoc', 0, 700, eIO);
+    const c = noteCam(clamp(sel, 0, Math.max(0, items.length - 1)));
+    camTo(c.x, c.y, c.z, 760, 66, .08, .008);
+    later(300, tok, ()=> tw('pNote', 0, 620, eIO));
+    later(620, tok, flyHome);
+  } else if(from === 'note'){
+    note.classList.remove('on');
+    tw('pNote', 0, 560, eIO);
+    const h = homeCam();
+    camTo(h.x, h.y, h.z, 720, 34, .05, -.006);
+    later(260, tok, flyHome);
+  } else {
+    tw('pNote', 0, 380, eIO); tw('pDoc', 0, 380, eIO);
+    flyHome();
+  }
   if(!raf){ last = performance.now(); raf = requestAnimationFrame(frame); }
+}
+/* beat 2 — камера отъезжает и карточка улетает домой (FLIP в обратную сторону) */
+function flyHome(){
+  items.forEach(o => { o.el.classList.remove('sel'); if(o.li) o.li.classList.remove('dim','up','dn'); });
+  bBack.hidden = true; bNext.hidden = true; setSteps(0);
+  const h = homeCam();
+  camTo(h.x - 130, h.y + 26, h.z * .72, 900, 10, 0, .004);
+  tw('oa', 0, 1000, eIO);
 }
 function finishClose(){
   closing = false; open = false;
-  ov.classList.remove('shown','live');
+  state = 'list'; sel = -1; seq++;
+  note.classList.remove('on','src'); doc.classList.remove('on');
+  ov.classList.remove('shown','live','rewind');
+  ov.style.opacity = '';
   cF.clearRect(0,0,vw,vh); cB.clearRect(0,0,vw,vh);
   if(raf){ cancelAnimationFrame(raf); raf = 0; }
   if(srcBtn) (srcBtn.querySelector('.pcx-more')||srcBtn).focus({preventScroll:true});
+  if(closingPlan){
+    // hand over to the page's own modal, once the film has fully rewound
+    const plan = closingPlan; closingPlan = '';
+    const all = [...document.querySelectorAll('[data-open-modal]')];
+    const target = all.find(b => (b.dataset.plan||'') === plan) || all[0];
+    if(target) setTimeout(()=>target.click(), 30);
+  }
 }
 
 /* ---------------- кадр ---------------- */
@@ -497,12 +557,17 @@ function frameBody(now){
   if(closing){
     ov.classList.toggle('rewind', oa < .999);
     ov.style.setProperty('--oa', oa.toFixed(3));
-    if(oa < .012 && !camT){ finishClose(); return; }
+    // the overlay dissolves while the camera is already flying back, so the
+    // page is revealed exactly under the returning card — no black cut, no flash
+    ov.style.opacity = oa.toFixed(3);
+    if(oa < .01 && !camT){ finishClose(); return; }
   }
-  // классы появления — по фазам твинов
-  if(state === 'note' && pN > .62 && !note.classList.contains('on')) note.classList.add('on');
-  if(autoDetail && state === 'note' && pN > .999){ autoDetail = false; detail(); }
-  if(state === 'detail' && pD > .74 && !doc.classList.contains('on')) doc.classList.add('on');
+  // классы появления — по фазам твинов (во время реверса ничего не появляется заново)
+  if(!closing){
+    if(state === 'note' && pN > .62 && !note.classList.contains('on')) note.classList.add('on');
+    if(autoDetail && state === 'note' && pN > .999){ autoDetail = false; detail(); }
+    if(state === 'detail' && pD > .74 && !doc.classList.contains('on')) doc.classList.add('on');
+  }
 
   // карточка: FLIP-вход + улёт в глубину
   const fly = eIO(seg(pD, 0, .55));

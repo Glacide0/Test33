@@ -428,7 +428,9 @@ function drawSpeedChart(g, now){
   const dpr = Math.min(2, devicePixelRatio || 1);
   if(w !== chW || h !== chH){ chW = w; chH = h; chCv.width = Math.round(w * dpr); chCv.height = Math.round(h * dpr); }
   const c = chCtx; c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
-  const L = 30, R = 10, Tp = 8, B = 16, pw = w - L - R, ph = h - Tp - B, MAX = 110;
+  // a wider right inset: the live head is a glowing dot, and it used to be cut
+  // in half by the canvas edge when it reached the newest sample
+  const L = 30, R = 17, Tp = 8, B = 16, pw = w - L - R, ph = h - Tp - B, MAX = 110;
   const Y = v => Tp + ph - v / MAX * ph;
   needA += (ACTS[actSel].need - needA) * .12;
   c.font = '500 9.5px ui-monospace,Menlo,Consolas,monospace'; c.textBaseline = 'middle'; c.textAlign = 'right';
@@ -437,8 +439,10 @@ function drawSpeedChart(g, now){
     c.fillStyle = 'rgba(233,230,223,.32)'; c.fillText(String(v), L - 6, Y(v));
   });
   c.textAlign = 'left'; c.fillStyle = 'rgba(233,230,223,.26)'; c.fillText('секунды →', L, h - 6);
+  // Once the curve is fully drawn, the live head stays pinned to the newest
+  // sample instead of sliding off the right edge.
   const N_ = 56, off = now / 1000 * 3.4;
-  const head = g * N_;
+  const head = g >= .999 ? N_ : g * N_;
   const val = (k, xp) => {
     const q = k + off, ramp = 1 - Math.exp(-(k + 1) * (g < 1 ? .55 : 9));
     return ((xp ? 90.6 : 93.8) + 2.6 * Math.sin(q * .9 + xp * 1.7) + 1.6 * Math.sin(q * 2.3 + 1 + xp) + 1.2 * Math.sin(q * .21)) * ramp;
@@ -1599,17 +1603,32 @@ function renderWorld(T, t, dt, blobState){
       ctx.strokeStyle = gr; ctx.lineWidth = 1.3;
       ctx.beginPath(); ctx.moveTo(pTop[0], pTop[1]); ctx.lineTo(pBot[0], pBot[1]); ctx.stroke();
     }
-    // a calm readout at the crest
+    // A readout that sits ON the leading crest (it used to float in the air above
+    // the surface: the y was a constant instead of the wave's own height there).
+    // The marker rides the same sample the bright line is drawn through, so it is
+    // always exactly on the graph — during the whole chapter, not just at the end.
     if(!mobile){
-      const pC = project(SP_X + .62, baseY + .46, 1.05, cam);
+      const cx3 = SP_X + .62, cz3 = 1.05;
+      const cy3 = baseY + wave(cx3, cz3) * 1.0 + .02;
+      const pC = project(cx3, cy3, cz3, cam);
       if(pC){
-        ctx.fillStyle = 'rgba(232,240,228,' + (a0 * .92).toFixed(3) + ')';
-        ctx.beginPath(); ctx.arc(pC[0], pC[1], 2.8, 0, 6.283); ctx.fill();
-        ctx.strokeStyle = 'rgba(205,220,204,' + (a0 * .34).toFixed(3) + ')'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(pC[0], pC[1], 7.5 + Math.sin(t * 3) * 1.8, 0, 6.283); ctx.stroke();
+        // a soft halo so the point reads on top of the wireframe
+        const hg = ctx.createRadialGradient(pC[0], pC[1], 0, pC[0], pC[1], 22);
+        hg.addColorStop(0, 'rgba(226,238,222,' + (a0 * .22).toFixed(3) + ')');
+        hg.addColorStop(1, 'rgba(169,183,169,0)');
+        ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(pC[0], pC[1], 22, 0, 6.283); ctx.fill();
+        // a hairline down to the surface axis: proves the point belongs to the curve
+        ctx.strokeStyle = 'rgba(205,220,204,' + (a0 * .16).toFixed(3) + ')';
+        ctx.setLineDash([2, 4]);
+        ctx.beginPath(); ctx.moveTo(pC[0], pC[1] + 4); ctx.lineTo(pC[0], pC[1] + 26); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(232,240,228,' + (a0 * .96).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(pC[0], pC[1], 2.9, 0, 6.283); ctx.fill();
+        ctx.strokeStyle = 'rgba(205,220,204,' + (a0 * .4).toFixed(3) + ')'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(pC[0], pC[1], 8 + Math.sin(t * 3) * 1.8, 0, 6.283); ctx.stroke();
         ctx.textAlign = 'left'; ctx.font = '600 11.5px ' + getComputedStyleFont;
         ctx.fillStyle = 'rgba(232,240,228,' + (a0 * .85).toFixed(3) + ')';
-        ctx.fillText('91 Мбит/с · потеря 3%', pC[0] + 13, pC[1] - 14);
+        ctx.fillText('91 Мбит/с · потеря 3%', pC[0] + 14, pC[1] - 12);
       }
     }
     ctx.restore();
@@ -2477,7 +2496,7 @@ function measure(){
     const prev = TR[TR.length - 1];
     if(prev && ya < prev.yc + 20){ ya = prev.yc + 20; if(yb < ya + 150) yb = ya + 150; if(yc < yb + 120) yc = yb + 120; }
     const was = old.find(o => o.el === h);
-    TR.push({kind:'gather', G, to, el: h, ya, yb, yc, band: [G.y - H * .58, Math.min(B - H * .34, G.y + H * .18)], letters: null, arrived: was ? was.arrived : false});
+    TR.push({kind:'gather', G, to, el: h, ya, yb, yc, endY: B2, band: [G.y - H * .58, Math.min(B - H * .34, G.y + H * .18)], letters: null, arrived: was ? was.arrived : false});
   });
   if(old.length && TR[0] && TR[0].kind === 'film'){ const o = old.find(q => q.kind === 'film'); if(o) TR[0].arrived = o.arrived; }
 }
@@ -2606,15 +2625,35 @@ function frame(now){
     // Reading time comes first. The hand-off only completes on its own when the
     // reader has already scrolled most of the way through the section and the
     // page has been still for a moment; otherwise the motion waits for them.
+    // ---------------------------------------------------------------
+    // READING GATE
+    // The hands-off used to start while the reader was still in the middle
+    // of the section, and the words dissolved under their eyes. Now the text
+    // is only collected when BOTH are true:
+    //   · the section has been read to the end (its last line has reached
+    //     the reading line of the viewport), and
+    //   · the page has been still for a beat (1.5 s) — so a fast scroll
+    //     through the section never steals anything at all.
+    // Any upward scroll, or any new scroll, instantly gives the words back.
     const rest = Math.abs(sy - ssy) < .6;
-    const scrolled = clamp((ssy - cur.ya) / Math.max(1, cur.yb - cur.ya));
     if(cur._t === undefined) cur._t = 0;
-    const canRun = rest && scrolled > .93;
-    cur._t = canRun ? cur._t + dt : Math.max(0, cur._t - dt * 3);
-    const gt = clamp((cur._t - .5) / 1.05);
-    const ht = clamp((cur._t - 1.75) / .85);
-    const g = cur.kind === 'gather' ? Math.max(scrolled, gt) : 1;
-    const h = Math.max(clamp((ssy - cur.yb) / Math.max(1, cur.yc - cur.yb)), ht);
+    if(cur._endRead === undefined){
+      // reading line: ~68% down the viewport; a section is "read" when its
+      // bottom edge has passed it (or, for long sections, near the end).
+      const secB = cur.yb === cur.ya ? Infinity : cur.endY;
+      cur._endRead = Math.min(secB - H * .74, cur.yc - (H * .16));
+    }
+    const readThrough = sy >= cur._endRead;
+    const scrolled = readThrough ? 1 : clamp((sy - cur.ya) / Math.max(1, cur._endRead - cur.ya));
+    cur._rest = (rest && readThrough) ? (cur._rest || 0) + dt : 0;
+    cur._settle = rest ? (cur._settle || 0) + dt : 0;
+    const gate = cur.kind === 'film' ? .3 : 1.5;
+    const canRun = cur._settle > gate && readThrough;
+    cur._t = canRun ? cur._t + dt : Math.max(0, cur._t - dt * 4);
+    const gt = clamp((cur._t - .25) / 1.1);
+    const ht = clamp((cur._t - 1.7) / .9);
+    const g = cur.kind === 'gather' ? Math.max(readThrough ? 0 : scrolled, gt) : 1;
+    const h = Math.max(clamp((sy - cur._endRead) / Math.max(120, cur.yc - cur._endRead)), ht);
     if(ht >= .999) arrive(cur, now);
     // Fade the original ink only after the first letters have lifted. It remains
     // drained until the point lands, and restores correctly on reverse scroll.
